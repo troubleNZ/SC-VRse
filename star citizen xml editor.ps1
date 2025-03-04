@@ -1,3 +1,16 @@
+<# 
+ ▄█    █▄     ▄████████    ▄████████    ▄████████         ▄████████    ▄████████ 
+███    ███   ███    ███   ███    ███   ███    ███        ███    ███   ███    ███ 
+███    ███   ███    ███   ███    █▀    ███    █▀         ███    ███   ███    █▀  
+███    ███  ▄███▄▄▄▄██▀   ███         ▄███▄▄▄            ███    ███  ▄███▄▄▄     
+███    ███ ▀▀███▀▀▀▀▀   ▀███████████ ▀▀███▀▀▀          ▀███████████ ▀▀███▀▀▀     
+███    ███ ▀███████████          ███   ███    █▄         ███    ███   ███    █▄  
+███    ███   ███    ███    ▄█    ███   ███    ███        ███    ███   ███    ███ 
+ ▀██████▀    ███    ███  ▄████████▀    ██████████        ███    █▀    ██████████ 
+             ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
+
+#>
+$scriptVersion = "0.0.4"
 $backupDir = Join-Path -Path (Get-Location) -ChildPath "VRSE AE Backup"
 if (-not (Test-Path -Path $backupDir)) {
     New-Item -ItemType Directory -Path $backupDir | Out-Null
@@ -5,9 +18,7 @@ if (-not (Test-Path -Path $backupDir)) {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "VRse-AE (Attribute Editor v.0.0.3)"
-$form.version = "0.0.3"
-$form.author = "troubleshooter"
+$form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
 $form.Width = 600
 $form.Height = 800
 $form.StartPosition = 'CenterScreen'
@@ -74,17 +85,6 @@ $findLiveFolderButton.Add_Click({
                             # Show the dataTableGroupBox and set its text to the XML path
                             $dataTableGroupBox.Text = $xmlPath
                             $dataTableGroupBox.Visible = $true
-
-                            # Populate the input boxes with the first row values
-                            if ($global:dataTable -and $global:dataTable.Rows.Count -gt 0) {
-                                #$fovTextBox.Text = $global:dataTable.Rows[0]["FOV"]
-                                #$heightTextBox.Text = $global:dataTable.Rows[0]["Height"]
-                                #$widthTextBox.Text = $global:dataTable.Rows[0]["Width"]
-                                #$fovTextBox.
-                            }
-
-                            # Show the edit group box
-                            $editGroupBox.Visible = $true
 
                             
                         } else {
@@ -175,6 +175,19 @@ $navigateButton.Add_Click({
 
                     # Show the edit group box
                     $editGroupBox.Visible = $true
+                    try {
+                        $xmlContent = [xml](Get-Content $global:xmlPath)
+                        if ($xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+                            $fovTextBox.Text = $xmlContent.Attributes.Attr[12].value
+                            $heightTextBox.Text = $xmlContent.Attributes.Attr[31].value
+                            $widthTextBox.Text = $xmlContent.Attributes.Attr[87].value
+                            $HeadtrackingCheckBox.Checked = $xmlContent.Attributes.Attr[30].value
+                            $HeadtrackingSourceComboBox.SelectedIndex = $xmlContent.Attributes.Attr[29].value
+                        }
+                    } catch {
+                        [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+                    }
+
                 } else {
                     [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
                 }
@@ -260,7 +273,6 @@ $editGroupBox.Top = 600
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $false
 
-
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
 $fovLabel.Top = 30
@@ -342,6 +354,7 @@ $HeadtrackingSourceComboBox.TabIndex = 7
 $HeadtrackingSourceComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
+
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import from XML"
 $importButton.Width = 120
@@ -354,7 +367,6 @@ $importButton.Add_Click({
     try {
         $xmlContent = [xml](Get-Content $global:xmlPath)
         if ($xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-            #$fovTextBox.Text = $xmlContent.DocumentElement.ChildNodes[12].Attributes[1]
             $fovTextBox.Text = $xmlContent.Attributes.Attr[12].value
             $heightTextBox.Text = $xmlContent.Attributes.Attr[31].value
             $widthTextBox.Text = $xmlContent.Attributes.Attr[87].value
