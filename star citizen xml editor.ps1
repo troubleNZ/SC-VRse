@@ -1,3 +1,4 @@
+
 <# 
  ▄█    █▄     ▄████████    ▄████████    ▄████████         ▄████████    ▄████████ 
 ███    ███   ███    ███   ███    ███   ███    ███        ███    ███   ███    ███ 
@@ -175,19 +176,7 @@ $navigateButton.Add_Click({
 
                     # Show the edit group box
                     $editGroupBox.Visible = $true
-                    try {
-                        $xmlContent = [xml](Get-Content $global:xmlPath)
-                        if ($xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-                            $fovTextBox.Text = $xmlContent.Attributes.Attr[12].value
-                            $heightTextBox.Text = $xmlContent.Attributes.Attr[31].value
-                            $widthTextBox.Text = $xmlContent.Attributes.Attr[87].value
-                            $HeadtrackingCheckBox.Checked = $xmlContent.Attributes.Attr[30].value
-                            $HeadtrackingSourceComboBox.SelectedIndex = $xmlContent.Attributes.Attr[29].value
-                        }
-                    } catch {
-                        [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
-                    }
-
+                    
                 } else {
                     [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
                 }
