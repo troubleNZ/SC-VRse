@@ -5,7 +5,9 @@ if (-not (Test-Path -Path $backupDir)) {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "VRse-AE (Attribute Editor v.0.0.2)"
+$form.Text = "VRse-AE (Attribute Editor v.0.0.3)"
+$form.version = "0.0.3"
+$form.author = "troubleshooter"
 $form.Width = 600
 $form.Height = 800
 $form.StartPosition = 'CenterScreen'
@@ -75,13 +77,16 @@ $findLiveFolderButton.Add_Click({
 
                             # Populate the input boxes with the first row values
                             if ($global:dataTable -and $global:dataTable.Rows.Count -gt 0) {
-                                $fovTextBox.Text = $global:dataTable.Rows[0]["FOV"]
-                                $heightTextBox.Text = $global:dataTable.Rows[0]["Height"]
-                                $widthTextBox.Text = $global:dataTable.Rows[0]["Width"]
+                                #$fovTextBox.Text = $global:dataTable.Rows[0]["FOV"]
+                                #$heightTextBox.Text = $global:dataTable.Rows[0]["Height"]
+                                #$widthTextBox.Text = $global:dataTable.Rows[0]["Width"]
+                                #$fovTextBox.
                             }
 
                             # Show the edit group box
                             $editGroupBox.Visible = $true
+
+                            
                         } else {
                             [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
                         }
@@ -255,6 +260,7 @@ $editGroupBox.Top = 600
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $false
 
+
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
 $fovLabel.Top = 30
@@ -316,6 +322,7 @@ $HeadtrackingCheckBox.Top = 70
 $HeadtrackingCheckBox.Left = 140
 $HeadtrackingCheckBox.Width = 60
 $HeadtrackingCheckBox.TabIndex = 6
+$HeadtrackingCheckBox.Checked = $false
 $editGroupBox.Controls.Add($HeadtrackingCheckBox)
 
 $HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
@@ -330,21 +337,40 @@ $HeadtrackingSourceComboBox.Top = 70
 $HeadtrackingSourceComboBox.Left = 380
 $HeadtrackingSourceComboBox.Width = 100  # Adjusted width to fit the combo box
 $HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$HeadtrackingSourceComboBox.Items.AddRange(@("0 - Off", "1 - Track IR"))
+$HeadtrackingSourceComboBox.Items.AddRange(@(0, 1, 2, 3))
 $HeadtrackingSourceComboBox.TabIndex = 7
+$HeadtrackingSourceComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
-<# Populate the input boxes with the first row values
-if ($dataTable -and $dataTable.Rows.Count -gt 0) {
-    $fovTextBox.Text = $dataTable.Rows[0]["FOV"]
-    $heightTextBox.Text = $dataTable.Rows[0]["Height"]
-    $widthTextBox.Text = $dataTable.Rows[0]["Width"]
-    $HeadtrackingTextBox.Text = $dataTable.Rows[0]["HeadtrackingToggle"]
-    $HeadtrackingSourceTextBox.Text = $dataTable.Rows[0]["HeadtrackingSource"]
-} #>
+$importButton = New-Object System.Windows.Forms.Button
+$importButton.Text = "Import from XML"
+$importButton.Width = 120
+$importButton.Height = 30
+$importButton.Top = 115
+$importButton.Left = 160
+$importButton.TabIndex = 10
+
+$importButton.Add_Click({
+    try {
+        $xmlContent = [xml](Get-Content $global:xmlPath)
+        if ($xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+            #$fovTextBox.Text = $xmlContent.DocumentElement.ChildNodes[12].Attributes[1]
+            $fovTextBox.Text = $xmlContent.Attributes.Attr[12].value
+            $heightTextBox.Text = $xmlContent.Attributes.Attr[31].value
+            $widthTextBox.Text = $xmlContent.Attributes.Attr[87].value
+            $HeadtrackingCheckBox.Checked = $xmlContent.Attributes.Attr[30].value
+            $HeadtrackingSourceComboBox.SelectedIndex = $xmlContent.Attributes.Attr[29].value
+        }
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+    }
+})
+
+$editGroupBox.Controls.Add($importButton)
+
 
 $saveButton = New-Object System.Windows.Forms.Button
-$saveButton.Text = "Save"
+$saveButton.Text = "Export to XML"
 $saveButton.Width = 120
 $saveButton.Height = 30
 $saveButton.Top = 115
@@ -387,7 +413,8 @@ $closeButton.Text = "Close"
 $closeButton.Width = 120
 $closeButton.Height = 30
 $closeButton.Top = 115
-$closeButton.Left = 160
+
+$closeButton.Left = 300
 $closeButton.TabIndex = 9
 $closeButton.Add_Click({
     $form.Close()
