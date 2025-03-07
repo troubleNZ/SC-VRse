@@ -1,10 +1,11 @@
 # SC-VRse
-VRse-AE (Attribute Editor)
+## VRse-AE (Attribute Editor)
 
 VR fan project for
 Chachi_Sanchez's VRse
 https://discord.gg/g2jn2vzju3
 
+### Description
 Easily perform the necessary steps to enable VR HeadTracking 
 
 This includes:
@@ -16,7 +17,12 @@ Configure the Screen Size for VR use, configure your FOV, Height x Width, whethe
 
 I'll expose more options soon. i think a fullscreen toggle would be useful.
 
-## How to use this script:
+
+### Screenshot
+![](https://cdn.discordapp.com/attachments/1037213809800122470/1347424143712194590/Screenshot_2025-03-07_172156.png?ex=67cbc605&is=67ca7485&hm=91450c67e7c3c4600f310f870b83a78cc793dbe8d6627c19952f29c38ea4ee68&)
+
+
+### How to use this script
 
 download the .ps1 somewhere and run it through powershell. simples.
 
@@ -28,11 +34,9 @@ just open the powershell (or the IDE) and run this:
 
 ` iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/star%20citizen%20xml%20editor.ps1")`
 
-## Fixed:
+### Fixed
 - Import and Export now works
 
-## current issues:
+### current issues
 
 - profile.json (which is used for convenience remembering last location on script start) is appending data instead of updating. 
-
-![](https://cdn.discordapp.com/attachments/1037213809800122470/1347424143712194590/Screenshot_2025-03-07_172156.png?ex=67cbc605&is=67ca7485&hm=91450c67e7c3c4600f310f870b83a78cc793dbe8d6627c19952f29c38ea4ee68&)
