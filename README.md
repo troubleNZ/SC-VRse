@@ -40,3 +40,4 @@ just open the powershell (or the IDE) and run this:
 ### current issues
 
 - profile.json (which is used for convenience remembering last location on script start) is appending data instead of updating. 
+- dark mode is broken sorry
