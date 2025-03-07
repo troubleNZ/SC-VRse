@@ -32,7 +32,7 @@ You can run it remotely directly from your standard powershell session. no admin
 
 just open the powershell (or the IDE) and run this:
 
-` iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/star%20citizen%20xml%20editor.ps1")`
+` iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/starcitizen_xml_editor.ps1")`
 
 ### Fixed
 - Import and Export now works
