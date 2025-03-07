@@ -16,6 +16,17 @@ Configure the Screen Size for VR use, configure your FOV, Height x Width, whethe
 
 I'll expose more options soon. i think a fullscreen toggle would be useful.
 
+## How to use this script:
+
+download the .ps1 somewhere and run it through powershell. simples.
+
+#### powershell.exe -ExecutionPolicy Bypass -File "C:\Path\To\star citizen xml editor.ps1"
+
+You can run it remotely directly from your standard powershell session. no admin rights are required.
+
+just open the powershell (or the IDE) and run this:
+#### iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/star%20citizen%20xml%20editor.ps1")
+
 ## Fixed:
 - Import and Export now works
 
