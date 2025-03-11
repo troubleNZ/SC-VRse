@@ -19,7 +19,7 @@ I'll expose more options soon. i think a fullscreen toggle would be useful.
 
 
 ### Screenshot
-![](https://cdn.discordapp.com/attachments/1037213809800122470/1347424143712194590/Screenshot_2025-03-07_172156.png?ex=67cbc605&is=67ca7485&hm=91450c67e7c3c4600f310f870b83a78cc793dbe8d6627c19952f29c38ea4ee68&)
+![](https://media.discordapp.net/attachments/1037213809800122470/1347424143712194590/Screenshot_2025-03-07_172156.png?ex=67d1b4c5&is=67d06345&hm=f5bd4f0cc35705d2ed1805e3fbf9ffd5ac17aad3d851463ec1f7f692eb013730)
 
 
 ### How to use this script
