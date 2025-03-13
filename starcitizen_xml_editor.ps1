@@ -263,7 +263,7 @@ $saveProfileMenuItem.Text = "&Save Profile"
 $saveProfileMenuItem.Add_Click({
     $profileJsonPath = Join-Path -Path (Get-Location) -ChildPath "profile.json"
     try {
-        $global:profileArray | ConvertTo-Json | Set-Content -Path $profileJsonPath
+        $global:profileArray | ConvertTo-Json | Out-File -Path $profileJsonPath -Force
         [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
     } catch {
         [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
