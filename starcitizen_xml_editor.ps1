@@ -16,9 +16,10 @@ The XML file is being read correctly but the values are not being displayed in t
 #>
 
 
-$scriptVersion = "0.0.8"
+$scriptVersion = "0.0.9"
 $currentLocation = Get-Location
-$backupDir = Join-Path -Path $PSScriptRoot -ChildPath "VRSE AE Backup"
+$BackupFolderName = "VRSE AE Backup"
+$backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
 $ProfileJsonPath = "profile.json"
 
 $global:profileArray = [System.Collections.ArrayList]@()
@@ -29,6 +30,9 @@ $global:xmlPath = $null
 $global:xmlContent = $null
 
 $defaultFOV = $null
+
+$niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+$backupFileName = "attributes_backup_$niceDate.xml"
 
 function Import-ProfileJson {
     $profileJsonPath = Join-Path -Path $currentLocation -ChildPath $ProfileJsonPath
@@ -55,10 +59,13 @@ function Import-ProfileJson {
                     if (Test-Path -Path $defaultProfilePath -PathType Container) {
                         $attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
                         if (Test-Path -Path $attributesXmlPath) {
-                            $destinationPath = Join-Path -Path $backupDir -ChildPath "attributes_backup.xml"
+                            $destinationPath = Join-Path -Path $backupDir -ChildPath $backupFileName
                             Copy-Item -Path $attributesXmlPath -Destination $destinationPath -Force
+
                             $global:xmlPath = $attributesXmlPath
-                            Open-XMLViewer($global:xmlPath)
+                            Open-XMLViewer($global:xmlPath)         #refresh the xml viewer
+
+
                         } else {
                             [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
                         }
@@ -225,8 +232,6 @@ function betterXMLQuery {                                                      #
     }
 }#>
 
-
-
 function Open-XMLViewer {
     param (
         [string]$Path
@@ -250,7 +255,7 @@ function Open-XMLViewer {
                     foreach ($attribute in $node.Attributes) {
                         if (-not $global:dataTable.Columns.Contains($attribute.Name)) {
                             $global:dataTable.Columns.Add($attribute.Name) | Out-Null   
-                            Write-Host "func:Open-XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)" 
+                            Write-Host "func:XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)" 
                             $global:xmlArray += $($attribute.Name) + " : " + "$($attribute.Value)"
                         }
                     }
@@ -265,7 +270,7 @@ function Open-XMLViewer {
                         }
                     }
                     $global:dataTable.Rows.Add($row) | Out-Null
-                    Write-Host "func:Open-XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"                    
+                    Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"                    
                 }
 
                 # Bind the DataTable to the DataGridView
@@ -833,17 +838,36 @@ $saveButton.Left = 20
 $saveButton.TabIndex = 8
 $saveButton.Add_Click({
     try {       
-            
-            
-            $global:xmlContent.DocumentElement.ChildNodes[12].Attributes[1].value = $fovTextBox.Text     # FOV
-            $global:xmlContent.DocumentElement.ChildNodes[31].Attributes[1].value = $heightTextBox.Text # HEIGHT
-            $global:xmlContent.DocumentElement.ChildNodes[87].Attributes[1].Value = $widthTextBox.Text  # WIDTH
-            ($global:xmlContent.DocumentElement.ChildNodes[30].Attributes[1].Value) = $headtrackerEnabledComboBox.SelectedIndex #HEADTRACKING
-            ($global:xmlContent.DocumentElement.ChildNodes[29].Attributes[1].Value) = $HeadtrackingSourceComboBox.SelectedIndex #HEADTRACKINGSOURCE
-                
-            
-            
-        
+        if ($null -eq $global:xmlContent) {
+            [System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")
+            return
+        }
+
+        $fovNode = $global:xmlContent.SelectSingleNode("//attribute[@name='FOV']")
+        if ($null -ne $fovNode) {
+            $fovNode.SetAttribute("value", $fovTextBox.Text)  # FOV
+        }
+
+        $heightNode = $global:xmlContent.SelectSingleNode("//attribute[@name='Height']")
+        if ($null -ne $heightNode) {
+            $heightNode.SetAttribute("value", $heightTextBox.Text)  # HEIGHT
+        }
+
+        $widthNode = $global:xmlContent.SelectSingleNode("//attribute[@name='Width']")
+        if ($null -ne $widthNode) {
+            $widthNode.SetAttribute("value", $widthTextBox.Text)  # WIDTH
+        }
+
+        $headtrackingNode = $global:xmlContent.SelectSingleNode("//attribute[@name='Headtracking']")
+        if ($null -ne $headtrackingNode) {
+            $headtrackingNode.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())  # HEADTRACKING
+        }
+
+        $headtrackingSourceNode = $global:xmlContent.SelectSingleNode("//attribute[@name='HeadtrackingSource']")
+        if ($null -ne $headtrackingSourceNode) {
+            $headtrackingSourceNode.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())  # HEADTRACKINGSOURCE
+        }
+                  
         try {
             $global:xmlContent.Save($global:xmlPath)
         } catch {
