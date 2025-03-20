@@ -11,13 +11,10 @@
 current issues:
 
 profile.json file is now being saved correctly but the values are not being read back from the file on load.
-The XML file is being read correctly but the values are not being displayed in the input boxes, and its not pulling from the profile.json file.
-
-
-        # to do: make sure the values are accurate/come from the right source in Set-ProfileArray
+path variables are not being saved to the profile.json file
 #>
 
-$scriptVersion = "0.0.9"
+$scriptVersion = "0.1.0"                #milestone 1
 $currentLocation = Get-Location
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonPath = "profile.json"
@@ -28,10 +25,25 @@ if (-not (Test-Path -Path $backupDir)) {
     New-Item -ItemType Directory -Path $backupDir | Out-Null
 }
 $global:xmlPath = $null
-$global:xmlContent = $null
+$global:xmlContent = @()
 
 $niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $backupFileName = "attributes_backup_$niceDate.xml"
+
+$profileContent = @()
+$liveFolderPath = $null
+$attributesXmlPath = $null
+$fovTextBox = $null
+$heightTextBox = $null
+$widthTextBox = $null
+$headtrackerEnabledComboBox = $null
+$HeadtrackingSourceComboBox = $null
+$dataTableGroupBox = $null
+$editGroupBox = $null
+$darkModeMenuItem = $null
+$global:dataTable = $null
+$global:xmlArray = @()
+
 
 function Import-ProfileJson {
     $profileJsonPath = Join-Path -Path $currentLocation -ChildPath $ProfileJsonPath
@@ -144,22 +156,34 @@ function Switch-DarkMode {
 }
 
 function Set-ProfileArray {
-        
-    $global:profileArray.Clear()  # Clear the existing profile array
+    #if (-not [string]::IsNullOrWhiteSpace($liveFolderPath) -and
+    #    -not [string]::IsNullOrWhiteSpace($attributesXmlPath) -and
+    #    -not [string]::IsNullOrWhiteSpace($fovTextBox.Text) -and
+    #    -not [string]::IsNullOrWhiteSpace($heightTextBox.Text) -and
+    #    -not [string]::IsNullOrWhiteSpace($widthTextBox.Text) -and
+    #    $headtrackerEnabledComboBox.SelectedIndex -ne -1 -and
+    #    $HeadtrackingSourceComboBox.SelectedIndex -ne -1) {
 
-    $global:profileArray.Add([PSCustomObject]@{                     # to do: make sure the values are accurate/come from the right source
-        Path = $liveFolderPath;
-        attributesXmlPath = $attributesXmlPath;
-        FOV = $fovTextBox.Text;
-        Height = $heightTextBox.Text; 
-        Width = $widthTextBox.Text; 
-        Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString(); 
-        HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString() 
-    }) | Out-Null
+        $global:profileArray.Clear()  # Clear the existing profile array
+
+        
+        #$global:profileArray.Add([PSCustomObject]@{
+        $global:profileArray.Add([PSCustomObject]@{
+            Path = $liveFolderPath;
+            AttributesXmlPath = $attributesXmlPath;
+            FOV = $fovTextBox.Text;
+            Height = $heightTextBox.Text; 
+            Width = $widthTextBox.Text; 
+            Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString(); 
+            HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString() 
+        }) | Out-Null
+    #} else {
+    #    Write-Host "Set-ProfileArray: One or more required fields are empty or invalid." -ForegroundColor Red
+    #}
 
     #Write-host "func:ProfileArray : " $global:profileArray -BackgroundColor White -ForegroundColor Black
     Write-host "func:ProfileArray Path : " $global:profileArray.Path -BackgroundColor White -ForegroundColor Black
-    Write-host "func:ProfileArray attributesXmlPath: " $global:profileArray.attributesXmlPath -BackgroundColor White -ForegroundColor Black
+    Write-host "func:ProfileArray attributesXmlPath: " $global:profileArray.AttributesXmlPath -BackgroundColor White -ForegroundColor Black
     Write-host "func:ProfileArray FOV: " $global:profileArray.FOV -BackgroundColor White -ForegroundColor Black
     Write-host "func:ProfileArray Height: " $global:profileArray.Height -BackgroundColor White -ForegroundColor Black
     Write-host "func:ProfileArray Width: " $global:profileArray.Width -BackgroundColor White -ForegroundColor Black
@@ -220,40 +244,36 @@ function Open-XMLViewer {
                 Update-ButtonState
 
                 # Populate the input boxes with the first row values
-                #if ($null -ne $global:xmlContent.ChildNodes.Count) {
-                    if ($null -ne $global:profileArray[0]) {
-                        #$fovTextBox.Text = @($global:xmlContent.SelectSingleNode("//attribute[@name='FOV']")).Value
-                        #$heightTextBox.Text = @($global:xmlContent.SelectSingleNode("//attribute[@name='Height']")).Value             
-                        
-                        #$widthTextBox.Text = $global:xmlContent.SelectSingleNode("//attribute[@name='Width']").Value
-                        #$headtrackerEnabledComboBox.SelectedIndex = $global:xmlContent.SelectSingleNode("//attribute[@name='Headtracking']").Value
-                        if ($null -ne $global:profileArray[0].FOV) {
-                            $fovTextBox.Text = $global:profileArray[0].FOV
-                        }else {
-                            <# Action when all if and elseif conditions are false #>
-                        }
-                        if ($null -ne $global:profileArray[0].Height) {
-                            $heightTextBox.Text = $global:profileArray[0].Height
-                        }
-                        if ($null -ne $global:profileArray[0].Width) {
-                            $widthTextBox.Text = $global:profileArray[0].Width
-                        }
-                        if ($null -ne $global:profileArray[0].Headtracking) {
-                            $headtrackerEnabledComboBox.SelectedIndex = $global:profileArray[0].Headtracking
-                        }
-                        if ($null -ne $global:profileArray[0].HeadtrackingSource) {
-                            $HeadtrackingSourceComboBox.SelectedIndex = $global:profileArray[0].HeadtrackingSource
-                        }
-
-                        #$fovTextBox.Text = $global:profileArray.FOV
-                        #$heightTextBox.Text = $global:profileArray.Height
-                        #$widthTextBox.Text = $global:profileArray.Width
-                        #$headtrackerEnabledComboBox.SelectedIndex = $global:profileArray.Headtracking
-                        #$HeadtrackingSourceComboBox.SelectedIndex = $global:profileArray.HeadtrackingSource
-
-                        Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black
-                        #Set-ProfileArray
-                    } 
+                                        
+                if ($null -ne $global:profileArray[0].FOV) {
+                    $fovTextBox.Text = $global:profileArray[0].FOV
+                }else {
+                    $fovTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $global:profileArray[0].Height) {
+                    $heightTextBox.Text = $global:profileArray[0].Height
+                    
+                } else {
+                    $heightTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $global:profileArray[0].Width) {
+                    $widthTextBox.Text = $global:profileArray[0].Width
+                } else {
+                    $widthTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $global:profileArray[0].Headtracking) {
+                    $headtrackerEnabledComboBox.SelectedIndex = $global:profileArray[0].Headtracking
+                } else {
+                    $headtrackerEnabledComboBox.SelectedIndex = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Headtracking" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $global:profileArray[0].HeadtrackingSource) {
+                    $HeadtrackingSourceComboBox.SelectedIndex = $global:profileArray[0].HeadtrackingSource
+                } else {
+                    $HeadtrackingSourceComboBox.SelectedIndex = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
+                }
+                
+                Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black
+                Set-ProfileArray
 
                 # Show the edit group box
                 $editGroupBox.Visible = $true
@@ -318,6 +338,8 @@ $openProfileMenuItem.Add_Click({
 })
 $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu item to the File menu
 
+$AutoLoadprofile = @()
+
 #add am item - Save Profile, which will save the profile.json file
 $saveProfileMenuItem = New-Object System.Windows.Forms.MenuItem 
 $saveProfileMenuItem.Text = "&Save Profile"
@@ -325,12 +347,14 @@ $saveProfileMenuItem.Add_Click({
     $profileJsonPath = Join-Path -Path (Get-Location) -ChildPath "profile.json"
     try {
         if ($global:profileArray.Count -gt 0) {
-            $profile = $global:profileArray[0]
-            $profile.FOV = $fovTextBox.Text
-            $profile.Height = $heightTextBox.Text
-            $profile.Width = $widthTextBox.Text
-            $profile.Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
-            $profile.HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
+            $AutoLoadprofile = $global:profileArray[0]
+            $AutoLoadprofile.FOV = $fovTextBox.Text
+            $AutoLoadprofile.Height = $heightTextBox.Text
+            $AutoLoadprofile.Width = $widthTextBox.Text
+            $AutoLoadprofile.Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
+            $AutoLoadprofile.HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
+            $AutoLoadprofile.AttributesXmlPath = $attributesXmlPath
+            $AutoLoadprofile.Path = $liveFolderPath
         }
         
         $global:profileArray | ConvertTo-Json | Out-File -FilePath $profileJsonPath -Force
@@ -348,7 +372,7 @@ $mainMenu.MenuItems.Add($actionsMenuItem)
 
 $openXmlMenuItem = New-Object System.Windows.Forms.MenuItem
 $openXmlMenuItem.Text = "&Open XML"
-$openXmlMenuItem.Add_Click({
+<#$openXmlMenuItem.Add_Click({
     $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
     $openFileDialog.Filter = "XML Files (attributes.xml)|attributes.xml"
     $openFileDialog.Title = "Select the attributes.xml file"
@@ -360,7 +384,96 @@ $openXmlMenuItem.Add_Click({
             [System.Windows.Forms.MessageBox]::Show("XML file not found.")
         }
     }
+})#>
+$openXmlMenuItem.Add_Click({
+    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $openFileDialog.Filter = "XML Files (attributes.xml)|attributes.xml"
+    $openFileDialog.Title = "Select the attributes.xml file"
+    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $global:xmlPath = $openFileDialog.FileName
+        if (Test-Path $global:xmlPath) {
+            try {
+                $global:xmlContent = [xml](Get-Content $global:xmlPath)
+                $panel.Controls.Clear()
+
+                $dataGridView = New-Object System.Windows.Forms.DataGridView
+                $dataGridView.Width = 500
+                $dataGridView.Height = 400
+                $dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+
+                $global:dataTable = New-Object System.Data.DataTable
+
+                # Add columns to the DataTable
+                if ($global:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+                    $global:xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
+                        $global:dataTable.Columns.Add($_.Name) | Out-Null
+                    }
+
+                    # Add rows to the DataTable
+                    $global:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
+                        $row = $global:dataTable.NewRow()
+                        $_.Attributes | ForEach-Object {
+                            $row[$_.Name] = $_.Value
+                        }
+                        $global:dataTable.Rows.Add($row)
+                    }
+
+                    # Bind the DataTable to the DataGridView
+                    $dataGridView.DataSource = $global:dataTable
+
+                    $panel.Controls.Add($dataGridView)
+
+                    # Show the dataTableGroupBox and set its text to the XML path
+                    $dataTableGroupBox.Text = $xmlPath
+                    $dataTableGroupBox.Visible = $true
+                    Update-ButtonState
+
+                    # Populate the input boxes with the first row values
+                    $global:xmlContent = [xml](Get-Content $global:xmlPath)
+                    if ($global:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+                        
+                            
+                        $fovTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
+                        $heightTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
+                        $widthTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
+                        $headtrackerEnabledComboBox.SelectedIndex = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Headtracking" } | Select-Object -ExpandProperty value
+                        $HeadtrackingSourceComboBox.SelectedIndex = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
+    
+                            Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black
+                            #Set-ProfileArray
+                        
+                        #$fovTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[12].Attributes[1].value.ToString()
+                        #$heightTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[31].Attributes[1].value.ToString()
+                        #$widthTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[87].Attributes[1].Value.ToString()
+                        #$headtrackerEnabledComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[30].Attributes[1].Value.ToString())
+                        #try {
+                        #    $HeadtrackingSourceComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[29].Attributes[1].Value)
+                        #} catch {
+                        #    [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingSource. Setting to default (0).")
+                        #    $HeadtrackingSourceComboBox.SelectedIndex = 0
+                        #}
+                        Set-ProfileArray
+
+                    }
+
+                    # Show the edit group box
+                    $editGroupBox.Visible = $true
+
+                    # Update button state
+                    Update-ButtonState
+                } else {
+                    [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
+                }
+            } catch {
+                [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+            }
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("XML file not found.")
+        }
+    }
 })
+
+
 $actionsMenuItem.MenuItems.Add($openXmlMenuItem)
 
 $darkModeMenuItem = New-Object System.Windows.Forms.MenuItem
@@ -436,11 +549,6 @@ $navigateButton.Top = 90
 $navigateButton.Left = 20
 $navigateButton.TabIndex = 0
 $navigateButton.Visible = $false
-
-
-
-$xmlContent = $null
-
 
 $navigateButton.Add_Click({
     $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -620,19 +728,27 @@ $importButton.Add_Click({
     try {
         $global:xmlContent = [xml](Get-Content $global:xmlPath)
         if ($global:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-        
-            $fovTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[12].Attributes[1].value.ToString()
-            $heightTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[31].Attributes[1].value.ToString()
-            $widthTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[87].Attributes[1].Value.ToString()
-            $headtrackerEnabledComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[30].Attributes[1].Value.ToString())
-            #if ($global:xmlContent.DocumentElement.ChildNodes[0].Attributes["HeadtrackingSource"]) {
-                try {
-                    $HeadtrackingSourceComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[29].Attributes[1].Value)
-                } catch {
-                    [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingSource. Setting to default (0).")
-                    $HeadtrackingSourceComboBox.SelectedIndex = 0
+                    
+            $fovTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
+            $heightTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
+            $widthTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
+            $headtrackerEnabledComboBox.SelectedIndex = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Headtracking" } | Select-Object -ExpandProperty value
+            $HeadtrackingSourceComboBox.SelectedIndex = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
+
+            <#
+                $fovTextBox.Text                            = $global:xmlContent.DocumentElement.ChildNodes[0].Attributes[1].Value.ToString()
+                $heightTextBox.Text                         = $global:xmlContent.DocumentElement.ChildNodes[31].Attributes[1].value.ToString()
+                $widthTextBox.Text                          = $global:xmlContent.DocumentElement.ChildNodes[87].Attributes[1].Value.ToString()
+                $headtrackerEnabledComboBox.SelectedIndex   = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[30].Attributes[1].Value.ToString())
+                if ($global:xmlContent.DocumentElement.ChildNodes[0].Attributes["HeadtrackingSource"]) {
+                    try {
+                        $HeadtrackingSourceComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[29].Attributes[1].Value)
+                    } catch {
+                        [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingSource. Setting to default (0).")
+                        $HeadtrackingSourceComboBox.SelectedIndex = 0
+                    } 
                 }
-            
+            #>
             Set-ProfileArray
             #Write-host $global:profileArray -BackgroundColor White -ForegroundColor Black
         }
@@ -645,82 +761,7 @@ $importButton.Enabled = $false
 $editGroupBox.Controls.Add($importButton)
 
 # Update the state of the buttons after loading the XML content
-$openXmlMenuItem.Add_Click({
-    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $openFileDialog.Filter = "XML Files (attributes.xml)|attributes.xml"
-    $openFileDialog.Title = "Select the attributes.xml file"
-    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $global:xmlPath = $openFileDialog.FileName
-        if (Test-Path $global:xmlPath) {
-            try {
-                $global:xmlContent = [xml](Get-Content $global:xmlPath)
-                $panel.Controls.Clear()
 
-                $dataGridView = New-Object System.Windows.Forms.DataGridView
-                $dataGridView.Width = 500
-                $dataGridView.Height = 400
-                $dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
-
-                $global:dataTable = New-Object System.Data.DataTable
-
-                # Add columns to the DataTable
-                if ($xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-                    $xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
-                        $global:dataTable.Columns.Add($_.Name) | Out-Null
-                    }
-
-                    # Add rows to the DataTable
-                    $xmlContent.DocumentElement.ChildNodes | ForEach-Object {
-                        $row = $global:dataTable.NewRow()
-                        $_.Attributes | ForEach-Object {
-                            $row[$_.Name] = $_.Value
-                        }
-                        $global:dataTable.Rows.Add($row)
-                    }
-
-                    # Bind the DataTable to the DataGridView
-                    $dataGridView.DataSource = $global:dataTable
-
-                    $panel.Controls.Add($dataGridView)
-
-                    # Show the dataTableGroupBox and set its text to the XML path
-                    $dataTableGroupBox.Text = $xmlPath
-                    $dataTableGroupBox.Visible = $true
-                    Update-ButtonState
-
-                    # Populate the input boxes with the first row values
-                    $global:xmlContent = [xml](Get-Content $global:xmlPath)
-                    if ($global:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-                        $fovTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[12].Attributes[1].value.ToString()
-                        $heightTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[31].Attributes[1].value.ToString()
-                        $widthTextBox.Text = $global:xmlContent.DocumentElement.ChildNodes[87].Attributes[1].Value.ToString()
-                        $headtrackerEnabledComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[30].Attributes[1].Value.ToString())
-                        try {
-                            $HeadtrackingSourceComboBox.SelectedIndex = [int]::Parse($global:xmlContent.DocumentElement.ChildNodes[29].Attributes[1].Value)
-                        } catch {
-                            [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingSource. Setting to default (0).")
-                            $HeadtrackingSourceComboBox.SelectedIndex = 0
-                        }
-                        Set-ProfileArray
-
-                    }
-
-                    # Show the edit group box
-                    $editGroupBox.Visible = $true
-
-                    # Update button state
-                    Update-ButtonState
-                } else {
-                    [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
-                }
-            } catch {
-                [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
-            }
-        } else {
-            [System.Windows.Forms.MessageBox]::Show("XML file not found.")
-        }
-    }
-})
 $saveButton = New-Object System.Windows.Forms.Button
 $saveButton.Text = "Export to XML"
 $saveButton.Width = 120
@@ -762,33 +803,37 @@ $saveButton.Add_Click({
                   
         try {
             $global:xmlContent.Save($global:xmlPath)
+            [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
         } catch {
             [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $global:xmlPath: $_")
         }
             $global:xmlContent.Save($global:xmlPath)
-            [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
-        }
-        #save the profile array to the profile.json file
-        if ($null -ne $profileJsonPath) {
-            try {
-                $global:profileArray | ConvertTo-Json | Set-Content -Path $profileJsonPath
-                [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
-            } catch {
-                [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
-            }
-        }
+            
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
+    }
 
-        # Refresh and update the dataTable with the new data
-        $global:dataTable.Clear()
-        $global:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
-            $row = $global:dataTable.NewRow()
-            $_.Attributes | ForEach-Object {
-                $row[$_.Name] = $_.Value
-            }
-            $global:dataTable.Rows.Add($row)
+    Set-ProfileArray
+
+    #save the profile array to the profile.json file
+    if ($null -ne $profileJsonPath) {
+        try {
+            $global:profileArray | ConvertTo-Json | Set-Content -Path $profileJsonPath
+            [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
         }
+    }
+
+    # Refresh and update the dataTable with the new data
+    $global:dataTable.Clear()
+    $global:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
+        $row = $global:dataTable.NewRow()
+        $_.Attributes | ForEach-Object {
+            $row[$_.Name] = $_.Value
+        }
+        $global:dataTable.Rows.Add($row)
+    }
     
 })
 # Initially disable the import and save buttons
