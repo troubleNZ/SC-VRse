@@ -13,9 +13,8 @@ current issues:
 need to get it to save back to the xml file using the new values
 #>
 
-
-$scriptVersion = "0.1.1"                #milestone 1.
-$currentLocation = Get-Location
+$scriptVersion = "0.1.1"                #milestone 1
+$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonPath = "profile.json"
 
@@ -85,43 +84,7 @@ function Import-ProfileJson {
     
     $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath $ProfileJsonPath
 
-    if ($null -ne $profileJsonPath) {
-        <#try {
-            $global:profileArray | ConvertTo-Json | Set-Content -Path $profileJsonPath
-            [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
-        }#>
-        $profileContent = Get-Content -Path $profileJsonPath -ErrorAction Stop
-        try {
-            $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
-            # Ensure parsedJson is always an ArrayList
-            $parsedJson = [System.Collections.ArrayList]@($parsedJson)
-
-            Write-Host "Parsed JSON is now an ArrayList!" -BackgroundColor White -ForegroundColor Black
-            $AutoLoadprofile = $parsedJson[0]
-            $profileArray.FOV = $AutoLoadprofile["FOV"]
-            $profileArray.Height = $AutoLoadprofile["Height"]
-            $profileArray.Width = $AutoLoadprofile["Width"]
-            $profileArray.Headtracking = [int]::Parse($AutoLoadprofile["Headtracking"])
-            $profileArray.HeadtrackingSource = [int]::Parse($AutoLoadprofile["HeadtrackingSource"])
-            $profileArray.AttributesXmlPath = $AutoLoadprofile["AttributesXmlPath"]
-            $profileArray.Path = $AutoLoadprofile["Path"]
-            Write-Host $AutoLoadprofile["FOV"] -BackgroundColor White -ForegroundColor Black
-
-            #$profileArray.Width = $AutoLoadprofile.Width
-            #$profileArray.Headtracking = [int]::Parse($AutoLoadprofile.Headtracking)
-            #$Headtracking.HeadtrackingSource = [int]::Parse($AutoLoadprofile.HeadtrackingSource)
-            #$profileArray.AttributesXmlPath = $AutoLoadprofile.AttributesXmlPath
-            #$profileArray.Path = $AutoLoadprofile.Path
-
-            [System.Windows.Forms.MessageBox]::Show("Profile loaded successfully from profile.json")
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the profile.json file: $_")
-        }
-    }
-
-    <#if (Test-Path -Path $profileJsonPath) {
+    if (Test-Path -Path $profileJsonPath) {
             $profileContent = Get-Content -Path $profileJsonPath -ErrorAction Stop
             
             try {
@@ -168,7 +131,7 @@ function Import-ProfileJson {
         $global:profileArray = [System.Collections.ArrayList]@()
         Write-Host "func:Import-ProfileJson : " + $global:profileArray -BackgroundColor White -ForegroundColor Black
         [System.Windows.Forms.MessageBox]::Show("profile.json file not found. Starting with an empty profile array.")
-    }#>
+    }
 }
 
 function Update-ButtonState {
