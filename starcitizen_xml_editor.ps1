@@ -63,11 +63,6 @@ $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
 
-
-# Apply light mode to the form and its controls by default
-Set-LightMode -control $form
-
-
 $groupBox = New-Object System.Windows.Forms.GroupBox
 $groupBox.Text = "Actions"
 $groupBox.Width = 550
@@ -167,6 +162,9 @@ function Set-LightMode {
         Set-LightMode -control $child
     }
 }
+
+# Apply light mode to the form and its controls by default
+Set-LightMode -control $form
 
 function Switch-DarkMode {
     param (
@@ -901,6 +899,7 @@ $closeButton.TabIndex = 9
 $closeButton.Add_Click({
     $form.Close()
 })
+
 
 $form.Controls.Add($editGroupBox)
 
