@@ -118,21 +118,21 @@ function Import-ProfileJson {
 
 
                         } else {
-                            [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+                            if ($debug) {[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")}
                         }
                     } else {
-                        [System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")
+                        if ($debug) {[System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")}
                     }
                 } else {
                     [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
                 }
             } else {
-                [System.Windows.Forms.MessageBox]::Show("Profile loaded successfully from profile.json, but 'Path' attribute is missing.")
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("Profile loaded successfully from profile.json, but 'Path' attribute is missing.")}
             }
         } else {
         $global:profileArray = [System.Collections.ArrayList]@()
         if ($debug) {Write-Host "func:Import-ProfileJson : " + $global:profileArray -BackgroundColor White -ForegroundColor Black}
-        [System.Windows.Forms.MessageBox]::Show("profile.json file not found. Starting with an empty profile array.")
+        if ($debug) {[System.Windows.Forms.MessageBox]::Show("profile.json file not found. Starting with an empty profile array.")}
     }
 }
 
@@ -310,10 +310,10 @@ function Open-XMLViewer {
                 $editGroupBox.Visible = $true
                 
             } else {
-                [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
             }
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+            if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")}
         }
     } else {
         [System.Windows.Forms.MessageBox]::Show("XML file not found.")
@@ -431,7 +431,7 @@ $openXmlMenuItem.Add_Click({
                     # Update button state
                     Update-ButtonState
                 } else {
-                    [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
+                    if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
                 }
             } catch {
                 [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
@@ -472,7 +472,7 @@ $findLiveFolderButton.Add_Click({
     $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
     
     $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
-    if ($global:profileArray -and $global:profileArray.Path) {
+    if ($global:profileArray -and ($null -ne $global:profileArray.Path)) {
         $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($global:profileArray.Path)
     }
     if ($folderBrowserDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
@@ -493,10 +493,10 @@ $findLiveFolderButton.Add_Click({
                     $global:xmlPath = $attributesXmlPath                
                     Open-XMLViewer($global:xmlPath)
                 } else {
-                    [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+                    if ($debug) {[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")}
                 }
             } else {
-                [System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")}
             }
         } else {
             [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
@@ -704,7 +704,7 @@ $importButton.Add_Click({
                     
             if ($global:xmlContent.Attributes -and $global:xmlContent.Attributes.Attr) {
                 
-                [System.Windows.Forms.MessageBox]::Show("XML looks good.")
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML looks good.")}
                 
                 $fovTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 $widthTextBox.Text = $global:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
@@ -719,7 +719,7 @@ $importButton.Add_Click({
                 }
                 
             } else {
-                [System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")}
                 $fovTextBox.Text = ""
                 $heightTextBox.Text = ""
                 $widthTextBox.Text = ""
@@ -757,7 +757,7 @@ $importButton.Add_Click({
             }
         }
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $($_.Exception.Message)")
+        if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $($_.Exception.Message)")}
     }
 })
 
@@ -779,7 +779,7 @@ $saveButton.TabIndex = 8
 $saveButton.Add_Click({
     try {       
         if ($null -eq $global:xmlContent) {
-            [System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")
+            if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")}
             return
         }
 
@@ -882,7 +882,7 @@ $saveButton.Add_Click({
         # Update button state
         Update-ButtonState
     } else {
-        [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
+        if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
     }
     
 })
@@ -901,7 +901,6 @@ $closeButton.TabIndex = 9
 $closeButton.Add_Click({
     $form.Close()
 })
-
 
 $form.Controls.Add($editGroupBox)
 
