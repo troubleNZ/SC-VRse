@@ -14,7 +14,7 @@ profile.json file is now being saved correctly but the values are not being read
 path variables are not being saved to the profile.json file
 #>
 
-$scriptVersion = "0.1.2"
+$scriptVersion = "0.1.3"
 $currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonName = "profile.json"
