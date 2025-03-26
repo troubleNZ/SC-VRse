@@ -902,7 +902,6 @@ $closeButton.Add_Click({
     $form.Close()
 })
 
-
 $form.Controls.Add($editGroupBox)
 
 $form.ShowDialog()
