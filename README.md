@@ -19,7 +19,7 @@ I'll expose more options soon. i think a fullscreen toggle would be useful.
 
 
 ### Screenshot
-![](https://media.discordapp.net/attachments/1037213809800122470/1347424143712194590/Screenshot_2025-03-07_172156.png?ex=67d1b4c5&is=67d06345&hm=f5bd4f0cc35705d2ed1805e3fbf9ffd5ac17aad3d851463ec1f7f692eb013730)
+![](https://cdn.discordapp.com/attachments/1037213809800122470/1354246552339615816/Screenshot_2.png?ex=67e497e2&is=67e34662&hm=21738fd50692c3050fa7f636262c77fe206853b1e119ea27f37eb8a88254c3fc&)
 
 
 ### How to use this script
@@ -39,5 +39,5 @@ just open the powershell (or the IDE) and run this:
 
 ### current issues
 
-- profile.json (which is used for convenience remembering last location on script start) is appending data instead of updating. 
+- profile.json (which is used for convenience remembering last location on script start) is broken.
 - dark mode is broken sorry
