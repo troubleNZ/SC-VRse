@@ -13,9 +13,8 @@ Enabling VORPX functionality (Vorpx not included) with Star Citizen by:
 - setting the Route Table for bypassing EAC verification
 - purging previously cached EAC files from temporary cache
 
-Configure the Screen Size for VR use, configure your FOV, Height x Width, whether Headtracking is toggled on, and what the Tracking Source is, all without loading the game, or even while in game open the XML file remotely with this tool.
-
-I'll expose more options soon. i think a fullscreen toggle would be useful.
+Configure the Screen Size for VR use, configure your FOV, Height x Width, whether Headtracking is toggled on, and what the Tracking Source is, all without loading into the game.
+save some time and preload your VR configuration, or switch back to pancake mode at the push of a button.
 
 
 ### Screenshot
@@ -39,5 +38,8 @@ just open the powershell (or the IDE) and run this:
 
 ### current issues
 
-- profile.json , used for autoloading a saved set of screen settings, isnt loading properly (ironically)
+- profile.json , used for autoloading a saved set of screen settings, isnt loading properly (ironically) 
 - dark mode is broken sorry
+
+### future plans
+- visualize and interact with the mbk/hotas binding xml
