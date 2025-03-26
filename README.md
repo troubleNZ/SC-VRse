@@ -39,5 +39,5 @@ just open the powershell (or the IDE) and run this:
 
 ### current issues
 
-- profile.json (which is used for convenience remembering last location on script start) is broken.
+- profile.json , used for autoloading a saved set of screen settings, isnt loading properly (ironically)
 - dark mode is broken sorry
