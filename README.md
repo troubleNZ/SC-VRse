@@ -18,7 +18,7 @@ save some time and preload your VR configuration, or switch back to pancake mode
 
 
 ### Screenshot
-![](https://media.discordapp.net/attachments/1037213809800122470/1356156608278822982/image.png?ex=67eb8ac3&is=67ea3943&hm=07578318cf0a708c4eaf68c7fe956532648f0ed1e0b16933df1e28a4b9de4274&=&format=webp&quality=lossless&width=1402&height=1951)
+![](https://media.discordapp.net/attachments/1037213809800122470/1356156608278822982/image.png?ex=67eb8ac3&is=67ea3943&hm=07578318cf0a708c4eaf68c7fe956532648f0ed1e0b16933df1e28a4b9de4274&=&format=webp&quality=lossless&width=701&height=975)
 
 
 ### How to use this script
@@ -32,9 +32,6 @@ You can run it remotely directly from your standard powershell session. no admin
 just open the powershell (or the IDE) and run this:
 
 ` iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/starcitizen_xml_editor.ps1"))`
-
-### Fixed
-- Import and Export now works
 
 ### current issues
 
