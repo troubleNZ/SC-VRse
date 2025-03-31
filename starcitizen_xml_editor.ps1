@@ -14,7 +14,7 @@ profile.json file is now being saved correctly but the values are not being read
 path variables are not being saved to the profile.json file
 #>
 
-$scriptVersion = "0.1.5"                        # additional fields added
+$scriptVersion = "0.1.6"                        # combo boxes
 $currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonName = "profile.json"
@@ -136,34 +136,45 @@ function Import-ProfileJson {
 }
 
 function Update-ButtonState {
-    if ($null -ne $script:xmlContent) {
-        $importButton.Enabled = $true
-        $saveButton.Enabled = $true
-    } else {
-        $importButton.Enabled = $false
-        $saveButton.Enabled = $false
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    if ($PSCmdlet.ShouldProcess("Button State Update", "Update the state of import and save buttons")) {
+        if ($null -ne $script:xmlContent) {
+            $importButton.Enabled = $true
+            $saveButton.Enabled = $true
+        } else {
+            $importButton.Enabled = $false
+            $saveButton.Enabled = $false
+        }
     }
 }
 
 function Set-DarkMode {
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [System.Windows.Forms.Control]$control
     )
-    $control.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-    $control.ForeColor = [System.Drawing.Color]::White
-    foreach ($child in $control.Controls) {
-        Set-DarkMode -control $child
+    if ($PSCmdlet.ShouldProcess("Control", "Set dark mode")) {
+        $control.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        $control.ForeColor = [System.Drawing.Color]::White
+        foreach ($child in $control.Controls) {
+            Set-DarkMode -control $child
+        }
     }
 }
 
 function Set-LightMode {
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [System.Windows.Forms.Control]$control
     )
-    $control.BackColor = [System.Drawing.Color]::White
-    $control.ForeColor = [System.Drawing.Color]::Black
-    foreach ($child in $control.Controls) {
-        Set-LightMode -control $child
+    if ($PSCmdlet.ShouldProcess("Control", "Set light mode")) {
+        $control.BackColor = [System.Drawing.Color]::White
+        $control.ForeColor = [System.Drawing.Color]::Black
+        foreach ($child in $control.Controls) {
+            Set-LightMode -control $child
+        }
     }
 }
 
@@ -198,6 +209,10 @@ function Switch-DarkMode {
 }
 
 function Set-ProfileArray {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    if ($PSCmdlet.ShouldProcess("Profile Array", "Set the profile array")) {
     #if (-not [string]::IsNullOrWhiteSpace($liveFolderPath) -and
     #    -not [string]::IsNullOrWhiteSpace($attributesXmlPath) -and
     #    -not [string]::IsNullOrWhiteSpace($fovTextBox.Text) -and
@@ -221,7 +236,9 @@ function Set-ProfileArray {
             MotionBlur = $MotionBlurTextBox.Text;
             ShakeScale = $ShakeScaleTextBox.Text;
         }) | Out-Null
-    #} else {
+    }
+
+    if ($debug) {Write-Host "func:ProfileArray : " $script:profileArray -BackgroundColor White -ForegroundColor Black}
     #    Write-Host "Set-ProfileArray: One or more required fields are empty or invalid." -ForegroundColor Red
     #}
 
@@ -703,7 +720,7 @@ $headtrackerEnabledComboBox.Top = 70
 $headtrackerEnabledComboBox.Left = 140
 $headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
 $headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$headtrackerEnabledComboBox.Items.AddRange(@(0, 1, 2, 3))
+$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
 $headtrackerEnabledComboBox.TabIndex = 6
 $headtrackerEnabledComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
@@ -720,10 +737,20 @@ $HeadtrackingSourceComboBox.Top = 70
 $HeadtrackingSourceComboBox.Left = 380
 $HeadtrackingSourceComboBox.Width = 100  # Adjusted width to fit the combo box
 $HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$HeadtrackingSourceComboBox.Items.AddRange(@(0, 1, 2, 3))
+#$HeadtrackingSourceComboBox.Items.AddRange(@(0, 1, 2, 3))
+
+$HeadtrackingSourceComboBox.Items.Add("None")
+$HeadtrackingSourceComboBox.Items.Add("TrackIR")
+$HeadtrackingSourceComboBox.Items.Add("Faceware")
+$HeadtrackingSourceComboBox.Items.Add("Tobii")
+
 $HeadtrackingSourceComboBox.TabIndex = 7
-$HeadtrackingSourceComboBox.SelectedIndex = 0
+$HeadtrackingSourceComboBox.SelectedItem = $HeadtrackingSourceComboBox.Items[0]  # Set the default selected item to the first one
 $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
+
+
+
+
 
 
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
@@ -793,7 +820,7 @@ $importButton.Text = "Import from XML"
 $importButton.Width = 120
 $importButton.Height = 30
 $importButton.Top = 215
-$importButton.Left = 160
+$importButton.Left = 60
 $importButton.TabIndex = 13
 
 $importButton.Add_Click({
@@ -861,8 +888,6 @@ $importButton.Add_Click({
     }
 })
 
-
-
 # Initially disable the import and save buttons
 $importButton.Enabled = $false
 $editGroupBox.Controls.Add($importButton)
@@ -874,7 +899,7 @@ $saveButton.Text = "Export to XML"
 $saveButton.Width = 120
 $saveButton.Height = 30
 $saveButton.Top = 215
-$saveButton.Left = 20
+$saveButton.Left = 330
 $saveButton.TabIndex = 12
 $saveButton.Add_Click({
     try {
@@ -910,6 +935,16 @@ $saveButton.Add_Click({
         #$headtrackingSourceNode = $script:xmlContent.SelectSingleNode("//attribute[@name='HeadtrackingSource']")
         $headtrackingSourceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" }
         if ($null -ne $headtrackingSourceNode) {
+
+            if ($HeadtrackingSourceComboBox.SelectedItem -eq "None") {
+                $HeadtrackingSourceComboBox.SelectedIndex = 0
+            } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "TrackIR") {
+                $HeadtrackingSourceComboBox.SelectedIndex = 1
+            } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "Faceware") {
+                $HeadtrackingSourceComboBox.SelectedIndex = 2
+            } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "Tobii") {
+                $HeadtrackingSourceComboBox.SelectedIndex = 3
+            }
             $headtrackingSourceNode.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())  # HEADTRACKINGSOURCE
         }
 
