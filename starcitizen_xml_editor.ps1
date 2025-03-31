@@ -14,11 +14,12 @@ profile.json file is now being saved correctly but the values are not being read
 path variables are not being saved to the profile.json file
 #>
 
-$scriptVersion = "0.1.4"                        # globals
+$scriptVersion = "0.1.5"                        # additional fields added
 $currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonName = "profile.json"
 $profileContent = @()
+$script:profileArray = [System.Collections.ArrayList]@()
 
 $debug = $false
 
@@ -26,11 +27,10 @@ $script:xmlPath = $null
 $script:xmlContent = @()
 $script:dataTable = $null
 $script:xmlArray = @()
-$dataGridView = $null
+$script:dataGridView = @()
 
 $niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $backupFileName = "attributes_backup_$niceDate.xml"
-
 
 $liveFolderPath = $null
 $attributesXmlPath = $null
@@ -43,14 +43,16 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
-
 # XML Nodes
 $fovNode                = @()
 $heightNode             = @()
 $widthNode              = @()
 $headtrackingNode       = @()
 $headtrackingSourceNode = @()
-
+[float]$chromaticAberrationNode = 0.0       # ChromaticAberration
+$AutoZoomNode = @()                         # AutoZoomOnSelectedTarget
+$MotionBlurNode = @()                      # MotionBlur
+$ShakeScaleNode = @()                      # ShakeScale
 
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -80,7 +82,7 @@ $fileMenuItem.Text = "&File"    # The & character indicates the shortcut key
 $mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main menu
 
 function Import-ProfileJson {
-    
+
     $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath $ProfileJsonName
 
     if (Test-Path -Path $profileJsonPath) {
@@ -98,7 +100,7 @@ function Import-ProfileJson {
                 [System.Windows.Forms.MessageBox]::Show("This Feature is currently broken. The profile.json file is empty, malformed, or does not contain a valid array. Starting with an empty profile array.")
                 $script:profileArray = [System.Collections.ArrayList]@()
             }
-            
+
             if ($script:profileArray.Count -gt 0 -and $script:profileArray[0].Path) {
                 $liveFolderPath = $script:profileArray[0].Path
                 if (Test-Path -Path $liveFolderPath -PathType Container) {
@@ -170,28 +172,28 @@ Set-LightMode -control $form
 
 function Switch-DarkMode {
     param (
-        [System.Windows.Forms.DataGridView]$dataGridView
+        [System.Windows.Forms.DataGridView]$script:dataGridView
     )
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) {
         Set-LightMode -control $form
         $darkModeMenuItem.Text = "Enable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
         # Set light mode for the dataTable
-        $dataGridView.BackgroundColor = [System.Drawing.Color]::White
-        $dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::White
-        $dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
-        $dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::White
-        $dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
+        $script:dataGridView.BackgroundColor = [System.Drawing.Color]::White
+        $script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::White
+        $script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
+        $script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::White
+        $script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
     } else {
         Set-DarkMode -control $form
         $darkModeMenuItem.Text = "Disable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
         # Set dark mode for the dataTable
-        $dataGridView.BackgroundColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        $dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        $dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::White
-        $dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        $dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
+        $script:dataGridView.BackgroundColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        $script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        $script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::White
+        $script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        $script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
     }
 }
 
@@ -205,7 +207,7 @@ function Set-ProfileArray {
     #    $HeadtrackingSourceComboBox.SelectedIndex -ne -1) {
 
         $script:profileArray.Clear()  # Clear the existing profile array
-        
+
         $script:profileArray.Add([PSCustomObject]@{
             Path = $liveFolderPath;
             AttributesXmlPath = $attributesXmlPath;
@@ -214,6 +216,10 @@ function Set-ProfileArray {
             Width = $widthTextBox.Text;
             Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString();
             HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString();
+            ChromaticAberration = $chromaticAberrationTextBox.Text;
+            AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text;
+            MotionBlur = $MotionBlurTextBox.Text;
+            ShakeScale = $ShakeScaleTextBox.Text;
         }) | Out-Null
     #} else {
     #    Write-Host "Set-ProfileArray: One or more required fields are empty or invalid." -ForegroundColor Red
@@ -231,12 +237,12 @@ function Open-XMLViewer {
     if (Test-Path $Path) {
         try {
             $script:xmlContent = [xml](Get-Content $Path)
-            $panel.Controls.Clear()
+            $gridGroup.Controls.Clear()
 
-            $dataGridView = New-Object System.Windows.Forms.DataGridView
-            $dataGridView.Width = 500
-            $dataGridView.Height = 400
-            $dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+            $script:dataGridView = New-Object System.Windows.Forms.DataGridView
+            $script:dataGridView.Width = 550
+            $script:dataGridView.Height = 200
+            $script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
 
             $script:dataTable = New-Object System.Data.DataTable
 
@@ -265,9 +271,9 @@ function Open-XMLViewer {
                 }
 
                 # Bind the DataTable to the DataGridView
-                $dataGridView.DataSource = $script:dataTable
+                $script:dataGridView.DataSource = $script:dataTable
 
-                $panel.Controls.Add($dataGridView)
+                $gridGroup.Controls.Add($script:dataGridView)
 
                 # Show the dataTableGroupBox and set its text to the XML path
                 $dataTableGroupBox.Text = $Path
@@ -275,7 +281,7 @@ function Open-XMLViewer {
                 Update-ButtonState
 
                 # Populate the input boxes with the first row values
-                                        
+
                 if ($null -ne $script:profileArray[0].FOV) {
                     $fovTextBox.Text = $script:profileArray[0].FOV
                 }else {
@@ -283,7 +289,7 @@ function Open-XMLViewer {
                 }
                 if ($null -ne $script:profileArray[0].Height) {
                     $heightTextBox.Text = $script:profileArray[0].Height
-                    
+
                 } else {
                     $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
                 }
@@ -302,13 +308,33 @@ function Open-XMLViewer {
                 } else {
                     $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
                 }
-                
+                if ($null -ne $script:profileArray[0].ChromaticAberration) {
+                    $chromaticAberrationTextBox.Text = $script:profileArray[0].ChromaticAberration
+                } else {
+                    $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray[0].AutoZoomOnSelectedTarget) {
+                    $AutoZoomTextBox.Text = $script:profileArray[0].AutoZoomOnSelectedTarget
+                } else {
+                    $AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray[0].MotionBlur) {
+                    $MotionBlurTextBox.Text = $script:profileArray[0].MotionBlur
+                } else {
+                    $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray[0].ShakeScale) {
+                    $ShakeScaleTextBox.Text = $script:profileArray[0].ShakeScale
+                } else {
+                    $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
+                }
+
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray
 
                 # Show the edit group box
                 $editGroupBox.Visible = $true
-                
+
             } else {
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
             }
@@ -344,10 +370,14 @@ $saveProfileMenuItem.Add_Click({
             $script:profileArray[0].Width = $widthTextBox.Text
             $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
             $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
+            $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
+            $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
+            $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
+            $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
             $script:profileArray[0].AttributesXmlPath = $attributesXmlPath.ToString()
             $script:profileArray[0].Path = $liveFolderPath.ToString()
         }
-        
+
         $script:profileArray | ConvertTo-Json -Depth 10 | Out-File -FilePath $profileJsonPath -Force
         [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
     } catch {
@@ -373,12 +403,12 @@ $openXmlMenuItem.Add_Click({
         if (Test-Path $script:xmlPath) {
             try {
                 $script:xmlContent = [xml](Get-Content $script:xmlPath)
-                $panel.Controls.Clear()
+                $gridGroup.Controls.Clear()
 
-                $dataGridView = New-Object System.Windows.Forms.DataGridView
-                $dataGridView.Width = 500
-                $dataGridView.Height = 400
-                $dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+                $script:dataGridView = New-Object System.Windows.Forms.DataGridView
+                $script:dataGridView.Width = 550
+                $script:dataGridView.Height = 200
+                $script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
 
                 $script:dataTable = New-Object System.Data.DataTable
 
@@ -398,9 +428,9 @@ $openXmlMenuItem.Add_Click({
                     }
 
                     # Bind the DataTable to the DataGridView
-                    $dataGridView.DataSource = $script:dataTable
+                    $script:dataGridView.DataSource = $script:dataTable
 
-                    $panel.Controls.Add($dataGridView)
+                    $gridGroup.Controls.Add($script:dataGridView)
 
                     # Show the dataTableGroupBox and set its text to the XML path
                     $dataTableGroupBox.Text = $xmlPath
@@ -410,16 +440,20 @@ $openXmlMenuItem.Add_Click({
                     # Populate the input boxes with the first row values
                     $script:xmlContent = [xml](Get-Content $script:xmlPath)
                     if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-                        
-                            
+
+
                         $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
                         $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
                         $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
                         $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
                         $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
-    
+                        $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
+                        $AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                        $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                        $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
+
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
-                                                    
+
 
                         Set-ProfileArray
 
@@ -448,7 +482,7 @@ $actionsMenuItem.MenuItems.Add($openXmlMenuItem)
 $darkModeMenuItem = New-Object System.Windows.Forms.MenuItem
 $darkModeMenuItem.Text = "Enable Dark Mode"
 $darkModeMenuItem.Add_Click({
-    Switch-DarkMode -dataGridView $dataGridView
+    Switch-DarkMode -dataGridView $script:dataGridView
 })
 $actionsMenuItem.MenuItems.Add($darkModeMenuItem)
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
@@ -470,7 +504,7 @@ $findLiveFolderButton.Left = 20
 $findLiveFolderButton.TabIndex = 0
 $findLiveFolderButton.Add_Click({
     $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    
+
     $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
     if ($script:profileArray -and ($null -ne $script:profileArray.Path)) {
         $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.Path)
@@ -580,29 +614,32 @@ $eacGroupBox.Controls.Add($deleteEACTempFilesButton)
 $groupBox.Controls.Add($eacGroupBox)
 $form.Controls.Add($groupBox)
 
-$panel = New-Object System.Windows.Forms.Panel
-$panel.Width = 550
-$panel.Height = 400
-$panel.Top = 200  # Adjusted the Top property to move the panel up
-$panel.Left = 20
+$gridGroup = New-Object System.Windows.Forms.Panel
+$gridGroup.Width = 550
+$gridGroup.Height = 300
+$gridGroup.Top = 200  # Adjusted the Top property to move the panel up
+$gridGroup.Left = 20
+#$gridGroup.Visible = $false
 
-$form.Controls.Add($panel)
+$form.Controls.Add($gridGroup)
 
 # Add a group box for the DataTable
 $dataTableGroupBox = New-Object System.Windows.Forms.GroupBox
 $dataTableGroupBox.Top = 180  # Position it above the DataTable
 $dataTableGroupBox.Left = 20
 $dataTableGroupBox.Width = 550
-$dataTableGroupBox.Height = 420  # Adjust height to fit the DataTable
+$dataTableGroupBox.Height = 220  # Adjust height to fit the DataTable
 $dataTableGroupBox.Visible = $false  # Initially hide the group box
 
 $form.Controls.Add($dataTableGroupBox)
 
+
+
 $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "Edit VR View"
 $editGroupBox.Width = 550
-$editGroupBox.Height = 150
-$editGroupBox.Top = 600
+$editGroupBox.Height = 250
+$editGroupBox.Top = 500
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $true
 
@@ -689,35 +726,98 @@ $HeadtrackingSourceComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
 
+$chromaticAberrationLabel = New-Object System.Windows.Forms.Label
+$chromaticAberrationLabel.Text = "Chromatic Aberration"
+$chromaticAberrationLabel.Top = 120
+$chromaticAberrationLabel.Left = 30
+$chromaticAberrationLabel.Width = 120
+$editGroupBox.Controls.Add($chromaticAberrationLabel)
+
+$chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
+$chromaticAberrationTextBox.Top = 120
+$chromaticAberrationTextBox.Left = 170
+$chromaticAberrationTextBox.Width = 50  # Half the original width
+$chromaticAberrationTextBox.TextAlign = 'Left'
+$chromaticAberrationTextBox.TabIndex = 8
+$editGroupBox.Controls.Add($chromaticAberrationTextBox)
+
+
+$AutoZoomLabel = New-Object System.Windows.Forms.Label
+$AutoZoomLabel.Text = "Auto Zoom"
+$AutoZoomLabel.Top = 120
+$AutoZoomLabel.Left = 260
+$AutoZoomLabel.Width = 100
+$editGroupBox.Controls.Add($AutoZoomLabel)
+
+$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
+$AutoZoomTextBox.Top = 120
+$AutoZoomTextBox.Left = 360
+$AutoZoomTextBox.Width = 50  # Half the original width
+$AutoZoomTextBox.TextAlign = 'Left'
+$AutoZoomTextBox.TabIndex = 9
+$editGroupBox.Controls.Add($AutoZoomTextBox)
+
+$MotionBlurLabel = New-Object System.Windows.Forms.Label
+$MotionBlurLabel.Text = "Motion Blur"
+$MotionBlurLabel.Top = 150
+$MotionBlurLabel.Left = 70
+$MotionBlurLabel.Width = 100
+$editGroupBox.Controls.Add($MotionBlurLabel)
+
+$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
+$MotionBlurTextBox.Top = 150
+$MotionBlurTextBox.Left = 170
+$MotionBlurTextBox.Width = 50  # Half the original width
+$MotionBlurTextBox.TextAlign = 'Left'
+$MotionBlurTextBox.TabIndex = 10
+$editGroupBox.Controls.Add($MotionBlurTextBox)
+
+$ShakeScaleLabel = New-Object System.Windows.Forms.Label
+$ShakeScaleLabel.Text = "Shake Scale"
+$ShakeScaleLabel.Top = 150
+$ShakeScaleLabel.Left = 260
+$ShakeScaleLabel.Width = 100
+$editGroupBox.Controls.Add($ShakeScaleLabel)
+
+$ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
+$ShakeScaleTextBox.Top = 150
+$ShakeScaleTextBox.Left = 360
+$ShakeScaleTextBox.Width = 50  # Half the original width
+$ShakeScaleTextBox.TextAlign = 'Left'
+$ShakeScaleTextBox.TabIndex = 11
+$editGroupBox.Controls.Add($ShakeScaleTextBox)
+
+
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import from XML"
 $importButton.Width = 120
 $importButton.Height = 30
-$importButton.Top = 115
+$importButton.Top = 215
 $importButton.Left = 160
-$importButton.TabIndex = 10
+$importButton.TabIndex = 13
 
 $importButton.Add_Click({
     try {
         $script:xmlContent = [xml](Get-Content $script:xmlPath)
         if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-                    
+
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
-                
+
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML looks good.")}
-                
+
                 $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 $headtrackingValue = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
-            
+
+
                 if (-not $heightTextBox.Text) {
                     $heightTextBox.Text = ""
                 }
                 if (-not $widthTextBox.Text) {
                     $widthTextBox.Text = ""
                 }
-                
+
             } else {
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")}
                 $fovTextBox.Text = ""
@@ -730,7 +830,7 @@ $importButton.Add_Click({
                 [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingEnabled. Setting to default (0).")
                 $headtrackerEnabledComboBox.SelectedIndex = 0
             }
-            
+
             if ($null -ne $script:xmlContent.Attributes.Attr) {
                 try {
                     $headtrackerEnabledComboBox.SelectedIndex = ([int]::Parse($script:xmlContent.Attributes.Attr) | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value)
@@ -773,11 +873,11 @@ $saveButton = New-Object System.Windows.Forms.Button
 $saveButton.Text = "Export to XML"
 $saveButton.Width = 120
 $saveButton.Height = 30
-$saveButton.Top = 115
+$saveButton.Top = 215
 $saveButton.Left = 20
-$saveButton.TabIndex = 8
+$saveButton.TabIndex = 12
 $saveButton.Add_Click({
-    try {       
+    try {
         if ($null -eq $script:xmlContent) {
             if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")}
             return
@@ -812,7 +912,25 @@ $saveButton.Add_Click({
         if ($null -ne $headtrackingSourceNode) {
             $headtrackingSourceNode.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())  # HEADTRACKINGSOURCE
         }
-                  
+
+        $chromaticAberrationNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" }
+        if ($null -ne $chromaticAberrationNode) {
+            $chromaticAberrationNode.SetAttribute("value", $chromaticAberrationTextBox.Text)  # CHROMATICABERRATION
+        }
+        $AutoZoomNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" }
+        if ($null -ne $AutoZoomNode) {
+            $AutoZoomNode.SetAttribute("value", $AutoZoomTextBox.Text)  # AUTOZOOM
+        }
+        $MotionBlurNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" }
+        if ($null -ne $MotionBlurNode) {
+            $MotionBlurNode.SetAttribute("value", $MotionBlurTextBox.Text)  # MOTIONBLUR
+        }
+        $ShakeScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" }
+        if ($null -ne $ShakeScaleNode) {
+            $ShakeScaleNode.SetAttribute("value", $ShakeScaleTextBox.Text)  # SHAKESCALE
+        }
+
+
         try {
             $script:xmlContent.Save($script:xmlPath)
             [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
@@ -820,12 +938,12 @@ $saveButton.Add_Click({
             [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $script:xmlPath: $_")
         }
             #$script:xmlContent.Save($script:xmlPath)
-            
+
     } catch {
         [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
     }
 
-    
+
     # Refresh and update the dataTable with the new data
     $script:dataTable.Clear()
     <#$script:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
@@ -850,9 +968,9 @@ $saveButton.Add_Click({
         }
 
         # Bind the DataTable to the DataGridView
-        $dataGridView.DataSource = $script:dataTable
+        $script:dataGridView.DataSource = $script:dataTable
 
-        $panel.Controls.Add($dataGridView)
+        $gridGroup.Controls.Add($script:dataGridView)
 
         # Show the dataTableGroupBox and set its text to the XML path
         $dataTableGroupBox.Text = $xmlPath
@@ -862,8 +980,8 @@ $saveButton.Add_Click({
         # Populate the input boxes with the first row values
         $script:xmlContent = [xml](Get-Content $script:xmlPath)
         if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-            
-                
+
+
             $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
             $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
             $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
@@ -871,7 +989,7 @@ $saveButton.Add_Click({
             $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
-                                        
+
             Set-ProfileArray
 
         }
@@ -884,7 +1002,7 @@ $saveButton.Add_Click({
     } else {
         if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
     }
-    
+
 })
 # Initially disable the import and save buttons
 $saveButton.Enabled = $false
@@ -897,7 +1015,7 @@ $closeButton.Height = 30
 $closeButton.Top = 115
 
 $closeButton.Left = 300
-$closeButton.TabIndex = 9
+$closeButton.TabIndex = 14
 $closeButton.Add_Click({
     $form.Close()
 })
