@@ -1,20 +1,20 @@
-<#▄█    █▄     ▄████████    ▄████████    ▄████████         ▄████████    ▄████████ 
- ███    ███   ███    ███   ███    ███   ███    ███        ███    ███   ███    ███ 
- ███    ███   ███    ███   ███    █▀    ███    █▀         ███    ███   ███    █▀  
- ███    ███  ▄███▄▄▄▄██▀   ███         ▄███▄▄▄            ███    ███  ▄███▄▄▄     
- ███    ███ ▀▀███▀▀▀▀▀   ▀███████████ ▀▀███▀▀▀          ▀███████████ ▀▀███▀▀▀     
- ███    ███ ▀███████████          ███   ███    █▄         ███    ███   ███    █▄  
- ███    ███   ███    ███    ▄█    ███   ███    ███        ███    ███   ███    ███ 
-  ▀██████▀    ███    ███  ▄████████▀    ██████████        ███    █▀    ██████████ 
-              ███    ███  The VRse Attribute Editor  Author: @troubleshooternz 
+<#▄█    █▄     ▄████████    ▄████████    ▄████████         ▄████████    ▄████████
+ ███    ███   ███    ███   ███    ███   ███    ███        ███    ███   ███    ███
+ ███    ███   ███    ███   ███    █▀    ███    █▀         ███    ███   ███    █▀
+ ███    ███  ▄███▄▄▄▄██▀   ███         ▄███▄▄▄            ███    ███  ▄███▄▄▄
+ ███    ███ ▀▀███▀▀▀▀▀   ▀███████████ ▀▀███▀▀▀          ▀███████████ ▀▀███▀▀▀
+ ███    ███ ▀███████████          ███   ███    █▄         ███    ███   ███    █▄
+ ███    ███   ███    ███    ▄█    ███   ███    ███        ███    ███   ███    ███
+  ▀██████▀    ███    ███  ▄████████▀    ██████████        ███    █▀    ██████████
+              ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 
 current issues:
 
-profile.json file is now being saved correctly but the values are not being read back from the file on load.
-path variables are not being saved to the profile.json file
+profile.json file is not being created correctly; 
+values are not being saved or read back from the file on load.
 #>
 
-$scriptVersion = "0.1.6"                        # combo boxes
+$scriptVersion = "0.1.7"                        # linting
 $currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonName = "profile.json"
@@ -59,7 +59,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
-$form.Width = 600
+$form.Width = 620
 $form.Height = 820
 $form.StartPosition = 'CenterScreen'
 $form.Size = New-Object System.Drawing.Size(600,820)
@@ -67,12 +67,12 @@ $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
 
-$groupBox = New-Object System.Windows.Forms.GroupBox
-$groupBox.Text = "Actions"
-$groupBox.Width = 550
-$groupBox.Height = 150
-$groupBox.Top = 20
-$groupBox.Left = 20
+$ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
+$ActionsGroupBox.Text = "Actions"
+$ActionsGroupBox.Width = 550
+$ActionsGroupBox.Height = 150
+$ActionsGroupBox.Top = 20
+$ActionsGroupBox.Left = 20
 
 # add a menu toolbar with one option called "File"
 $mainMenu = New-Object System.Windows.Forms.MainMenu
@@ -83,7 +83,11 @@ $mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main men
 
 function Import-ProfileJson {
 
-    $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath $ProfileJsonName
+    if (-not [string]::IsNullOrWhiteSpace($currentLocation)) {
+        $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath $ProfileJsonName
+    } else {
+        throw "Error: Current location is invalid or not set."
+    }
 
     if (Test-Path -Path $profileJsonPath) {
             $profileContent = Get-Content -Path $profileJsonPath -ErrorAction Stop
@@ -97,7 +101,7 @@ function Import-ProfileJson {
                     throw "Invalid JSON structure. Expected an array."
                 }
             } catch {
-                [System.Windows.Forms.MessageBox]::Show("This Feature is currently broken. The profile.json file is empty, malformed, or does not contain a valid array. Starting with an empty profile array.")
+            if ($script:profileArray -and $script:profileArray.Count -gt 0 -and $script:profileArray[0].Path) {
                 $script:profileArray = [System.Collections.ArrayList]@()
             }
 
@@ -130,8 +134,9 @@ function Import-ProfileJson {
             }
         } else {
         $script:profileArray = [System.Collections.ArrayList]@()
-        if ($debug) {Write-Host "func:Import-ProfileJson : " + $script:profileArray -BackgroundColor White -ForegroundColor Black}
+        if ($debug) {Write-Host "func:Import-ProfileJson : "$script:profileArray -BackgroundColor White -ForegroundColor Black}
         if ($debug) {[System.Windows.Forms.MessageBox]::Show("profile.json file not found. Starting with an empty profile array.")}
+        }
     }
 }
 
@@ -265,18 +270,18 @@ function Open-XMLViewer {
 
             # Add columns to the DataTable
             if ($script:xmlContent.ChildNodes.Count -gt 0) {
-                foreach ($node in $script:xmlContent.SelectNodes("//*")) { 
+                foreach ($node in $script:xmlContent.SelectNodes("//*")) {
                     foreach ($attribute in $node.Attributes) {
                         if (-not $script:dataTable.Columns.Contains($attribute.Name)) {
-                            $script:dataTable.Columns.Add($attribute.Name) | Out-Null   
-                            #Write-Host "func:XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)" 
+                            $script:dataTable.Columns.Add($attribute.Name) | Out-Null
+                            #Write-Host "func:XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)"
                             $script:xmlArray += $($attribute.Name) + " : " + "$($attribute.Value)"
                         }
                     }
                 }
 
                 # Add rows to the DataTable
-                foreach ($node in $script:xmlContent.SelectNodes("//*")) { 
+                foreach ($node in $script:xmlContent.SelectNodes("//*")) {
                     $row = $script:dataTable.NewRow()
                     foreach ($attribute in $node.Attributes) {
                         if ($script:dataTable.Columns.Contains($attribute.Name)) {
@@ -284,7 +289,7 @@ function Open-XMLViewer {
                         }
                     }
                     $script:dataTable.Rows.Add($row) | Out-Null
-                    #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"                    
+                    #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
                 }
 
                 # Bind the DataTable to the DataGridView
@@ -366,17 +371,17 @@ function Open-XMLViewer {
 
 
 #add an item Open Profile, which will load the profile.json file
-$openProfileMenuItem = New-Object System.Windows.Forms.MenuItem 
+$openProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $openProfileMenuItem.Text = "&Open Profile"
 $openProfileMenuItem.Add_Click({
     Import-ProfileJson
 })
 $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu item to the File menu
 
-$AutoLoadprofile = @()
+#$AutoLoadprofile = @()
 
 #add am item - Save Profile, which will save the profile.json file
-$saveProfileMenuItem = New-Object System.Windows.Forms.MenuItem 
+$saveProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $saveProfileMenuItem.Text = "&Save Profile"
 $saveProfileMenuItem.Add_Click({
     $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath "profile.json"
@@ -541,7 +546,7 @@ $findLiveFolderButton.Add_Click({
                         }
                     $destinationPath = Join-Path -Path $backupDir -ChildPath "attributes_backup_$niceDate.xml"
                     Copy-Item -Path $attributesXmlPath -Destination $destinationPath -Force
-                    $script:xmlPath = $attributesXmlPath                
+                    $script:xmlPath = $attributesXmlPath
                     Open-XMLViewer($script:xmlPath)
                 } else {
                     if ($debug) {[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")}
@@ -554,7 +559,7 @@ $findLiveFolderButton.Add_Click({
         }
     }
 })
-$groupBox.Controls.Add($findLiveFolderButton)
+$ActionsGroupBox.Controls.Add($findLiveFolderButton)
 
 $littleLabel = New-Object System.Windows.Forms.Label
 $littleLabel.Text = "Or"
@@ -563,7 +568,7 @@ $littleLabel.Left = 70
 $littleLabel.Width = 30
 $littleLabel.Height = 20
 $littleLabel.Visible = $false
-$groupBox.Controls.Add($littleLabel)
+$ActionsGroupBox.Controls.Add($littleLabel)
 
 $navigateButton = New-Object System.Windows.Forms.Button
 $navigateButton.Text = "Navigate to File"
@@ -583,7 +588,7 @@ $navigateButton.Add_Click({
         Open-XMLViewer($script:xmlPath)
     }
 })
-$groupBox.Controls.Add($navigateButton)
+$ActionsGroupBox.Controls.Add($navigateButton)
 
 # Create the EAC Bypass group box
 $eacGroupBox = New-Object System.Windows.Forms.GroupBox
@@ -602,8 +607,22 @@ $hostsFileUpdateButton.Top = 30
 $hostsFileUpdateButton.Left = 20
 $hostsFileUpdateButton.TabIndex = 1
 $hostsFileUpdateButton.Add_Click({
-    $cmd = "Start-Process cmd -ArgumentList '/c cd %systemroot%\System32\drivers\etc && echo #SC Bypass >> hosts && echo 127.0.0.1    modules-cdn.eac-prod.on.epicgames.com >> hosts && echo ::1    modules-cdn.eac-prod.on.epicgames.com >> hosts' -Verb RunAs"
-    Invoke-Expression $cmd
+    $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
+    if (-not (Test-Path -Path $hostsFilePath)) {
+        [System.Windows.Forms.MessageBox]::Show("Hosts file not found. Operation aborted.")
+        return
+    }
+
+    $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
+        return
+    }
+
+    try {
+        Remove-Item -Path $eacTempPath\* -Recurse -Force -ErrorAction SilentlyContinue
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("An error occurred while updating the hosts file: $_")
+    }
 })
 $eacGroupBox.Controls.Add($hostsFileUpdateButton)
 
@@ -628,8 +647,8 @@ $deleteEACTempFilesButton.Add_Click({
 })
 $eacGroupBox.Controls.Add($deleteEACTempFilesButton)
 
-$groupBox.Controls.Add($eacGroupBox)
-$form.Controls.Add($groupBox)
+$ActionsGroupBox.Controls.Add($eacGroupBox)
+$form.Controls.Add($ActionsGroupBox)
 
 $gridGroup = New-Object System.Windows.Forms.Panel
 $gridGroup.Width = 550
@@ -981,13 +1000,6 @@ $saveButton.Add_Click({
 
     # Refresh and update the dataTable with the new data
     $script:dataTable.Clear()
-    <#$script:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
-        $row = $script:dataTable.NewRow()
-        $_.Attributes | ForEach-Object {
-            $row[$_.Name] = $_.Value
-        }
-        $script:dataTable.Rows.Add($row)
-    }#>
     if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
         $script:xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
             #$script:dataTable.Columns.Add($_.Name) | Out-Null                              #investigate why this says column already exists
