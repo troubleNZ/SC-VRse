@@ -14,7 +14,7 @@ profile.json file is not being created correctly;
 values are not being saved or read back from the file on load.
 #>
 
-$scriptVersion = "0.1.8"                        # fixes for opening profile.json
+$scriptVersion = "0.1.8.1"                        # fixed headtracking toggle and source saving to xml
 $currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonName = "profile.json"
@@ -388,8 +388,8 @@ $saveProfileMenuItem.Add_Click({
         $script:profileArray.FOV = $fovTextBox.Text
         $script:profileArray.Height = $heightTextBox.Text
         $script:profileArray.Width = $widthTextBox.Text
-        $script:profileArray.Headtracking = $headtrackerEnabledComboBox.SelectedIndex
-        $script:profileArray.HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex
+        $script:profileArray.Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
+        $script:profileArray.HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
         $script:profileArray.ChromaticAberration = $chromaticAberrationTextBox.Text
         $script:profileArray.AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
         $script:profileArray.MotionBlur = $MotionBlurTextBox.Text
@@ -944,6 +944,11 @@ $saveButton.Add_Click({
         $headtrackingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" }
         if ($null -ne $headtrackingNode) {
             $headtrackingNode.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())  # HEADTRACKING
+        } else {
+            $newElement = $script:xmlContent.CreateElement("Attr")
+            $newElement.SetAttribute("name", "HeadtrackingToggle")
+            $newElement.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())
+            $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
         }
 
         #$headtrackingSourceNode = $script:xmlContent.SelectSingleNode("//attribute[@name='HeadtrackingSource']")
@@ -960,6 +965,11 @@ $saveButton.Add_Click({
                 $HeadtrackingSourceComboBox.SelectedIndex = 3
             }
             $headtrackingSourceNode.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())  # HEADTRACKINGSOURCE
+        } else {
+            $newElement = $script:xmlContent.CreateElement("Attr")
+            $newElement.SetAttribute("name", "HeadtrackingSource")
+            $newElement.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())
+            $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
         }
 
         $chromaticAberrationNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" }
