@@ -14,7 +14,7 @@ profile.json file is not being created correctly;
 values are not being saved or read back from the file on load.
 #>
 
-$scriptVersion = "0.1.7"                        # linting
+$scriptVersion = "0.1.8"                        # fixes for opening profile.json
 $currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 $ProfileJsonName = "profile.json"
@@ -30,7 +30,6 @@ $script:xmlArray = @()
 $script:dataGridView = @()
 
 $niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-$backupFileName = "attributes_backup_$niceDate.xml"
 
 $liveFolderPath = $null
 $attributesXmlPath = $null
@@ -90,53 +89,29 @@ function Import-ProfileJson {
     }
 
     if (Test-Path -Path $profileJsonPath) {
-            $profileContent = Get-Content -Path $profileJsonPath -ErrorAction Stop
-            if ($debug) {Write-Host "profileJsonPath : "$profileJsonPath -BackgroundColor White -ForegroundColor Black}
-            try {
-                $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
-                if ($parsedJson -is [System.Collections.ArrayList]) {
-                    if ($debug) {Write-Host "its an Array!" -BackgroundColor White -ForegroundColor Black}
-                    $script:profileArray = [System.Collections.ArrayList]$parsedJson
-                } else {
-                    throw "Invalid JSON structure. Expected an array."
-                }
-            } catch {
-            if ($script:profileArray -and $script:profileArray.Count -gt 0 -and $script:profileArray[0].Path) {
-                $script:profileArray = [System.Collections.ArrayList]@()
-            }
+        try {
+            $profileContent = Get-Content -Path $profileJsonPath -Raw -ErrorAction Stop
+            if ($debug) { Write-Host "profileJsonPath: $profileJsonPath" -BackgroundColor White -ForegroundColor Black }
+            $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
+            if ($parsedJson -is [System.Collections.ArrayList]) {
+                $script:profileArray = [System.Collections.ArrayList]$parsedJson
+                if ($debug) { Write-Host "Parsed JSON successfully loaded into profileArray." -BackgroundColor White -ForegroundColor Black }
+            } elseif ($parsedJson -is [PSCustomObject]) {
+                $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
+                if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
+                $script:xmlPath = $script:profileArray.AttributesXmlPath
+                Open-XMLViewer($script:xmlPath)
 
-            if ($script:profileArray.Count -gt 0 -and $script:profileArray[0].Path) {
-                $liveFolderPath = $script:profileArray[0].Path
-                if (Test-Path -Path $liveFolderPath -PathType Container) {
-                    #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $liveFolderPath")
-                    $defaultProfilePath = Join-Path -Path $liveFolderPath -ChildPath "user\client\0\Profiles\default"
-                    if (Test-Path -Path $defaultProfilePath -PathType Container) {
-                        $attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
-                        if (Test-Path -Path $attributesXmlPath) {
-                            $destinationPath = Join-Path -Path $backupDir -ChildPath $backupFileName
-                            Copy-Item -Path $attributesXmlPath -Destination $destinationPath -Force
-
-                            $script:xmlPath = $attributesXmlPath
-                            Open-XMLViewer($script:xmlPath)         #refresh the xml viewer
-
-
-                        } else {
-                            if ($debug) {[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")}
-                        }
-                    } else {
-                        if ($debug) {[System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")}
-                    }
-                } else {
-                    [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
-                }
             } else {
-                if ($debug) {[System.Windows.Forms.MessageBox]::Show("Profile loaded successfully from profile.json, but 'Path' attribute is missing.")}
+                throw "Invalid JSON structure. Expected an array or object."
             }
-        } else {
-        $script:profileArray = [System.Collections.ArrayList]@()
-        if ($debug) {Write-Host "func:Import-ProfileJson : "$script:profileArray -BackgroundColor White -ForegroundColor Black}
-        if ($debug) {[System.Windows.Forms.MessageBox]::Show("profile.json file not found. Starting with an empty profile array.")}
+        } catch {
+            Write-Host "Error parsing JSON: $_" -ForegroundColor Red
+            $script:profileArray = [System.Collections.ArrayList]@()
         }
+    } else {
+        Write-Host "profile.json file not found. Starting with an empty profile array." -ForegroundColor Yellow
+        $script:profileArray = [System.Collections.ArrayList]@()
     }
 }
 
@@ -244,11 +219,6 @@ function Set-ProfileArray {
     }
 
     if ($debug) {Write-Host "func:ProfileArray : " $script:profileArray -BackgroundColor White -ForegroundColor Black}
-    #    Write-Host "Set-ProfileArray: One or more required fields are empty or invalid." -ForegroundColor Red
-    #}
-
-    if ($debug) {Write-Host "func:ProfileArray : " $script:profileArray -BackgroundColor White -ForegroundColor Black}
-
 }
 
 function Open-XMLViewer {
@@ -304,49 +274,49 @@ function Open-XMLViewer {
 
                 # Populate the input boxes with the first row values
 
-                if ($null -ne $script:profileArray[0].FOV) {
-                    $fovTextBox.Text = $script:profileArray[0].FOV
+                if ($null -ne $script:profileArray.FOV) {
+                    $fovTextBox.Text = $script:profileArray.FOV
                 }else {
                     $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].Height) {
-                    $heightTextBox.Text = $script:profileArray[0].Height
+                if ($null -ne $script:profileArray.Height) {
+                    $heightTextBox.Text = $script:profileArray.Height
 
                 } else {
                     $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].Width) {
-                    $widthTextBox.Text = $script:profileArray[0].Width
+                if ($null -ne $script:profileArray.Width) {
+                    $widthTextBox.Text = $script:profileArray.Width
                 } else {
                     $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].Headtracking) {
-                    $headtrackerEnabledComboBox.SelectedIndex = $script:profileArray[0].Headtracking
+                if ($null -ne $script:profileArray.Headtracking) {
+                    $headtrackerEnabledComboBox.SelectedIndex = $script:profileArray.Headtracking
                 } else {
                     $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].HeadtrackingSource) {
-                    $HeadtrackingSourceComboBox.SelectedIndex = $script:profileArray[0].HeadtrackingSource
+                if ($null -ne $script:profileArray.HeadtrackingSource) {
+                    $HeadtrackingSourceComboBox.SelectedIndex = $script:profileArray.HeadtrackingSource
                 } else {
                     $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].ChromaticAberration) {
-                    $chromaticAberrationTextBox.Text = $script:profileArray[0].ChromaticAberration
+                if ($null -ne $script:profileArray.ChromaticAberration) {
+                    $chromaticAberrationTextBox.Text = $script:profileArray.ChromaticAberration
                 } else {
                     $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].AutoZoomOnSelectedTarget) {
-                    $AutoZoomTextBox.Text = $script:profileArray[0].AutoZoomOnSelectedTarget
+                if ($null -ne $script:profileArray.AutoZoomOnSelectedTarget) {
+                    $AutoZoomTextBox.Text = $script:profileArray.AutoZoomOnSelectedTarget
                 } else {
                     $AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].MotionBlur) {
-                    $MotionBlurTextBox.Text = $script:profileArray[0].MotionBlur
+                if ($null -ne $script:profileArray.MotionBlur) {
+                    $MotionBlurTextBox.Text = $script:profileArray.MotionBlur
                 } else {
                     $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray[0].ShakeScale) {
-                    $ShakeScaleTextBox.Text = $script:profileArray[0].ShakeScale
+                if ($null -ne $script:profileArray.ShakeScale) {
+                    $ShakeScaleTextBox.Text = $script:profileArray.ShakeScale
                 } else {
                     $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
                 }
@@ -386,19 +356,44 @@ $saveProfileMenuItem.Text = "&Save Profile"
 $saveProfileMenuItem.Add_Click({
     $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath "profile.json"
     try {
-        if ($script:profileArray.Count -gt 0) {
-            $script:profileArray[0].FOV = $fovTextBox.Text
-            $script:profileArray[0].Height = $heightTextBox.Text
-            $script:profileArray[0].Width = $widthTextBox.Text
-            $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
-            $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
-            $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
-            $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
-            $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
-            $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
-            $script:profileArray[0].AttributesXmlPath = $attributesXmlPath.ToString()
-            $script:profileArray[0].Path = $liveFolderPath.ToString()
+        if (-not $script:profileArray) {
+            if ($debug) {Write-Host "debug: No Profile Array" -BackgroundColor White -ForegroundColor Black}
+            $script:profileArray = [System.Collections.ArrayList]@()
         }
+        if ($script:profileArray.Count -eq 0) {
+            if ($debug) {Write-Host "debug: Empty array - Populating blank profile array" -BackgroundColor White -ForegroundColor Black}
+            if ($script:profileArray.Add([PSCustomObject]@{
+                Path = ""
+                AttributesXmlPath = ""
+                FOV = ""
+                Height = ""
+                Width = ""
+                Headtracking = 0
+                HeadtrackingSource = 0
+                ChromaticAberration = ""
+                AutoZoomOnSelectedTarget = ""
+                MotionBlur = ""
+                ShakeScale = ""
+            })) {
+                if ($debug) {Write-Host "debug: Profile Array populated" -BackgroundColor White -ForegroundColor Black}
+            } else {
+                if ($debug) {Write-Host "debug: Profile Array not populated" -BackgroundColor White -ForegroundColor Black}
+            }
+        }
+        if ($debug) {Write-Host "debug: copy values to profile array" -BackgroundColor White -ForegroundColor Black}
+        if ($debug) {Write-Host "debug: Path added to Profile Array " -BackgroundColor White -ForegroundColor Black}
+        $script:profileArray.Path = $liveFolderPath.ToString()
+        $script:profileArray.AttributesXmlPath = $attributesXmlPath.ToString()
+        #$script:profileArray.Item("AttributesXmlPath") = $attributesXmlPath.ToString()
+        $script:profileArray.FOV = $fovTextBox.Text
+        $script:profileArray.Height = $heightTextBox.Text
+        $script:profileArray.Width = $widthTextBox.Text
+        $script:profileArray.Headtracking = $headtrackerEnabledComboBox.SelectedIndex
+        $script:profileArray.HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex
+        $script:profileArray.ChromaticAberration = $chromaticAberrationTextBox.Text
+        $script:profileArray.AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
+        $script:profileArray.MotionBlur = $MotionBlurTextBox.Text
+        $script:profileArray.ShakeScale = $ShakeScaleTextBox.Text
 
         $script:profileArray | ConvertTo-Json -Depth 10 | Out-File -FilePath $profileJsonPath -Force
         [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
