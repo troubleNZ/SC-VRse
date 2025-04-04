@@ -14,14 +14,14 @@ profile.json file is not being created correctly;
 values are not being saved or read back from the file on load.
 #>
 
-$scriptVersion = "0.1.8.1"                        # fixed headtracking toggle and source saving to xml
-$currentLocation = (Get-Location).Path
+$scriptVersion = "0.1.9"                        # fixed headtracking toggle and source saving to xml
+#$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
-$ProfileJsonName = "profile.json"
+#$ProfileJsonName = "profile.json"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
 
-$debug = $false
+$debug = $true
 
 $script:xmlPath = $null
 $script:xmlContent = @()
@@ -31,7 +31,7 @@ $script:dataGridView = @()
 
 $niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
-$liveFolderPath = $null
+$script:liveFolderPath = $null
 $attributesXmlPath = $null
 $fovTextBox = $null
 $heightTextBox = $null
@@ -80,7 +80,7 @@ $fileMenuItem = New-Object System.Windows.Forms.MenuItem
 $fileMenuItem.Text = "&File"    # The & character indicates the shortcut key
 $mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main menu
 
-function Import-ProfileJson {
+<#function Import-ProfileJson {
 
     if (-not [string]::IsNullOrWhiteSpace($currentLocation)) {
         $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath $ProfileJsonName
@@ -93,10 +93,8 @@ function Import-ProfileJson {
             $profileContent = Get-Content -Path $profileJsonPath -Raw -ErrorAction Stop
             if ($debug) { Write-Host "profileJsonPath: $profileJsonPath" -BackgroundColor White -ForegroundColor Black }
             $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
-            if ($parsedJson -is [System.Collections.ArrayList]) {
-                $script:profileArray = [System.Collections.ArrayList]$parsedJson
-                if ($debug) { Write-Host "Parsed JSON successfully loaded into profileArray." -BackgroundColor White -ForegroundColor Black }
-            } elseif ($parsedJson -is [PSCustomObject]) {
+            
+            if ($parsedJson -is [PSCustomObject]) {
                 $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
                 if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
                 $script:xmlPath = $script:profileArray.AttributesXmlPath
@@ -107,13 +105,13 @@ function Import-ProfileJson {
             }
         } catch {
             Write-Host "Error parsing JSON: $_" -ForegroundColor Red
-            $script:profileArray = [System.Collections.ArrayList]@()
+            #$script:profileArray = [System.Collections.ArrayList]@()
         }
     } else {
         Write-Host "profile.json file not found. Starting with an empty profile array." -ForegroundColor Yellow
         $script:profileArray = [System.Collections.ArrayList]@()
     }
-}
+}#>
 
 function Update-ButtonState {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -193,7 +191,7 @@ function Set-ProfileArray {
     param ()
 
     if ($PSCmdlet.ShouldProcess("Profile Array", "Set the profile array")) {
-    #if (-not [string]::IsNullOrWhiteSpace($liveFolderPath) -and
+    #if (-not [string]::IsNullOrWhiteSpace($script:liveFolderPath) -and
     #    -not [string]::IsNullOrWhiteSpace($attributesXmlPath) -and
     #    -not [string]::IsNullOrWhiteSpace($fovTextBox.Text) -and
     #    -not [string]::IsNullOrWhiteSpace($heightTextBox.Text) -and
@@ -204,7 +202,7 @@ function Set-ProfileArray {
         $script:profileArray.Clear()  # Clear the existing profile array
 
         $script:profileArray.Add([PSCustomObject]@{
-            Path = $liveFolderPath;
+            SCPath = $script:liveFolderPath;
             AttributesXmlPath = $attributesXmlPath;
             FOV = $fovTextBox.Text;
             Height = $heightTextBox.Text;
@@ -321,7 +319,7 @@ function Open-XMLViewer {
                     $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
                 }
 
-                if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
+                if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray
 
                 # Show the edit group box
@@ -338,13 +336,71 @@ function Open-XMLViewer {
     }
 }
 
+<#       We'll use the screen dimensions below for suggesting a max window size                   #>
+function Get-MaxScreenResolution {
+    Add-Type -AssemblyName System.Windows.Forms
+    $screenWidth = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
+    $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
+    return "$screenWidth x $screenHeight"
+}
+if ($debug) {Get-MaxScreenResolution}
+function Get-DesktopResolutionScale {
+    Add-Type -AssemblyName System.Windows.Forms
+    $graphics = [System.Drawing.Graphics]::FromHwnd([System.IntPtr]::Zero)
+    $desktopDpiX = $graphics.DpiX
+    $scaleFactor = $desktopDpiX / 96  # 96 DPI is the default scale (100%)
+    switch ($scaleFactor) {
+        1 { return "100%" }
+        1.25 { return "125%" }
+        1.5 { return "150%" }
+        1.75 { return "175%" }
+        2 { return "200%" }
+        default { return "$([math]::Round($scaleFactor * 100))%" }
+    }
+}
+if ($debug) {Get-DesktopResolutionScale}
 
 
 #add an item Open Profile, which will load the profile.json file
 $openProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $openProfileMenuItem.Text = "&Open Profile"
 $openProfileMenuItem.Add_Click({
-    Import-ProfileJson
+    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $openFileDialog.Filter = "JSON Files (*.json)|*.json"
+    $openFileDialog.Title = "Select a Profile JSON File"
+
+    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $profileJsonPath = $openFileDialog.FileName
+
+        if (Test-Path -Path $profileJsonPath) {
+            # Import-ProfileJson
+            try {
+                $profileContent = Get-Content -Path $profileJsonPath -Raw -ErrorAction Stop
+                if ($debug) { Write-Host "profileJsonPath: $profileJsonPath" -BackgroundColor White -ForegroundColor Black }
+                $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
+
+                if ($parsedJson -is [PSCustomObject]) {
+                    $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
+                    if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
+                    if ($debug) {
+                        foreach ($item in $script:profileArray) {
+                            Write-Host "Item: $item" -BackgroundColor White -ForegroundColor Black
+                        }
+                    }
+                    $script:liveFolderPath = $script:profileArray.SCPath
+                    $attributesXmlPath = $script:profileArray.AttributesXmlPath
+                    $script:xmlPath = $attributesXmlPath
+                    Open-XMLViewer($script:xmlPath)
+                } else {
+                    throw "Invalid JSON structure. Expected an array or object."
+                }
+            } catch {
+                Write-Host "Error parsing JSON: $_" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "Selected file does not exist." -ForegroundColor Yellow
+        }
+    }
 })
 $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu item to the File menu
 
@@ -354,51 +410,37 @@ $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu i
 $saveProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $saveProfileMenuItem.Text = "&Save Profile"
 $saveProfileMenuItem.Add_Click({
-    $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath "profile.json"
-    try {
-        if (-not $script:profileArray) {
-            if ($debug) {Write-Host "debug: No Profile Array" -BackgroundColor White -ForegroundColor Black}
-            $script:profileArray = [System.Collections.ArrayList]@()
-        }
-        if ($script:profileArray.Count -eq 0) {
-            if ($debug) {Write-Host "debug: Empty array - Populating blank profile array" -BackgroundColor White -ForegroundColor Black}
-            if ($script:profileArray.Add([PSCustomObject]@{
-                Path = ""
-                AttributesXmlPath = ""
-                FOV = ""
-                Height = ""
-                Width = ""
-                Headtracking = 0
-                HeadtrackingSource = 0
-                ChromaticAberration = ""
-                AutoZoomOnSelectedTarget = ""
-                MotionBlur = ""
-                ShakeScale = ""
-            })) {
-                if ($debug) {Write-Host "debug: Profile Array populated" -BackgroundColor White -ForegroundColor Black}
-            } else {
-                if ($debug) {Write-Host "debug: Profile Array not populated" -BackgroundColor White -ForegroundColor Black}
-            }
-        }
-        if ($debug) {Write-Host "debug: copy values to profile array" -BackgroundColor White -ForegroundColor Black}
-        if ($debug) {Write-Host "debug: Path added to Profile Array " -BackgroundColor White -ForegroundColor Black}
-        $script:profileArray.Path = $liveFolderPath.ToString()
-        $script:profileArray.AttributesXmlPath = $attributesXmlPath.ToString()
-        #$script:profileArray.Item("AttributesXmlPath") = $attributesXmlPath.ToString()
-        $script:profileArray.FOV = $fovTextBox.Text
-        $script:profileArray.Height = $heightTextBox.Text
-        $script:profileArray.Width = $widthTextBox.Text
-        $script:profileArray.Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
-        $script:profileArray.HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
-        $script:profileArray.ChromaticAberration = $chromaticAberrationTextBox.Text
-        $script:profileArray.AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
-        $script:profileArray.MotionBlur = $MotionBlurTextBox.Text
-        $script:profileArray.ShakeScale = $ShakeScaleTextBox.Text
+    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+    $saveFileDialog.Filter = "JSON Files (*.json)|*.json"
+    $saveFileDialog.Title = "Save Profile As"
+    $saveFileDialog.FileName = "profile.json"
 
-        $script:profileArray | ConvertTo-Json -Depth 10 | Out-File -FilePath $profileJsonPath -Force
-        [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to profile.json")
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
+    if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $profileJsonPath = $saveFileDialog.FileName
+        try {
+            if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
+            $script:profileArray[0].SCPath = $script:liveFolderPath
+            $script:profileArray[0].AttributesXmlPath = $attributesXmlPath
+            $script:profileArray[0].FOV = $fovTextBox.Text
+            $script:profileArray[0].Height = $heightTextBox.Text
+            $script:profileArray[0].Width = $widthTextBox.Text
+            $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
+            $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
+            $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
+            $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
+            $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
+            $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
+
+            $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
+            if ($null -ne $jsonContent) {
+                [System.IO.File]::WriteAllText($profileJsonPath, $jsonContent)
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("Failed to generate JSON content.")
+            }
+            [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to $profileJsonPath")
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
+        }
     }
 })
 $fileMenuItem.MenuItems.Add($saveProfileMenuItem)  # Add the Save Profile menu item to the File menu
@@ -469,7 +511,7 @@ $openXmlMenuItem.Add_Click({
                         $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                         $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
 
-                        if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
+                        if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
 
                         Set-ProfileArray
@@ -523,15 +565,19 @@ $findLiveFolderButton.Add_Click({
     $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
 
     $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
-    if ($script:profileArray -and ($null -ne $script:profileArray.Path)) {
-        $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.Path)
+    if ($script:profileArray -and ($null -ne $script:profileArray.SCPath)) {
+        if ($folderBrowserDialog -ne $null) {
+            $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.SCPath)
+        } else {
+            Write-Host "Error: FolderBrowserDialog is not initialized." -ForegroundColor Red
+        }
     }
     if ($folderBrowserDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $selectedPath = $folderBrowserDialog.SelectedPath
-        $liveFolderPath = Join-Path -Path $selectedPath -ChildPath "Live"
-        if (Test-Path -Path $liveFolderPath -PathType Container) {
-            #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $liveFolderPath")
-            $defaultProfilePath = Join-Path -Path $liveFolderPath -ChildPath "user\client\0\Profiles\default"
+        $script:liveFolderPath = Join-Path -Path $selectedPath -ChildPath "Live"
+        if (Test-Path -Path $script:liveFolderPath -PathType Container) {
+            #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
+            $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
             if (Test-Path -Path $defaultProfilePath -PathType Container) {
                 $attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
                 if (Test-Path -Path $attributesXmlPath) {
@@ -844,57 +890,44 @@ $importButton.Add_Click({
 
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
 
-                if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML looks good.")}
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
 
-                $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
-                $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
-                $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
-                $headtrackingValue = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
-
-
-                if (-not $heightTextBox.Text) {
-                    $heightTextBox.Text = ""
+                # Helper function to safely extract attribute values
+                function Get-AttributeValue {
+                    param (
+                        [string]$attributeName
+                    )
+                    return $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq $attributeName } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 }
-                if (-not $widthTextBox.Text) {
-                    $widthTextBox.Text = ""
+                
+                $fovTextBox.Text = Get-AttributeValue "FOV"
+                $widthTextBox.Text = Get-AttributeValue "Width"
+                $heightTextBox.Text = Get-AttributeValue "Height"
+                $headtrackingValue = Get-AttributeValue "HeadtrackingToggle"
+                $headtrackingSourceValue = Get-AttributeValue "HeadtrackingSource"
+
+                # Safely parse and set combo box values
+                function SetComboBoxValue {
+                    param (
+                        [System.Windows.Forms.ComboBox]$comboBox,
+                        [string]$value,
+                        [int]$defaultValue = 0
+                    )
+                    if ([int]::TryParse($value, [ref]$null)) {
+                        $comboBox.SelectedIndex = [int]$value
+                    } else {
+                        [System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")
+                        $comboBox.SelectedIndex = $defaultValue
+                    }
                 }
 
+                SetComboBoxValue -comboBox $headtrackerEnabledComboBox -value $headtrackingValue
+                SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value $headtrackingSourceValue
             } else {
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")}
                 $fovTextBox.Text = ""
                 $heightTextBox.Text = ""
                 $widthTextBox.Text = ""
-            }
-            if ([int]::TryParse($headtrackingValue, [ref]$null)) {
-                $headtrackerEnabledComboBox.SelectedIndex = [int]$headtrackingValue
-            } else {
-                [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingEnabled. Setting to default (0).")
-                $headtrackerEnabledComboBox.SelectedIndex = 0
-            }
-
-            if ($null -ne $script:xmlContent.Attributes.Attr) {
-                try {
-                    $headtrackerEnabledComboBox.SelectedIndex = ([int]::Parse($script:xmlContent.Attributes.Attr) | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value)
-                } catch {
-                $headtrackingValue = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
-                }
-                if ([int]::TryParse($headtrackingValue, [ref]$null)) {
-                    $headtrackerEnabledComboBox.SelectedIndex = [int]$headtrackingValue
-                } else {
-                    [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingEnabled. Setting to default (0).")
-                    $headtrackerEnabledComboBox.SelectedIndex = 0
-                }
-                try {
-                    $HeadtrackingSourceComboBox.SelectedIndex = ([int]::Parse($script:xmlContent.Attributes.Attr) | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value)
-                } catch {
-                $headtrackingSourceValue = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
-                    if ([int]::TryParse($headtrackingSourceValue, [ref]$null)) {
-                        $HeadtrackingSourceComboBox.SelectedIndex = [int]$headtrackingSourceValue
-                    } else {
-                        [System.Windows.Forms.MessageBox]::Show("Invalid value for HeadtrackingSource. Setting to default (0).")
-                        $HeadtrackingSourceComboBox.SelectedIndex = 0
-                    }
-                }
             }
         }
     } catch {
@@ -988,8 +1021,7 @@ $saveButton.Add_Click({
         if ($null -ne $ShakeScaleNode) {
             $ShakeScaleNode.SetAttribute("value", $ShakeScaleTextBox.Text)  # SHAKESCALE
         }
-
-
+        
         try {
             $script:xmlContent.Save($script:xmlPath)
             [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
