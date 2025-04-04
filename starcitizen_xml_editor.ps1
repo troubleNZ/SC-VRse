@@ -8,20 +8,17 @@
   ▀██████▀    ███    ███  ▄████████▀    ██████████        ███    █▀    ██████████
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 
-current issues:
 
-profile.json file is not being created correctly; 
-values are not being saved or read back from the file on load.
 #>
 
-$scriptVersion = "0.1.9"                        # fixed headtracking toggle and source saving to xml
+$scriptVersion = "0.1.9.1"                        # open and save profile.json is now working
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
 
-$debug = $true
+$debug = $false
 
 $script:xmlPath = $null
 $script:xmlContent = @()
@@ -32,7 +29,7 @@ $script:dataGridView = @()
 $niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
 $script:liveFolderPath = $null
-$attributesXmlPath = $null
+$script:attributesXmlPath = $null
 $fovTextBox = $null
 $heightTextBox = $null
 $widthTextBox = $null
@@ -79,39 +76,6 @@ $mainMenu = New-Object System.Windows.Forms.MainMenu
 $fileMenuItem = New-Object System.Windows.Forms.MenuItem
 $fileMenuItem.Text = "&File"    # The & character indicates the shortcut key
 $mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main menu
-
-<#function Import-ProfileJson {
-
-    if (-not [string]::IsNullOrWhiteSpace($currentLocation)) {
-        $profileJsonPath = Join-Path -Path ($currentLocation) -ChildPath $ProfileJsonName
-    } else {
-        throw "Error: Current location is invalid or not set."
-    }
-
-    if (Test-Path -Path $profileJsonPath) {
-        try {
-            $profileContent = Get-Content -Path $profileJsonPath -Raw -ErrorAction Stop
-            if ($debug) { Write-Host "profileJsonPath: $profileJsonPath" -BackgroundColor White -ForegroundColor Black }
-            $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
-            
-            if ($parsedJson -is [PSCustomObject]) {
-                $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
-                if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
-                $script:xmlPath = $script:profileArray.AttributesXmlPath
-                Open-XMLViewer($script:xmlPath)
-
-            } else {
-                throw "Invalid JSON structure. Expected an array or object."
-            }
-        } catch {
-            Write-Host "Error parsing JSON: $_" -ForegroundColor Red
-            #$script:profileArray = [System.Collections.ArrayList]@()
-        }
-    } else {
-        Write-Host "profile.json file not found. Starting with an empty profile array." -ForegroundColor Yellow
-        $script:profileArray = [System.Collections.ArrayList]@()
-    }
-}#>
 
 function Update-ButtonState {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -192,7 +156,7 @@ function Set-ProfileArray {
 
     if ($PSCmdlet.ShouldProcess("Profile Array", "Set the profile array")) {
     #if (-not [string]::IsNullOrWhiteSpace($script:liveFolderPath) -and
-    #    -not [string]::IsNullOrWhiteSpace($attributesXmlPath) -and
+    #    -not [string]::IsNullOrWhiteSpace($script:attributesXmlPath) -and
     #    -not [string]::IsNullOrWhiteSpace($fovTextBox.Text) -and
     #    -not [string]::IsNullOrWhiteSpace($heightTextBox.Text) -and
     #    -not [string]::IsNullOrWhiteSpace($widthTextBox.Text) -and
@@ -203,7 +167,7 @@ function Set-ProfileArray {
 
         $script:profileArray.Add([PSCustomObject]@{
             SCPath = $script:liveFolderPath;
-            AttributesXmlPath = $attributesXmlPath;
+            AttributesXmlPath = $script:attributesXmlPath;
             FOV = $fovTextBox.Text;
             Height = $heightTextBox.Text;
             Width = $widthTextBox.Text;
@@ -388,8 +352,8 @@ $openProfileMenuItem.Add_Click({
                         }
                     }
                     $script:liveFolderPath = $script:profileArray.SCPath
-                    $attributesXmlPath = $script:profileArray.AttributesXmlPath
-                    $script:xmlPath = $attributesXmlPath
+                    $script:attributesXmlPath = $script:profileArray.AttributesXmlPath
+                    $script:xmlPath = $script:attributesXmlPath
                     Open-XMLViewer($script:xmlPath)
                 } else {
                     throw "Invalid JSON structure. Expected an array or object."
@@ -420,7 +384,7 @@ $saveProfileMenuItem.Add_Click({
         try {
             if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
             $script:profileArray[0].SCPath = $script:liveFolderPath
-            $script:profileArray[0].AttributesXmlPath = $attributesXmlPath
+            $script:profileArray[0].AttributesXmlPath = $script:attributesXmlPath
             $script:profileArray[0].FOV = $fovTextBox.Text
             $script:profileArray[0].Height = $heightTextBox.Text
             $script:profileArray[0].Width = $widthTextBox.Text
@@ -579,15 +543,15 @@ $findLiveFolderButton.Add_Click({
             #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
             $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
             if (Test-Path -Path $defaultProfilePath -PathType Container) {
-                $attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
-                if (Test-Path -Path $attributesXmlPath) {
+                $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
+                if (Test-Path -Path $script:attributesXmlPath) {
                         $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
                         if (-not (Test-Path -Path $backupDir)) {
                             New-Item -ItemType Directory -Path $backupDir | Out-Null
                         }
                     $destinationPath = Join-Path -Path $backupDir -ChildPath "attributes_backup_$niceDate.xml"
-                    Copy-Item -Path $attributesXmlPath -Destination $destinationPath -Force
-                    $script:xmlPath = $attributesXmlPath
+                    Copy-Item -Path $script:attributesXmlPath -Destination $destinationPath -Force
+                    $script:xmlPath = $script:attributesXmlPath
                     Open-XMLViewer($script:xmlPath)
                 } else {
                     if ($debug) {[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")}
