@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.10"                        # new additions: add CameraSpringMovement, FilmGrain, GForceBoostZoomScale and GForceHeadBobScale to the form
+$scriptVersion = "0.1.11.1"                        # confirmation buttons for EAC deletion, dark mode, unified labels
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
@@ -38,6 +38,7 @@ $editGroupBox = $null
 $darkModeMenuItem = $null
 
 <# XML Nodes
+
 $fovNode                = @()   # not needed to declare here , reference only.
 $heightNode             = @()
 $widthNode              = @()
@@ -62,9 +63,9 @@ Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
 $form.Width = 620
-$form.Height = 820
+$form.Height = 630
 $form.StartPosition = 'CenterScreen'
-$form.Size = New-Object System.Drawing.Size(600,820)
+$form.Size = New-Object System.Drawing.Size(600,630)
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
@@ -91,7 +92,11 @@ function Update-ButtonState {
         if ($null -ne $script:xmlContent) {
             $importButton.Enabled = $true
             $saveButton.Enabled = $true
-            $loadFromProfileButton.Enabled = $true
+            if ($script:profileArray.Count -gt 0) {
+                $loadFromProfileButton.Enabled = $true
+            } else {
+                $loadFromProfileButton.Enabled = $false
+            }
         } else {
             $importButton.Enabled = $false
             $saveButton.Enabled = $false
@@ -132,29 +137,29 @@ function Set-LightMode {
 Set-LightMode -control $form
 
 function Switch-DarkMode {
-    param (
+    <#param (
         [System.Windows.Forms.DataGridView]$script:dataGridView
-    )
+    )#>
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) {
         Set-LightMode -control $form
         $darkModeMenuItem.Text = "Enable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
         # Set light mode for the dataTable
-        $script:dataGridView.BackgroundColor = [System.Drawing.Color]::White
-        $script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::White
-        $script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
-        $script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::White
-        $script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
+        #$script:dataGridView.BackgroundColor = [System.Drawing.Color]::White
+        #$script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::White
+        #$script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
+        #$script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::White
+        #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
     } else {
         Set-DarkMode -control $form
         $darkModeMenuItem.Text = "Disable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
         # Set dark mode for the dataTable
-        $script:dataGridView.BackgroundColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        $script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        $script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::White
-        $script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        $script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
+        #$script:dataGridView.BackgroundColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        #$script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        #$script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::White
+        #$script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
     }
 }
 
@@ -176,6 +181,7 @@ function Set-ProfileArray {
         $script:profileArray.Add([PSCustomObject]@{
             SCPath = $script:liveFolderPath;
             AttributesXmlPath = $script:attributesXmlPath;
+            DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false };
             FOV = $fovTextBox.Text;
             Height = $heightTextBox.Text;
             Width = $widthTextBox.Text;
@@ -389,6 +395,12 @@ $openProfileMenuItem.Add_Click({
                     $script:liveFolderPath = $script:profileArray.SCPath
                     $script:attributesXmlPath = $script:profileArray.AttributesXmlPath
                     $script:xmlPath = $script:attributesXmlPath
+                    $script:darkMode = $script:profileArray.DarkMode
+                    if ($script:darkMode) {
+                        Switch-DarkMode
+                    } else {
+                        Set-LightMode -control $form
+                    }
                     Open-XMLViewer($script:xmlPath)
                 } else {
                     throw "Invalid JSON structure. Expected an array or object."
@@ -420,6 +432,7 @@ $saveProfileMenuItem.Add_Click({
             if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
             $script:profileArray[0].SCPath = $script:liveFolderPath
             $script:profileArray[0].AttributesXmlPath = $script:attributesXmlPath
+            $script:profileArray[0].DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false }
             $script:profileArray[0].FOV = $fovTextBox.Text
             $script:profileArray[0].Height = $heightTextBox.Text
             $script:profileArray[0].Width = $widthTextBox.Text
@@ -548,7 +561,7 @@ $actionsMenuItem.MenuItems.Add($openXmlMenuItem)
 $darkModeMenuItem = New-Object System.Windows.Forms.MenuItem
 $darkModeMenuItem.Text = "Enable Dark Mode"
 $darkModeMenuItem.Add_Click({
-    Switch-DarkMode -dataGridView $script:dataGridView
+    Switch-DarkMode #-dataGridView $script:dataGridView
 })
 $actionsMenuItem.MenuItems.Add($darkModeMenuItem)
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
@@ -677,13 +690,29 @@ $deleteEACTempFilesButton.Add_Click({
     $eacTempPath = Join-Path -Path $env:USERPROFILE -ChildPath "AppData\Roaming\EasyAntiCheat"
     if (Test-Path -Path $eacTempPath -PathType Container) {
         if ($eacTempPath -match "EasyAntiCheat") {
-            try {
-                Get-ChildItem -Path $eacTempPath | ForEach-Object {
-                    Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+            $userConfirmation = [System.Windows.Forms.MessageBox]::Show(
+                "This action will zip the files to the parent directory of '$eacTempPath' and then delete the loose files. Do you want to proceed?",
+                "Confirmation",
+                [System.Windows.Forms.MessageBoxButtons]::OKCancel,
+                [System.Windows.Forms.MessageBoxIcon]::Warning
+            )
+            if ($userConfirmation -eq [System.Windows.Forms.DialogResult]::OK) {
+                try {
+                    $zipFilePath = Join-Path -Path $env:USERPROFILE -ChildPath "AppData\Roaming\EAC_TempFiles_Backup_$niceDate.zip"
+                    if (Test-Path -Path $zipFilePath) {
+                        Remove-Item -Path $zipFilePath -Force -ErrorAction SilentlyContinue
+                    }
+                    Add-Type -AssemblyName System.IO.Compression.FileSystem
+                    [System.IO.Compression.ZipFile]::CreateFromDirectory($eacTempPath, $zipFilePath)
+                    Get-ChildItem -Path $eacTempPath | ForEach-Object {
+                        Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+                    }
+                    [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
+                } catch {
+                    [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles: $_")
                 }
-                [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
-            } catch {
-                [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles: $_")
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("Operation canceled by the user.")
             }
         } else {
             [System.Windows.Forms.MessageBox]::Show("The specified path does not contain or is not the parent of 'EasyAntiCheat'. Operation aborted.")
@@ -751,7 +780,7 @@ $editGroupBox.Visible = $true
 
 
 $loadFromProfileButton = New-Object System.Windows.Forms.Button
-$loadFromProfileButton.Text = "Load from profile"
+$loadFromProfileButton.Text = "Import settings from profile"
 $loadFromProfileButton.Width = 200
 $loadFromProfileButton.Height = 30
 $loadFromProfileButton.Top = 30
@@ -770,8 +799,8 @@ $loadFromProfileButton.Add_Click({
 })
 
 $importButton = New-Object System.Windows.Forms.Button
-$importButton.Text = "Import from Game"
-$importButton.Width = 120
+$importButton.Text = "Import settings from Game"
+$importButton.Width = 200
 $importButton.Height = 30
 $importButton.Top = 30
 $importButton.Left = 260
