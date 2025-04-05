@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.12"                        # save and open profile buttons, tab indexes, tidy up
+$scriptVersion = "0.1.12.1"                        # bugfix, save and open profile buttons, tab indexes, tidy up
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
@@ -829,10 +829,10 @@ $editGroupBox.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
     $script:xmlPath = $script:profileArray.AttributesXmlPath
-    if (Test-Path -Path $script:xmlPath) {
-        Open-XMLViewer($script:xmlPath)
+    if (Test-Path -Path $script:profileArray.AttributesXmlPath) {
+        Open-XMLViewer($script:profileArray.AttributesXmlPath)
     } else {
-        [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+        [System.Windows.Forms.MessageBox]::Show("profile json doesnt contain attributes path?")
     }
 })
 
@@ -1254,8 +1254,8 @@ $saveButton.Add_Click({
         # Show the dataTableGroupBox and set its text to the XML path
         $dataTableGroupBox.Text = $xmlPath
         $dataTableGroupBox.Visible = $true
-        $fileTextBox.Text = $xmlPath
-        $fileTextBox.Visible = $true
+        #$fileTextBox.Text = $xmlPath
+        #$fileTextBox.Visible = $true
         Update-ButtonState
 
         # Populate the input boxes with the first row values
