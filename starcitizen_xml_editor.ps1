@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.11.1"                        # confirmation buttons for EAC deletion, dark mode, unified labels
+$scriptVersion = "0.1.12"                        # save and open profile buttons, tab indexes, tidy up
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
@@ -92,6 +92,7 @@ function Update-ButtonState {
         if ($null -ne $script:xmlContent) {
             $importButton.Enabled = $true
             $saveButton.Enabled = $true
+            $saveProfileButton.Enabled = $true
             if ($script:profileArray.Count -gt 0) {
                 $loadFromProfileButton.Enabled = $true
             } else {
@@ -101,6 +102,7 @@ function Update-ButtonState {
             $importButton.Enabled = $false
             $saveButton.Enabled = $false
             $loadFromProfileButton.Enabled = $false
+            $saveProfileButton.Enabled = $false
         }
     }
 }
@@ -341,6 +343,101 @@ function Open-XMLViewer {
     }
 }
 
+function Save-Profile {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    if ($PSCmdlet.ShouldProcess("Profile", "Save the profile to JSON")) {
+        $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+        $saveFileDialog.Filter = "JSON Files (*.json)|*.json"
+        $saveFileDialog.Title = "Save Profile As"
+        $saveFileDialog.FileName = "profile.json"
+
+        if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $profileJsonPath = $saveFileDialog.FileName
+            try {
+                if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
+                $script:profileArray[0].SCPath = $script:liveFolderPath
+                $script:profileArray[0].AttributesXmlPath = $script:attributesXmlPath
+                $script:profileArray[0].DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false }
+                $script:profileArray[0].FOV = $fovTextBox.Text
+                $script:profileArray[0].Height = $heightTextBox.Text
+                $script:profileArray[0].Width = $widthTextBox.Text
+                $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
+                $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
+                $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
+                $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
+                $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
+                $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
+                $script:profileArray[0].CameraSpringMovement = $CameraSpringMovementTextBox.Text
+                $script:profileArray[0].FilmGrain = $FilmGrainTextBox.Text
+                $script:profileArray[0].GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text
+                $script:profileArray[0].GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text
+
+                $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
+                if ($null -ne $jsonContent) {
+                    [System.IO.File]::WriteAllText($profileJsonPath, $jsonContent)
+                } else {
+                    [System.Windows.Forms.MessageBox]::Show("Failed to generate JSON content.")
+                }
+                [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to $profileJsonPath")
+            } catch {
+                [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
+            }
+        }
+    }
+}
+
+function Open-Profile {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    if ($PSCmdlet.ShouldProcess("Profile", "Open a previously saved JSON")) {
+        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $openFileDialog.Filter = "JSON Files (*.json)|*.json"
+        $openFileDialog.Title = "Select a Profile JSON File"
+
+        if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $profileJsonPath = $openFileDialog.FileName
+
+            if (Test-Path -Path $profileJsonPath) {
+                # Import-ProfileJson
+                try {
+                    $profileContent = Get-Content -Path $profileJsonPath -Raw -ErrorAction Stop
+                    if ($debug) { Write-Host "profileJsonPath: $profileJsonPath" -BackgroundColor White -ForegroundColor Black }
+                    $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
+
+                    if ($parsedJson -is [PSCustomObject]) {
+                        $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
+                        if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
+                        if ($debug) {
+                            foreach ($item in $script:profileArray) {
+                                Write-Host "Item: $item" -BackgroundColor White -ForegroundColor Black
+                            }
+                        }
+                        $script:liveFolderPath = $script:profileArray.SCPath
+                        $script:attributesXmlPath = $script:profileArray.AttributesXmlPath
+                        $script:xmlPath = $script:attributesXmlPath
+                        $script:darkMode = $script:profileArray.DarkMode
+                        if ($script:darkMode) {
+                            Switch-DarkMode
+                        } else {
+                            Set-LightMode -control $form
+                        }
+                        Open-XMLViewer($script:xmlPath)
+                    } else {
+                        throw "Invalid JSON structure. Expected an array or object."
+                    }
+                } catch {
+                    Write-Host "Error parsing JSON: $_" -ForegroundColor Red
+                }
+            } else {
+                Write-Host "Selected file does not exist." -ForegroundColor Yellow
+            }
+        }
+    }
+}
+
 <#       We'll use the screen dimensions below for suggesting a max window size                   #>
 function Get-MaxScreenResolution {
     Add-Type -AssemblyName System.Windows.Forms
@@ -370,48 +467,7 @@ if ($debug) {Get-DesktopResolutionScale}
 $openProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $openProfileMenuItem.Text = "&Open Profile"
 $openProfileMenuItem.Add_Click({
-    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $openFileDialog.Filter = "JSON Files (*.json)|*.json"
-    $openFileDialog.Title = "Select a Profile JSON File"
-
-    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $profileJsonPath = $openFileDialog.FileName
-
-        if (Test-Path -Path $profileJsonPath) {
-            # Import-ProfileJson
-            try {
-                $profileContent = Get-Content -Path $profileJsonPath -Raw -ErrorAction Stop
-                if ($debug) { Write-Host "profileJsonPath: $profileJsonPath" -BackgroundColor White -ForegroundColor Black }
-                $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
-
-                if ($parsedJson -is [PSCustomObject]) {
-                    $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
-                    if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
-                    if ($debug) {
-                        foreach ($item in $script:profileArray) {
-                            Write-Host "Item: $item" -BackgroundColor White -ForegroundColor Black
-                        }
-                    }
-                    $script:liveFolderPath = $script:profileArray.SCPath
-                    $script:attributesXmlPath = $script:profileArray.AttributesXmlPath
-                    $script:xmlPath = $script:attributesXmlPath
-                    $script:darkMode = $script:profileArray.DarkMode
-                    if ($script:darkMode) {
-                        Switch-DarkMode
-                    } else {
-                        Set-LightMode -control $form
-                    }
-                    Open-XMLViewer($script:xmlPath)
-                } else {
-                    throw "Invalid JSON structure. Expected an array or object."
-                }
-            } catch {
-                Write-Host "Error parsing JSON: $_" -ForegroundColor Red
-            }
-        } else {
-            Write-Host "Selected file does not exist." -ForegroundColor Yellow
-        }
-    }
+    Open-Profile
 })
 $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu item to the File menu
 
@@ -421,43 +477,7 @@ $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu i
 $saveProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $saveProfileMenuItem.Text = "&Save Profile"
 $saveProfileMenuItem.Add_Click({
-    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
-    $saveFileDialog.Filter = "JSON Files (*.json)|*.json"
-    $saveFileDialog.Title = "Save Profile As"
-    $saveFileDialog.FileName = "profile.json"
-
-    if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $profileJsonPath = $saveFileDialog.FileName
-        try {
-            if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
-            $script:profileArray[0].SCPath = $script:liveFolderPath
-            $script:profileArray[0].AttributesXmlPath = $script:attributesXmlPath
-            $script:profileArray[0].DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false }
-            $script:profileArray[0].FOV = $fovTextBox.Text
-            $script:profileArray[0].Height = $heightTextBox.Text
-            $script:profileArray[0].Width = $widthTextBox.Text
-            $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
-            $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
-            $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
-            $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
-            $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
-            $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
-            $script:profileArray[0].CameraSpringMovement = $CameraSpringMovementTextBox.Text
-            $script:profileArray[0].FilmGrain = $FilmGrainTextBox.Text
-            $script:profileArray[0].GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text
-            $script:profileArray[0].GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text
-
-            $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
-            if ($null -ne $jsonContent) {
-                [System.IO.File]::WriteAllText($profileJsonPath, $jsonContent)
-            } else {
-                [System.Windows.Forms.MessageBox]::Show("Failed to generate JSON content.")
-            }
-            [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to $profileJsonPath")
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
-        }
-    }
+    Save-Profile
 })
 $fileMenuItem.MenuItems.Add($saveProfileMenuItem)  # Add the Save Profile menu item to the File menu
 
@@ -622,6 +642,24 @@ $findLiveFolderButton.Add_Click({
 })
 $ActionsGroupBox.Controls.Add($findLiveFolderButton)
 
+
+$openProfileButton = New-Object System.Windows.Forms.Button
+$openProfileButton.Text = "Open Profile"
+$openProfileButton.Width = 120
+$openProfileButton.Height = 30
+$openProfileButton.Top = 65
+$openProfileButton.Left = 20
+$openProfileButton.TabIndex = 1
+
+$openProfileButton.Add_Click({
+    Open-Profile
+})
+$ActionsGroupBox.Controls.Add($openProfileButton)
+$openProfileButton.Visible = $true
+$openProfileButton.Enabled = $true
+
+
+<# unused
 $navigateButton = New-Object System.Windows.Forms.Button
 $navigateButton.Text = "Navigate to File"
 $navigateButton.Width = 120
@@ -640,7 +678,7 @@ $navigateButton.Add_Click({
         Open-XMLViewer($script:xmlPath)
     }
 })
-$ActionsGroupBox.Controls.Add($navigateButton)
+$ActionsGroupBox.Controls.Add($navigateButton)#>
 
 # Create the EAC Bypass group box
 $eacGroupBox = New-Object System.Windows.Forms.GroupBox
@@ -657,7 +695,7 @@ $hostsFileUpdateButton.Width = 160
 $hostsFileUpdateButton.Height = 30
 $hostsFileUpdateButton.Top = 30
 $hostsFileUpdateButton.Left = 20
-$hostsFileUpdateButton.TabIndex = 1
+$hostsFileUpdateButton.TabIndex = 2
 $hostsFileUpdateButton.Add_Click({
     $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
     if (-not (Test-Path -Path $hostsFilePath)) {
@@ -685,7 +723,7 @@ $deleteEACTempFilesButton.Width = 160
 $deleteEACTempFilesButton.Height = 30
 $deleteEACTempFilesButton.Top = 30
 $deleteEACTempFilesButton.Left = 190  # Position it to the right of the Hosts File Update button
-$deleteEACTempFilesButton.TabIndex = 2
+$deleteEACTempFilesButton.TabIndex = 3
 $deleteEACTempFilesButton.Add_Click({
     $eacTempPath = Join-Path -Path $env:USERPROFILE -ChildPath "AppData\Roaming\EasyAntiCheat"
     if (Test-Path -Path $eacTempPath -PathType Container) {
@@ -785,7 +823,7 @@ $loadFromProfileButton.Width = 200
 $loadFromProfileButton.Height = 30
 $loadFromProfileButton.Top = 30
 $loadFromProfileButton.Left = 20
-$loadFromProfileButton.TabIndex = 16
+$loadFromProfileButton.TabIndex = 4
 $loadFromProfileButton.Enabled = $false  # Initially disabled
 $editGroupBox.Controls.Add($loadFromProfileButton)
 
@@ -804,7 +842,7 @@ $importButton.Width = 200
 $importButton.Height = 30
 $importButton.Top = 30
 $importButton.Left = 260
-$importButton.TabIndex = 13
+$importButton.TabIndex = 5
 
 $importButton.Add_Click({
     try {
@@ -875,7 +913,7 @@ $fovTextBox.Left = 90
 $fovTextBox.Width = 50  # Half the original width
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
-$fovTextBox.TabIndex = 3
+$fovTextBox.TabIndex = 6
 $editGroupBox.Controls.Add($fovTextBox)
 
 $widthLabel = New-Object System.Windows.Forms.Label
@@ -891,7 +929,7 @@ $widthTextBox.Top = 70
 $widthTextBox.Left = 250
 $widthTextBox.Width = 50  # Half the original width
 $widthTextBox.TextAlign = 'Left'
-$widthTextBox.TabIndex = 4
+$widthTextBox.TabIndex = 7
 $editGroupBox.Controls.Add($widthTextBox)
 
 $heightLabel = New-Object System.Windows.Forms.Label
@@ -907,7 +945,7 @@ $heightTextBox.Top = 70
 $heightTextBox.Left = 400
 $heightTextBox.Width = 50  # Half the original width
 $heightTextBox.TextAlign = 'Left'
-$heightTextBox.TabIndex = 5
+$heightTextBox.TabIndex = 8
 $editGroupBox.Controls.Add($heightTextBox)
 
 $HeadtrackingLabel = New-Object System.Windows.Forms.Label
@@ -923,7 +961,7 @@ $headtrackerEnabledComboBox.Left = 140
 $headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
 $headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
-$headtrackerEnabledComboBox.TabIndex = 6
+$headtrackerEnabledComboBox.TabIndex = 9
 $headtrackerEnabledComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
 
@@ -943,7 +981,7 @@ $HeadtrackingSourceComboBox.Items.Add("None")
 $HeadtrackingSourceComboBox.Items.Add("TrackIR")
 $HeadtrackingSourceComboBox.Items.Add("Faceware")
 $HeadtrackingSourceComboBox.Items.Add("Tobii")
-$HeadtrackingSourceComboBox.TabIndex = 7
+$HeadtrackingSourceComboBox.TabIndex = 10
 $HeadtrackingSourceComboBox.SelectedItem = $HeadtrackingSourceComboBox.Items[0]  # Set the default selected item to the first one
 $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
@@ -956,25 +994,25 @@ $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Top = 160
-$chromaticAberrationTextBox.Left = 170
+$chromaticAberrationTextBox.Left = 190
 $chromaticAberrationTextBox.Width = 50  # Half the original width
 $chromaticAberrationTextBox.TextAlign = 'Left'
-$chromaticAberrationTextBox.TabIndex = 8
+$chromaticAberrationTextBox.TabIndex = 11
 $editGroupBox.Controls.Add($chromaticAberrationTextBox)
 
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
 $AutoZoomLabel.Top = 160
-$AutoZoomLabel.Left = 260
+$AutoZoomLabel.Left = 300
 $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
 
 $AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
 $AutoZoomTextBox.Top = 160
-$AutoZoomTextBox.Left = 360
+$AutoZoomTextBox.Left = 410
 $AutoZoomTextBox.Width = 50  # Half the original width
 $AutoZoomTextBox.TextAlign = 'Left'
-$AutoZoomTextBox.TabIndex = 9
+$AutoZoomTextBox.TabIndex = 12
 $editGroupBox.Controls.Add($AutoZoomTextBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
@@ -986,25 +1024,25 @@ $editGroupBox.Controls.Add($MotionBlurLabel)
 
 $MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
 $MotionBlurTextBox.Top = 190
-$MotionBlurTextBox.Left = 170
+$MotionBlurTextBox.Left = 190
 $MotionBlurTextBox.Width = 50  # Half the original width
 $MotionBlurTextBox.TextAlign = 'Left'
-$MotionBlurTextBox.TabIndex = 10
+$MotionBlurTextBox.TabIndex = 13
 $editGroupBox.Controls.Add($MotionBlurTextBox)
 
 $ShakeScaleLabel = New-Object System.Windows.Forms.Label
 $ShakeScaleLabel.Text = "Shake Scale"
 $ShakeScaleLabel.Top = 190
-$ShakeScaleLabel.Left = 260
+$ShakeScaleLabel.Left = 300
 $ShakeScaleLabel.Width = 100
 $editGroupBox.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Top = 190
-$ShakeScaleTextBox.Left = 360
+$ShakeScaleTextBox.Left = 410
 $ShakeScaleTextBox.Width = 50  # Half the original width
 $ShakeScaleTextBox.TextAlign = 'Left'
-$ShakeScaleTextBox.TabIndex = 11
+$ShakeScaleTextBox.TabIndex = 14
 $editGroupBox.Controls.Add($ShakeScaleTextBox)
 
 $CameraSpringMovementLabel = New-Object System.Windows.Forms.Label
@@ -1019,22 +1057,22 @@ $CameraSpringMovementTextBox.Top = 220
 $CameraSpringMovementTextBox.Left = 190
 $CameraSpringMovementTextBox.Width = 50  # Half the original width
 $CameraSpringMovementTextBox.TextAlign = 'Left'
-$CameraSpringMovementTextBox.TabIndex = 12
+$CameraSpringMovementTextBox.TabIndex = 15
 $editGroupBox.Controls.Add($CameraSpringMovementTextBox)
 
 $FilmGrainLabel = New-Object System.Windows.Forms.Label
 $FilmGrainLabel.Text = "Film Grain"
 $FilmGrainLabel.Top = 220
-$FilmGrainLabel.Left = 260
+$FilmGrainLabel.Left = 300
 $FilmGrainLabel.Width = 100
 $editGroupBox.Controls.Add($FilmGrainLabel)
 
 $FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
 $FilmGrainTextBox.Top = 220
-$FilmGrainTextBox.Left = 360
+$FilmGrainTextBox.Left = 410
 $FilmGrainTextBox.Width = 50  # Half the original width
 $FilmGrainTextBox.TextAlign = 'Left'
-$FilmGrainTextBox.TabIndex = 13
+$FilmGrainTextBox.TabIndex = 16
 $editGroupBox.Controls.Add($FilmGrainTextBox)
 
 $GForceBoostZoomScaleLabel = New-Object System.Windows.Forms.Label
@@ -1049,7 +1087,7 @@ $GForceBoostZoomScaleTextBox.Top = 250
 $GForceBoostZoomScaleTextBox.Left = 190
 $GForceBoostZoomScaleTextBox.Width = 50  # Half the original width
 $GForceBoostZoomScaleTextBox.TextAlign = 'Left'
-$GForceBoostZoomScaleTextBox.TabIndex = 14
+$GForceBoostZoomScaleTextBox.TabIndex = 17
 $editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
 
 $GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
@@ -1064,10 +1102,23 @@ $GForceHeadBobScaleTextBox.Top = 250
 $GForceHeadBobScaleTextBox.Left = 410
 $GForceHeadBobScaleTextBox.Width = 50  # Half the original width
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
-$GForceHeadBobScaleTextBox.TabIndex = 15
+$GForceHeadBobScaleTextBox.TabIndex = 18
 $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
 
 # Update the state of the buttons after loading the XML content
+
+$saveProfileButton = New-Object System.Windows.Forms.Button
+$saveProfileButton.Text = "Save Profile"
+$saveProfileButton.Width = 120
+$saveProfileButton.Height = 30
+$saveProfileButton.Top = 295
+$saveProfileButton.Left = 20
+$saveProfileButton.TabIndex = 19
+$saveProfileButton.Enabled = $false  # Initially disabled
+$saveProfileButton.Add_Click({
+    Save-Profile
+})
+$editGroupBox.Controls.Add($saveProfileButton)
 
 $saveButton = New-Object System.Windows.Forms.Button
 $saveButton.Text = "Save to Game"
@@ -1075,7 +1126,7 @@ $saveButton.Width = 120
 $saveButton.Height = 30
 $saveButton.Top = 295
 $saveButton.Left = 330
-$saveButton.TabIndex = 12
+$saveButton.TabIndex = 20
 $saveButton.Add_Click({
     try {
         if ($null -eq $script:xmlContent) {
@@ -1245,7 +1296,7 @@ $closeButton.Height = 30
 $closeButton.Top = 115
 
 $closeButton.Left = 300
-$closeButton.TabIndex = 14
+$closeButton.TabIndex = 21
 $closeButton.Add_Click({
     $form.Close()
 })
