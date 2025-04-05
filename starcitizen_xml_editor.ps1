@@ -7,11 +7,9 @@
  ███    ███   ███    ███    ▄█    ███   ███    ███        ███    ███   ███    ███
   ▀██████▀    ███    ███  ▄████████▀    ██████████        ███    █▀    ██████████
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
-
-
 #>
 
-$scriptVersion = "0.1.9.1"                        # open and save profile.json is now working
+$scriptVersion = "0.1.10"                        # new additions: add CameraSpringMovement, FilmGrain, GForceBoostZoomScale and GForceHeadBobScale to the form
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
@@ -39,8 +37,8 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
-# XML Nodes
-$fovNode                = @()
+<# XML Nodes
+$fovNode                = @()   # not needed to declare here , reference only.
 $heightNode             = @()
 $widthNode              = @()
 $headtrackingNode       = @()
@@ -50,6 +48,14 @@ $AutoZoomNode = @()                         # AutoZoomOnSelectedTarget
 $MotionBlurNode = @()                      # MotionBlur
 $ShakeScaleNode = @()                      # ShakeScale
 
+added items:
+
+$CameraSpringMovementNode = @()            # CameraSpringMovement
+$FilmGrainNode = @()                      # FilmGrain
+$GForceBoostZoomScaleNode = @()           # GForceBoostZoomScale
+$GForceHeadBobScaleNode = @()             # GForceHeadBobScale
+
+#>
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -85,9 +91,11 @@ function Update-ButtonState {
         if ($null -ne $script:xmlContent) {
             $importButton.Enabled = $true
             $saveButton.Enabled = $true
+            $loadFromProfileButton.Enabled = $true
         } else {
             $importButton.Enabled = $false
             $saveButton.Enabled = $false
+            $loadFromProfileButton.Enabled = $false
         }
     }
 }
@@ -177,6 +185,11 @@ function Set-ProfileArray {
             AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text;
             MotionBlur = $MotionBlurTextBox.Text;
             ShakeScale = $ShakeScaleTextBox.Text;
+            CameraSpringMovement = $CameraSpringMovementTextBox.Text;
+            FilmGrain = $FilmGrainTextBox.Text;
+            GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text;
+            GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text;
+
         }) | Out-Null
     }
 
@@ -197,6 +210,7 @@ function Open-XMLViewer {
             $script:dataGridView.Width = 550
             $script:dataGridView.Height = 200
             $script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+            $script:dataGridView.Visible = $false       # grid hidden now. maybe put on another panel later
 
             $script:dataTable = New-Object System.Data.DataTable
 
@@ -282,6 +296,27 @@ function Open-XMLViewer {
                 } else {
                     $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
                 }
+                if ($null -ne $script:profileArray.CameraSpringMovement) {
+                    $CameraSpringMovementTextBox.Text = $script:profileArray.CameraSpringMovement
+                } else {
+                    $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.FilmGrain) {
+                    $FilmGrainTextBox.Text = $script:profileArray.FilmGrain
+                } else {
+                    $FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.GForceBoostZoomScale) {
+                    $GForceBoostZoomScaleTextBox.Text = $script:profileArray.GForceBoostZoomScale
+                } else {
+                    $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.GForceHeadBobScale) {
+                    $GForceHeadBobScaleTextBox.Text = $script:profileArray.GForceHeadBobScale
+                } else {
+                    $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
+                }
+                
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray
@@ -394,6 +429,10 @@ $saveProfileMenuItem.Add_Click({
             $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
             $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
             $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
+            $script:profileArray[0].CameraSpringMovement = $CameraSpringMovementTextBox.Text
+            $script:profileArray[0].FilmGrain = $FilmGrainTextBox.Text
+            $script:profileArray[0].GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text
+            $script:profileArray[0].GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text
 
             $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
             if ($null -ne $jsonContent) {
@@ -474,7 +513,11 @@ $openXmlMenuItem.Add_Click({
                         $AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                         $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                         $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
-
+                        $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
+                        $FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                        $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
+                        $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
+                        
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
 
@@ -566,15 +609,6 @@ $findLiveFolderButton.Add_Click({
 })
 $ActionsGroupBox.Controls.Add($findLiveFolderButton)
 
-$littleLabel = New-Object System.Windows.Forms.Label
-$littleLabel.Text = "Or"
-$littleLabel.Top = 65
-$littleLabel.Left = 70
-$littleLabel.Width = 30
-$littleLabel.Height = 20
-$littleLabel.Visible = $false
-$ActionsGroupBox.Controls.Add($littleLabel)
-
 $navigateButton = New-Object System.Windows.Forms.Button
 $navigateButton.Text = "Navigate to File"
 $navigateButton.Width = 120
@@ -642,10 +676,18 @@ $deleteEACTempFilesButton.TabIndex = 2
 $deleteEACTempFilesButton.Add_Click({
     $eacTempPath = Join-Path -Path $env:USERPROFILE -ChildPath "AppData\Roaming\EasyAntiCheat"
     if (Test-Path -Path $eacTempPath -PathType Container) {
-        Get-ChildItem -Path $eacTempPath | ForEach-Object {
-            Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+        if ($eacTempPath -match "EasyAntiCheat") {
+            try {
+                Get-ChildItem -Path $eacTempPath | ForEach-Object {
+                    Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+                }
+                [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
+            } catch {
+                [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles: $_")
+            }
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("The specified path does not contain or is not the parent of 'EasyAntiCheat'. Operation aborted.")
         }
-        [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
     } else {
         [System.Windows.Forms.MessageBox]::Show("EasyAntiCheat directory not found.")
     }
@@ -653,6 +695,14 @@ $deleteEACTempFilesButton.Add_Click({
 $eacGroupBox.Controls.Add($deleteEACTempFilesButton)
 
 $ActionsGroupBox.Controls.Add($eacGroupBox)
+$xmlPathLabel = New-Object System.Windows.Forms.Label
+$xmlPathLabel.Text = "XML found at: $xmlPath"
+$xmlPathLabel.Top = $eacGroupBox.Top + $eacGroupBox.Height + 10
+$xmlPathLabel.Left = $eacGroupBox.Left
+$xmlPathLabel.Width = 400
+$xmlPathLabel.Visible = $false
+$form.Controls.Add($xmlPathLabel)
+
 $form.Controls.Add($ActionsGroupBox)
 
 $gridGroup = New-Object System.Windows.Forms.Panel
@@ -662,7 +712,7 @@ $gridGroup.Top = 200  # Adjusted the Top property to move the panel up
 $gridGroup.Left = 20
 #$gridGroup.Visible = $false
 
-$form.Controls.Add($gridGroup)
+#$form.Controls.Add($gridGroup)
 
 # Add a group box for the DataTable
 $dataTableGroupBox = New-Object System.Windows.Forms.GroupBox
@@ -672,179 +722,59 @@ $dataTableGroupBox.Width = 550
 $dataTableGroupBox.Height = 220  # Adjust height to fit the DataTable
 $dataTableGroupBox.Visible = $false  # Initially hide the group box
 
-$form.Controls.Add($dataTableGroupBox)
+#$form.Controls.Add($dataTableGroupBox)
 
+<#              unused for now
+$fileLabel = New-Object System.Windows.Forms.Label
+$fileLabel.Text = "File:"
+$fileLabel.Top = $ActionsGroupBox.Top + $ActionsGroupBox.Height + 10
+$fileLabel.Left = 20
+$fileLabel.Width = 30
+$form.Controls.Add($fileLabel)
 
+$fileTextBox = New-Object System.Windows.Forms.TextBox
+$fileTextBox.Top = $ActionsGroupBox.Top + $ActionsGroupBox.Height + 10
+$fileTextBox.Left = 60
+$fileTextBox.Width = 500
+$fileTextBox.ReadOnly = $true
+$fileTextBox.Visible = $true
+$fileTextBox.Text = $xmlPath
+$form.Controls.Add($fileTextBox)    #>
 
 $editGroupBox = New-Object System.Windows.Forms.GroupBox
-$editGroupBox.Text = "Edit VR View"
+$editGroupBox.Text = "VR Centric Settings"
 $editGroupBox.Width = 550
-$editGroupBox.Height = 250
-$editGroupBox.Top = 500
+$editGroupBox.Height = 350
+$editGroupBox.Top = 220         ## Adjusted the Top property to move the group box up
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $true
 
-$fovLabel = New-Object System.Windows.Forms.Label
-$fovLabel.Text = "FOV"
-$fovLabel.Top = 30
-$fovLabel.Left = 40
-$fovLabel.Width = 30
-$editGroupBox.Controls.Add($fovLabel)
 
-$fovTextBox = New-Object System.Windows.Forms.TextBox
-$fovTextBox.Top = 30
-$fovTextBox.Left = 90
-$fovTextBox.Width = 50  # Half the original width
-$fovTextBox.TextAlign = 'Left'
-$fovTextBox.AcceptsTab = $true
-$fovTextBox.TabIndex = 3
-$editGroupBox.Controls.Add($fovTextBox)
+$loadFromProfileButton = New-Object System.Windows.Forms.Button
+$loadFromProfileButton.Text = "Load from profile"
+$loadFromProfileButton.Width = 200
+$loadFromProfileButton.Height = 30
+$loadFromProfileButton.Top = 30
+$loadFromProfileButton.Left = 20
+$loadFromProfileButton.TabIndex = 16
+$loadFromProfileButton.Enabled = $false  # Initially disabled
+$editGroupBox.Controls.Add($loadFromProfileButton)
 
-$widthLabel = New-Object System.Windows.Forms.Label
-$widthLabel.Text = "Width"
-$widthLabel.Top = 30
-$widthLabel.Left = 180
-$widthLabel.Width = 50
-$widthLabel.TextAlign = 'MiddleRight'
-$editGroupBox.Controls.Add($widthLabel)
-
-$widthTextBox = New-Object System.Windows.Forms.TextBox
-$widthTextBox.Top = 30
-$widthTextBox.Left = 250
-$widthTextBox.Width = 50  # Half the original width
-$widthTextBox.TextAlign = 'Left'
-$widthTextBox.TabIndex = 4
-$editGroupBox.Controls.Add($widthTextBox)
-
-$heightLabel = New-Object System.Windows.Forms.Label
-$heightLabel.Text = "Height"
-$heightLabel.Top = 30
-$heightLabel.Left = 320
-$heightLabel.Width = 50
-$heightLabel.TextAlign = 'MiddleRight'
-$editGroupBox.Controls.Add($heightLabel)
-
-$heightTextBox = New-Object System.Windows.Forms.TextBox
-$heightTextBox.Top = 30
-$heightTextBox.Left = 400
-$heightTextBox.Width = 50  # Half the original width
-$heightTextBox.TextAlign = 'Left'
-$heightTextBox.TabIndex = 5
-$editGroupBox.Controls.Add($heightTextBox)
-
-$HeadtrackingLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingLabel.Text = "Headtracking Enabled"
-$HeadtrackingLabel.Top = 70
-$HeadtrackingLabel.Left = 30
-$HeadtrackingLabel.Width = 110
-$editGroupBox.Controls.Add($HeadtrackingLabel)
-
-$headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
-$headtrackerEnabledComboBox.Top = 70
-$headtrackerEnabledComboBox.Left = 140
-$headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
-$headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
-$headtrackerEnabledComboBox.TabIndex = 6
-$headtrackerEnabledComboBox.SelectedIndex = 0
-$editGroupBox.Controls.Add($headtrackerEnabledComboBox)
-
-$HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingSourceLabel.Text = "HeadtrackingSource"
-$HeadtrackingSourceLabel.Top = 70
-$HeadtrackingSourceLabel.Left = 260
-$HeadtrackingSourceLabel.Width = 120
-$editGroupBox.Controls.Add($HeadtrackingSourceLabel)
-
-$HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
-$HeadtrackingSourceComboBox.Top = 70
-$HeadtrackingSourceComboBox.Left = 380
-$HeadtrackingSourceComboBox.Width = 100  # Adjusted width to fit the combo box
-$HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-#$HeadtrackingSourceComboBox.Items.AddRange(@(0, 1, 2, 3))
-
-$HeadtrackingSourceComboBox.Items.Add("None")
-$HeadtrackingSourceComboBox.Items.Add("TrackIR")
-$HeadtrackingSourceComboBox.Items.Add("Faceware")
-$HeadtrackingSourceComboBox.Items.Add("Tobii")
-
-$HeadtrackingSourceComboBox.TabIndex = 7
-$HeadtrackingSourceComboBox.SelectedItem = $HeadtrackingSourceComboBox.Items[0]  # Set the default selected item to the first one
-$editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
-
-
-
-
-
-
-$chromaticAberrationLabel = New-Object System.Windows.Forms.Label
-$chromaticAberrationLabel.Text = "Chromatic Aberration"
-$chromaticAberrationLabel.Top = 120
-$chromaticAberrationLabel.Left = 30
-$chromaticAberrationLabel.Width = 120
-$editGroupBox.Controls.Add($chromaticAberrationLabel)
-
-$chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
-$chromaticAberrationTextBox.Top = 120
-$chromaticAberrationTextBox.Left = 170
-$chromaticAberrationTextBox.Width = 50  # Half the original width
-$chromaticAberrationTextBox.TextAlign = 'Left'
-$chromaticAberrationTextBox.TabIndex = 8
-$editGroupBox.Controls.Add($chromaticAberrationTextBox)
-
-
-$AutoZoomLabel = New-Object System.Windows.Forms.Label
-$AutoZoomLabel.Text = "Auto Zoom"
-$AutoZoomLabel.Top = 120
-$AutoZoomLabel.Left = 260
-$AutoZoomLabel.Width = 100
-$editGroupBox.Controls.Add($AutoZoomLabel)
-
-$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
-$AutoZoomTextBox.Top = 120
-$AutoZoomTextBox.Left = 360
-$AutoZoomTextBox.Width = 50  # Half the original width
-$AutoZoomTextBox.TextAlign = 'Left'
-$AutoZoomTextBox.TabIndex = 9
-$editGroupBox.Controls.Add($AutoZoomTextBox)
-
-$MotionBlurLabel = New-Object System.Windows.Forms.Label
-$MotionBlurLabel.Text = "Motion Blur"
-$MotionBlurLabel.Top = 150
-$MotionBlurLabel.Left = 70
-$MotionBlurLabel.Width = 100
-$editGroupBox.Controls.Add($MotionBlurLabel)
-
-$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
-$MotionBlurTextBox.Top = 150
-$MotionBlurTextBox.Left = 170
-$MotionBlurTextBox.Width = 50  # Half the original width
-$MotionBlurTextBox.TextAlign = 'Left'
-$MotionBlurTextBox.TabIndex = 10
-$editGroupBox.Controls.Add($MotionBlurTextBox)
-
-$ShakeScaleLabel = New-Object System.Windows.Forms.Label
-$ShakeScaleLabel.Text = "Shake Scale"
-$ShakeScaleLabel.Top = 150
-$ShakeScaleLabel.Left = 260
-$ShakeScaleLabel.Width = 100
-$editGroupBox.Controls.Add($ShakeScaleLabel)
-
-$ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
-$ShakeScaleTextBox.Top = 150
-$ShakeScaleTextBox.Left = 360
-$ShakeScaleTextBox.Width = 50  # Half the original width
-$ShakeScaleTextBox.TextAlign = 'Left'
-$ShakeScaleTextBox.TabIndex = 11
-$editGroupBox.Controls.Add($ShakeScaleTextBox)
-
+$loadFromProfileButton.Add_Click({
+    $script:xmlPath = $script:profileArray.AttributesXmlPath
+    if (Test-Path -Path $script:xmlPath) {
+        Open-XMLViewer($script:xmlPath)
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+    }
+})
 
 $importButton = New-Object System.Windows.Forms.Button
-$importButton.Text = "Import from XML"
+$importButton.Text = "Import from Game"
 $importButton.Width = 120
 $importButton.Height = 30
-$importButton.Top = 215
-$importButton.Left = 60
+$importButton.Top = 30
+$importButton.Left = 260
 $importButton.TabIndex = 13
 
 $importButton.Add_Click({
@@ -903,13 +833,218 @@ $importButton.Add_Click({
 $importButton.Enabled = $false
 $editGroupBox.Controls.Add($importButton)
 
+$fovLabel = New-Object System.Windows.Forms.Label
+$fovLabel.Text = "FOV"
+$fovLabel.Top = 70
+$fovLabel.Left = 40
+$fovLabel.Width = 30
+$editGroupBox.Controls.Add($fovLabel)
+
+$fovTextBox = New-Object System.Windows.Forms.TextBox
+$fovTextBox.Top = 70
+$fovTextBox.Left = 90
+$fovTextBox.Width = 50  # Half the original width
+$fovTextBox.TextAlign = 'Left'
+$fovTextBox.AcceptsTab = $true
+$fovTextBox.TabIndex = 3
+$editGroupBox.Controls.Add($fovTextBox)
+
+$widthLabel = New-Object System.Windows.Forms.Label
+$widthLabel.Text = "Width"
+$widthLabel.Top = 70
+$widthLabel.Left = 180
+$widthLabel.Width = 50
+$widthLabel.TextAlign = 'MiddleRight'
+$editGroupBox.Controls.Add($widthLabel)
+
+$widthTextBox = New-Object System.Windows.Forms.TextBox
+$widthTextBox.Top = 70
+$widthTextBox.Left = 250
+$widthTextBox.Width = 50  # Half the original width
+$widthTextBox.TextAlign = 'Left'
+$widthTextBox.TabIndex = 4
+$editGroupBox.Controls.Add($widthTextBox)
+
+$heightLabel = New-Object System.Windows.Forms.Label
+$heightLabel.Text = "Height"
+$heightLabel.Top = 70
+$heightLabel.Left = 320
+$heightLabel.Width = 50
+$heightLabel.TextAlign = 'MiddleRight'
+$editGroupBox.Controls.Add($heightLabel)
+
+$heightTextBox = New-Object System.Windows.Forms.TextBox
+$heightTextBox.Top = 70
+$heightTextBox.Left = 400
+$heightTextBox.Width = 50  # Half the original width
+$heightTextBox.TextAlign = 'Left'
+$heightTextBox.TabIndex = 5
+$editGroupBox.Controls.Add($heightTextBox)
+
+$HeadtrackingLabel = New-Object System.Windows.Forms.Label
+$HeadtrackingLabel.Text = "Headtracking Enabled"
+$HeadtrackingLabel.Top = 110
+$HeadtrackingLabel.Left = 30
+$HeadtrackingLabel.Width = 110
+$editGroupBox.Controls.Add($HeadtrackingLabel)
+
+$headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
+$headtrackerEnabledComboBox.Top = 110
+$headtrackerEnabledComboBox.Left = 140
+$headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
+$headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
+$headtrackerEnabledComboBox.TabIndex = 6
+$headtrackerEnabledComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($headtrackerEnabledComboBox)
+
+$HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
+$HeadtrackingSourceLabel.Text = "HeadtrackingSource"
+$HeadtrackingSourceLabel.Top = 110
+$HeadtrackingSourceLabel.Left = 260
+$HeadtrackingSourceLabel.Width = 120
+$editGroupBox.Controls.Add($HeadtrackingSourceLabel)
+
+$HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
+$HeadtrackingSourceComboBox.Top = 110
+$HeadtrackingSourceComboBox.Left = 380
+$HeadtrackingSourceComboBox.Width = 100  # Adjusted width to fit the combo box
+$HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$HeadtrackingSourceComboBox.Items.Add("None")
+$HeadtrackingSourceComboBox.Items.Add("TrackIR")
+$HeadtrackingSourceComboBox.Items.Add("Faceware")
+$HeadtrackingSourceComboBox.Items.Add("Tobii")
+$HeadtrackingSourceComboBox.TabIndex = 7
+$HeadtrackingSourceComboBox.SelectedItem = $HeadtrackingSourceComboBox.Items[0]  # Set the default selected item to the first one
+$editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
+
+$chromaticAberrationLabel = New-Object System.Windows.Forms.Label
+$chromaticAberrationLabel.Text = "Chromatic Aberration"
+$chromaticAberrationLabel.Top = 160
+$chromaticAberrationLabel.Left = 30
+$chromaticAberrationLabel.Width = 120
+$editGroupBox.Controls.Add($chromaticAberrationLabel)
+
+$chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
+$chromaticAberrationTextBox.Top = 160
+$chromaticAberrationTextBox.Left = 170
+$chromaticAberrationTextBox.Width = 50  # Half the original width
+$chromaticAberrationTextBox.TextAlign = 'Left'
+$chromaticAberrationTextBox.TabIndex = 8
+$editGroupBox.Controls.Add($chromaticAberrationTextBox)
+
+$AutoZoomLabel = New-Object System.Windows.Forms.Label
+$AutoZoomLabel.Text = "Auto Zoom"
+$AutoZoomLabel.Top = 160
+$AutoZoomLabel.Left = 260
+$AutoZoomLabel.Width = 100
+$editGroupBox.Controls.Add($AutoZoomLabel)
+
+$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
+$AutoZoomTextBox.Top = 160
+$AutoZoomTextBox.Left = 360
+$AutoZoomTextBox.Width = 50  # Half the original width
+$AutoZoomTextBox.TextAlign = 'Left'
+$AutoZoomTextBox.TabIndex = 9
+$editGroupBox.Controls.Add($AutoZoomTextBox)
+
+$MotionBlurLabel = New-Object System.Windows.Forms.Label
+$MotionBlurLabel.Text = "Motion Blur"
+$MotionBlurLabel.Top = 190
+$MotionBlurLabel.Left = 70
+$MotionBlurLabel.Width = 100
+$editGroupBox.Controls.Add($MotionBlurLabel)
+
+$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
+$MotionBlurTextBox.Top = 190
+$MotionBlurTextBox.Left = 170
+$MotionBlurTextBox.Width = 50  # Half the original width
+$MotionBlurTextBox.TextAlign = 'Left'
+$MotionBlurTextBox.TabIndex = 10
+$editGroupBox.Controls.Add($MotionBlurTextBox)
+
+$ShakeScaleLabel = New-Object System.Windows.Forms.Label
+$ShakeScaleLabel.Text = "Shake Scale"
+$ShakeScaleLabel.Top = 190
+$ShakeScaleLabel.Left = 260
+$ShakeScaleLabel.Width = 100
+$editGroupBox.Controls.Add($ShakeScaleLabel)
+
+$ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
+$ShakeScaleTextBox.Top = 190
+$ShakeScaleTextBox.Left = 360
+$ShakeScaleTextBox.Width = 50  # Half the original width
+$ShakeScaleTextBox.TextAlign = 'Left'
+$ShakeScaleTextBox.TabIndex = 11
+$editGroupBox.Controls.Add($ShakeScaleTextBox)
+
+$CameraSpringMovementLabel = New-Object System.Windows.Forms.Label
+$CameraSpringMovementLabel.Text = "Camera Spring Movement"
+$CameraSpringMovementLabel.Top = 220
+$CameraSpringMovementLabel.Left = 30
+$CameraSpringMovementLabel.Width = 150
+$editGroupBox.Controls.Add($CameraSpringMovementLabel)
+
+$CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
+$CameraSpringMovementTextBox.Top = 220
+$CameraSpringMovementTextBox.Left = 190
+$CameraSpringMovementTextBox.Width = 50  # Half the original width
+$CameraSpringMovementTextBox.TextAlign = 'Left'
+$CameraSpringMovementTextBox.TabIndex = 12
+$editGroupBox.Controls.Add($CameraSpringMovementTextBox)
+
+$FilmGrainLabel = New-Object System.Windows.Forms.Label
+$FilmGrainLabel.Text = "Film Grain"
+$FilmGrainLabel.Top = 220
+$FilmGrainLabel.Left = 260
+$FilmGrainLabel.Width = 100
+$editGroupBox.Controls.Add($FilmGrainLabel)
+
+$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
+$FilmGrainTextBox.Top = 220
+$FilmGrainTextBox.Left = 360
+$FilmGrainTextBox.Width = 50  # Half the original width
+$FilmGrainTextBox.TextAlign = 'Left'
+$FilmGrainTextBox.TabIndex = 13
+$editGroupBox.Controls.Add($FilmGrainTextBox)
+
+$GForceBoostZoomScaleLabel = New-Object System.Windows.Forms.Label
+$GForceBoostZoomScaleLabel.Text = "G-Force Boost Zoom Scale"
+$GForceBoostZoomScaleLabel.Top = 250
+$GForceBoostZoomScaleLabel.Left = 30
+$GForceBoostZoomScaleLabel.Width = 150
+$editGroupBox.Controls.Add($GForceBoostZoomScaleLabel)
+
+$GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
+$GForceBoostZoomScaleTextBox.Top = 250
+$GForceBoostZoomScaleTextBox.Left = 190
+$GForceBoostZoomScaleTextBox.Width = 50  # Half the original width
+$GForceBoostZoomScaleTextBox.TextAlign = 'Left'
+$GForceBoostZoomScaleTextBox.TabIndex = 14
+$editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
+
+$GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
+$GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
+$GForceHeadBobScaleLabel.Top = 250
+$GForceHeadBobScaleLabel.Left = 260
+$GForceHeadBobScaleLabel.Width = 150
+$editGroupBox.Controls.Add($GForceHeadBobScaleLabel)
+
+$GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
+$GForceHeadBobScaleTextBox.Top = 250
+$GForceHeadBobScaleTextBox.Left = 410
+$GForceHeadBobScaleTextBox.Width = 50  # Half the original width
+$GForceHeadBobScaleTextBox.TextAlign = 'Left'
+$GForceHeadBobScaleTextBox.TabIndex = 15
+$editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
+
 # Update the state of the buttons after loading the XML content
 
 $saveButton = New-Object System.Windows.Forms.Button
-$saveButton.Text = "Export to XML"
+$saveButton.Text = "Save to Game"
 $saveButton.Width = 120
 $saveButton.Height = 30
-$saveButton.Top = 215
+$saveButton.Top = 295
 $saveButton.Left = 330
 $saveButton.TabIndex = 12
 $saveButton.Add_Click({
@@ -985,6 +1120,22 @@ $saveButton.Add_Click({
         if ($null -ne $ShakeScaleNode) {
             $ShakeScaleNode.SetAttribute("value", $ShakeScaleTextBox.Text)  # SHAKESCALE
         }
+        $CameraSpringMovementNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" }
+        if ($null -ne $CameraSpringMovementNode) {
+            $CameraSpringMovementNode.SetAttribute("value", $CameraSpringMovementTextBox.Text)  # CAMERASPRINGMOVEMENT
+        }
+        $FilmGrainNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" }
+        if ($null -ne $FilmGrainNode) {
+            $FilmGrainNode.SetAttribute("value", $FilmGrainTextBox.Text)  # FILM GRAIN
+        }
+        $GForceBoostZoomScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" }
+        if ($null -ne $GForceBoostZoomScaleNode) {
+            $GForceBoostZoomScaleNode.SetAttribute("value", $GForceBoostZoomScaleTextBox.Text)  # GFORCEBOOSTZOOMSCALE
+        }
+        $GForceHeadBobScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" }
+        if ($null -ne $GForceHeadBobScaleNode) {
+            $GForceHeadBobScaleNode.SetAttribute("value", $GForceHeadBobScaleTextBox.Text)  # GFORCEHEADBOBSCALE
+        }
         
         try {
             $script:xmlContent.Save($script:xmlPath)
@@ -1023,6 +1174,8 @@ $saveButton.Add_Click({
         # Show the dataTableGroupBox and set its text to the XML path
         $dataTableGroupBox.Text = $xmlPath
         $dataTableGroupBox.Visible = $true
+        $fileTextBox.Text = $xmlPath
+        $fileTextBox.Visible = $true
         Update-ButtonState
 
         # Populate the input boxes with the first row values
