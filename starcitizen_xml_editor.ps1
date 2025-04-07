@@ -9,10 +9,8 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.13"                        # enhancement: HeadsetEnabled toggle shows enable/disabled instead of 0/1
-#$currentLocation = (Get-Location).Path
+$scriptVersion = "0.1.14"                        # enhancement: bring into focus on launch, revert hostsfile function, add status bar
 $BackupFolderName = "VRSE AE Backup"
-#$ProfileJsonName = "profile.json"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
 
@@ -48,9 +46,6 @@ $headtrackingSourceNode = @()
 $AutoZoomNode = @()                         # AutoZoomOnSelectedTarget
 $MotionBlurNode = @()                      # MotionBlur
 $ShakeScaleNode = @()                      # ShakeScale
-
-added items:
-
 $CameraSpringMovementNode = @()            # CameraSpringMovement
 $FilmGrainNode = @()                      # FilmGrain
 $GForceBoostZoomScaleNode = @()           # GForceBoostZoomScale
@@ -63,13 +58,17 @@ Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
 $form.Width = 620
-$form.Height = 630
+$form.Height = 655
 $form.StartPosition = 'CenterScreen'
-$form.Size = New-Object System.Drawing.Size(600,630)
+$form.Size = New-Object System.Drawing.Size(600,655)
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
-
+$form.Add_Shown({
+    $form.Activate()
+    $form.TopMost = $true
+    $form.TopMost = $false
+})
 $ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
 $ActionsGroupBox.Text = "Actions"
 $ActionsGroupBox.Width = 550
@@ -84,7 +83,7 @@ $fileMenuItem = New-Object System.Windows.Forms.MenuItem
 $fileMenuItem.Text = "&File"    # The & character indicates the shortcut key
 $mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main menu
 
-function Update-ButtonState {
+function Update-ButtonState {                           # used to grey out buttons when no XML file is loaded
     [CmdletBinding(SupportsShouldProcess=$true)]
     param ()
 
@@ -170,14 +169,6 @@ function Set-ProfileArray {
     param ()
 
     if ($PSCmdlet.ShouldProcess("Profile Array", "Set the profile array")) {
-    #if (-not [string]::IsNullOrWhiteSpace($script:liveFolderPath) -and
-    #    -not [string]::IsNullOrWhiteSpace($script:attributesXmlPath) -and
-    #    -not [string]::IsNullOrWhiteSpace($fovTextBox.Text) -and
-    #    -not [string]::IsNullOrWhiteSpace($heightTextBox.Text) -and
-    #    -not [string]::IsNullOrWhiteSpace($widthTextBox.Text) -and
-    #    $headtrackerEnabledComboBox.SelectedIndex -ne -1 -and
-    #    $HeadtrackingSourceComboBox.SelectedIndex -ne -1) {
-
         $script:profileArray.Clear()  # Clear the existing profile array
 
         $script:profileArray.Add([PSCustomObject]@{
@@ -470,8 +461,6 @@ $openProfileMenuItem.Add_Click({
 })
 $fileMenuItem.MenuItems.Add($openProfileMenuItem)  # Add the Open Profile menu item to the File menu
 
-#$AutoLoadprofile = @()
-
 #add am item - Save Profile, which will save the profile.json file
 $saveProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $saveProfileMenuItem.Text = "&Save Profile"
@@ -573,17 +562,15 @@ $openXmlMenuItem.Add_Click({
         }
     }
 })
-
-
 $actionsMenuItem.MenuItems.Add($openXmlMenuItem)
 
 $darkModeMenuItem = New-Object System.Windows.Forms.MenuItem
 $darkModeMenuItem.Text = "Enable Dark Mode"
 $darkModeMenuItem.Add_Click({
-    Switch-DarkMode #-dataGridView $script:dataGridView
+    Switch-DarkMode
 })
 $actionsMenuItem.MenuItems.Add($darkModeMenuItem)
-$form.Menu = $mainMenu  # Set the main menu of the form to the created menu
+
 #add an item - Exit, which will close the application
 $exitMenuItem = New-Object System.Windows.Forms.MenuItem
 $exitMenuItem.Text = "E&xit"
@@ -591,6 +578,8 @@ $exitMenuItem.Add_Click({
     $form.Close()
 })
 $fileMenuItem.MenuItems.Add($exitMenuItem)  # Add the Exit menu item to the File menu
+
+$form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
 # Create the Find Live Folder button
 $findLiveFolderButton = New-Object System.Windows.Forms.Button
@@ -602,7 +591,7 @@ $findLiveFolderButton.Left = 20
 $findLiveFolderButton.TabIndex = 0
 $findLiveFolderButton.Add_Click({
     $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-
+    $statusBar.Text = "Opening SC Folder..."
     $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
     if ($script:profileArray -and ($null -ne $script:profileArray.SCPath)) {
         if ($folderBrowserDialog -ne $null) {
@@ -615,10 +604,12 @@ $findLiveFolderButton.Add_Click({
         $selectedPath = $folderBrowserDialog.SelectedPath
         $script:liveFolderPath = Join-Path -Path $selectedPath -ChildPath "Live"
         if (Test-Path -Path $script:liveFolderPath -PathType Container) {
+            $statusBar.Text = "SC Folder found at: $script:liveFolderPath"
             #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
             $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
             if (-not (Test-Path -Path $defaultProfilePath -PathType Container)) {
-                [System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")
+                [System.Windows.Forms.MessageBox]::Show("'default' folder not found.")
+                $statusBar.Text = "'default' folder not found."
                 return
             }
             elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
@@ -637,6 +628,7 @@ $findLiveFolderButton.Add_Click({
                 }
             }
         } else {
+            $statusBar.Text = "'Live' folder not found."
             [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
         }
     }
@@ -687,7 +679,7 @@ $eacGroupBox.Text = "EAC Bypass"
 $eacGroupBox.Width = 380
 $eacGroupBox.Height = 100
 $eacGroupBox.Top = 20
-$eacGroupBox.Left = 160  # Position it to the right of the navigate button
+$eacGroupBox.Left = 160  # Position it to the right of the actions group box
 
 # Create the Hosts File Update button
 $hostsFileUpdateButton = New-Object System.Windows.Forms.Button
@@ -707,12 +699,11 @@ $hostsFileUpdateButton.Add_Click({
     $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
     if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
         return
-    }
-
-    try {
-        Remove-Item -Path $eacTempPath\* -Recurse -Force -ErrorAction SilentlyContinue
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("An error occurred while updating the hosts file: $_")
+    }else {
+        #$cmd = "Start-Process cmd -ArgumentList '/c cd %systemroot%\System32\drivers\etc && echo #SC Bypass >> hosts && echo 127.0.0.1    modules-cdn.eac-prod.on.epicgames.com >> hosts && echo ::1    modules-cdn.eac-prod.on.epicgames.com >> hosts' -Verb RunAs"
+        Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd %systemroot%\System32\drivers\etc && echo #SC Bypass >> hosts && echo 127.0.0.1    modules-cdn.eac-prod.on.epicgames.com >> hosts && echo ::1    modules-cdn.eac-prod.on.epicgames.com >> hosts" -Verb RunAs
+        $statusBar.Text = "Hosts file updated successfully!"
+        [System.Windows.Forms.MessageBox]::Show("Hosts file updated successfully!")
     }
 })
 $eacGroupBox.Controls.Add($hostsFileUpdateButton)
@@ -1308,6 +1299,15 @@ $closeButton.TabIndex = 21
 $closeButton.Add_Click({
     $form.Close()
 })
+
+
+# Create a status bar
+$statusBar = New-Object System.Windows.Forms.StatusBar
+$statusBar.Text = "Ready"
+$statusBar.Dock = [System.Windows.Forms.DockStyle]::Bottom
+$form.Controls.Add($statusBar)
+
+
 
 
 $form.Controls.Add($editGroupBox)
