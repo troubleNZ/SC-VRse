@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.12.1"                        # bugfix, save and open profile buttons, tab indexes, tidy up
+$scriptVersion = "0.1.12.2"                        # bugfixes, error handling, moving some debug notices to standard notification.
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
@@ -324,7 +324,6 @@ function Open-XMLViewer {
                 } else {
                     $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
                 }
-                
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray
@@ -333,10 +332,10 @@ function Open-XMLViewer {
                 $editGroupBox.Visible = $true
 
             } else {
-                if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
+                [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file?")
             }
         } catch {
-            if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")}
+            [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
         }
     } else {
         [System.Windows.Forms.MessageBox]::Show("XML file not found.")
@@ -564,7 +563,7 @@ $openXmlMenuItem.Add_Click({
                     # Update button state
                     Update-ButtonState
                 } else {
-                    if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
+                    [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
                 }
             } catch {
                 [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
@@ -618,7 +617,11 @@ $findLiveFolderButton.Add_Click({
         if (Test-Path -Path $script:liveFolderPath -PathType Container) {
             #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
             $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
-            if (Test-Path -Path $defaultProfilePath -PathType Container) {
+            if (-not (Test-Path -Path $defaultProfilePath -PathType Container)) {
+                [System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")
+                return
+            }
+            elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
                 $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
                 if (Test-Path -Path $script:attributesXmlPath) {
                         $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
@@ -630,10 +633,8 @@ $findLiveFolderButton.Add_Click({
                     $script:xmlPath = $script:attributesXmlPath
                     Open-XMLViewer($script:xmlPath)
                 } else {
-                    if ($debug) {[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")}
+                    [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
                 }
-            } else {
-                if ($debug) {[System.Windows.Forms.MessageBox]::Show("'default' profile folder not found.")}
             }
         } else {
             [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
@@ -1281,7 +1282,7 @@ $saveButton.Add_Click({
         # Update button state
         Update-ButtonState
     } else {
-        if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
+        [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
     }
 
 })
