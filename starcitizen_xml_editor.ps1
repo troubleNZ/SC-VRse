@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.12.2"                        # bugfixes, error handling, moving some debug notices to standard notification.
+$scriptVersion = "0.1.13"                        # enhancement: HeadsetEnabled toggle shows enable/disabled instead of 0/1
 #$currentLocation = (Get-Location).Path
 $BackupFolderName = "VRSE AE Backup"
 #$ProfileJsonName = "profile.json"
@@ -878,7 +878,7 @@ $importButton.Add_Click({
                     if ([int]::TryParse($value, [ref]$null)) {
                         $comboBox.SelectedIndex = [int]$value
                     } else {
-                        [System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")
+                        if ($debug){[System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")}
                         $comboBox.SelectedIndex = $defaultValue
                     }
                 }
@@ -961,7 +961,9 @@ $headtrackerEnabledComboBox.Top = 110
 $headtrackerEnabledComboBox.Left = 140
 $headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
 $headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
+#$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
+$headtrackerEnabledComboBox.items.Add("Disabled")
+$headtrackerEnabledComboBox.items.Add("Enabled")
 $headtrackerEnabledComboBox.TabIndex = 9
 $headtrackerEnabledComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
@@ -1156,6 +1158,11 @@ $saveButton.Add_Click({
         #$headtrackingNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Headtracking']")
         $headtrackingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" }
         if ($null -ne $headtrackingNode) {
+            if ($headtrackerEnabledComboBox.SelectedItem -eq "Disabled") {
+                $headtrackerEnabledComboBox.SelectedIndex = 0
+            } elseif ($headtrackerEnabledComboBox.SelectedItem -eq "Enabled") {
+                $headtrackerEnabledComboBox.SelectedIndex = 1
+            }
             $headtrackingNode.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())  # HEADTRACKING
         } else {
             $newElement = $script:xmlContent.CreateElement("Attr")
