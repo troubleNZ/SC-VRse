@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.14"                        # enhancement: bring into focus on launch, revert hostsfile function, add status bar
+$scriptVersion = "0.1.15"                        # enhancement: autodetect SC path from registry
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -453,6 +453,42 @@ function Get-DesktopResolutionScale {
 if ($debug) {Get-DesktopResolutionScale}
 
 
+#converted from csharp to powershell
+function Get-GameRootDirFromRegistry {
+    $keyPath = "HKCU:\System\GameConfigStore\Children"
+    try {
+        $key = Get-Item $keyPath -ErrorAction Stop
+    } catch {
+        Write-Error "Unable to open registry key: $keyPath"
+        return $null
+    }
+
+    $subKeys = Get-ChildItem $key.PSPath
+    foreach ($subKey in $subKeys) {
+        $matchedExeFullPath = (Get-ItemProperty -Path $subKey.PSPath).MatchedExeFullPath
+        if (-not $matchedExeFullPath) {
+            continue
+        }
+
+        $matchedExe = Get-Item $matchedExeFullPath -ErrorAction SilentlyContinue
+        if ($matchedExe -and $matchedExe.Name -eq "StarCitizen.exe") {
+            Write-Debug "Found Star Citizen as $($subKey.PSChildName): $matchedExeFullPath"
+            $dir = (Get-Item $matchedExe.Directory.FullName).Parent.Parent
+            if (-not $dir -or -not (Test-Path $dir.FullName)) {
+                Write-Error "Star Citizen's root directory does not exist or is invalid: $($dir.FullName)"
+                continue
+            }
+            Write-Debug "Found Star Citizen's root directory: $($dir.FullName)"
+            return $dir.FullName
+        }
+    }
+
+    Write-Error "Could not find Star Citizen's root directory in the registry, please select it manually!"
+    return $null
+}
+
+$AutoDetectSCPath = Get-GameRootDirFromRegistry
+
 #add an item Open Profile, which will load the profile.json file
 $openProfileMenuItem = New-Object System.Windows.Forms.MenuItem
 $openProfileMenuItem.Text = "&Open Profile"
@@ -591,6 +627,9 @@ $findLiveFolderButton.Left = 20
 $findLiveFolderButton.TabIndex = 0
 $findLiveFolderButton.Add_Click({
     $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
+    if ($AutoDetectSCPath -ne $null -and (Test-Path -Path $AutoDetectSCPath)) {
+        $folderBrowserDialog.SelectedPath = $AutoDetectSCPath
+    }
     $statusBar.Text = "Opening SC Folder..."
     $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
     if ($script:profileArray -and ($null -ne $script:profileArray.SCPath)) {
@@ -1307,7 +1346,9 @@ $statusBar.Text = "Ready"
 $statusBar.Dock = [System.Windows.Forms.DockStyle]::Bottom
 $form.Controls.Add($statusBar)
 
-
+if ($AutoDetectSCPath -ne $null -and (Test-Path -Path $AutoDetectSCPath)) {
+    $statusBar.Text = "Star Citizen found at: $AutoDetectSCPath"
+}
 
 
 $form.Controls.Add($editGroupBox)
