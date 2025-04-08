@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.15"                        # enhancement: autodetect SC path from registry
+$scriptVersion = "0.1.15.1"                        # enhancement: autodetect SC path from registry, additional statusbar notifications.
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -368,11 +368,14 @@ function Save-Profile {
                 if ($null -ne $jsonContent) {
                     [System.IO.File]::WriteAllText($profileJsonPath, $jsonContent)
                 } else {
-                    [System.Windows.Forms.MessageBox]::Show("Failed to generate JSON content.")
+                    #[System.Windows.Forms.MessageBox]::Show("Failed to generate JSON content.")
+                    $statusBar.Text = "Failed to generate JSON content."
                 }
-                [System.Windows.Forms.MessageBox]::Show("Profile saved successfully to $profileJsonPath")
+                #[System.Windows.Forms.MessageBox]::Show("Profile saved successfully to $profileJsonPath")
+                $statusBar.Text = "Profile saved successfully to $profileJsonPath"
             } catch {
-                [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
+                #[System.Windows.Forms.MessageBox]::Show("An error occurred while saving the profile.json file: $_")
+                $statusBar.Text = "An error occurred while saving the profile.json file: $_"
             }
         }
     }
@@ -419,10 +422,10 @@ function Open-Profile {
                         throw "Invalid JSON structure. Expected an array or object."
                     }
                 } catch {
-                    Write-Host "Error parsing JSON: $_" -ForegroundColor Red
+                    $statusBar.Text = "Error parsing JSON"
                 }
             } else {
-                Write-Host "Selected file does not exist." -ForegroundColor Yellow
+                $statusBar.Text =  "Selected file does not exist."
             }
         }
     }
@@ -574,7 +577,7 @@ $openXmlMenuItem.Add_Click({
                         $FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
                         $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
                         $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
-                        
+
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
 
@@ -591,9 +594,11 @@ $openXmlMenuItem.Add_Click({
                     [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
                 }
             } catch {
-                [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+                #[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+                $statusBar.Text = "An error occurred while loading the XML file"
             }
         } else {
+            $statusBar.Text = "XML file not found."
             [System.Windows.Forms.MessageBox]::Show("XML file not found.")
         }
     }
@@ -636,7 +641,7 @@ $findLiveFolderButton.Add_Click({
         if ($folderBrowserDialog -ne $null) {
             $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.SCPath)
         } else {
-            Write-Host "Error: FolderBrowserDialog is not initialized." -ForegroundColor Red
+            Write-Error "Error: FolderBrowserDialog is not initialized." -ForegroundColor Red
         }
     }
     if ($folderBrowserDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
@@ -647,8 +652,8 @@ $findLiveFolderButton.Add_Click({
             #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
             $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
             if (-not (Test-Path -Path $defaultProfilePath -PathType Container)) {
-                [System.Windows.Forms.MessageBox]::Show("'default' folder not found.")
                 $statusBar.Text = "'default' folder not found."
+                [System.Windows.Forms.MessageBox]::Show("'default' folder not found.")
                 return
             }
             elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
@@ -663,13 +668,18 @@ $findLiveFolderButton.Add_Click({
                     $script:xmlPath = $script:attributesXmlPath
                     Open-XMLViewer($script:xmlPath)
                 } else {
+                    $statusBar.Text = "attributes.xml file not found in the 'default' profile folder."
                     [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+                    
                 }
             }
         } else {
             $statusBar.Text = "'Live' folder not found."
             [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
         }
+    }else {
+        $statusBar.Text = "Folder selection canceled."
+        #[System.Windows.Forms.MessageBox]::Show("Folder selection canceled.")
     }
 })
 $ActionsGroupBox.Controls.Add($findLiveFolderButton)
@@ -776,17 +786,22 @@ $deleteEACTempFilesButton.Add_Click({
                     Get-ChildItem -Path $eacTempPath | ForEach-Object {
                         Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
                     }
+                    $statusBar.Text = "EAC TempFiles deleted successfully!"
                     [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
                 } catch {
-                    [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles: $_")
+                    $statusBar.Text = "An error occurred while deleting EAC TempFiles: "
+                    [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles")
                 }
             } else {
+                $statusBar.Text = "Operation canceled."
                 [System.Windows.Forms.MessageBox]::Show("Operation canceled by the user.")
             }
         } else {
+            $statusBar.Text = "The specified path does not contain or is not the parent of 'EasyAntiCheat'. Operation aborted."
             [System.Windows.Forms.MessageBox]::Show("The specified path does not contain or is not the parent of 'EasyAntiCheat'. Operation aborted.")
         }
     } else {
+        $statusBar.Text = "EasyAntiCheat directory not found."
         [System.Windows.Forms.MessageBox]::Show("EasyAntiCheat directory not found.")
     }
 })
@@ -863,6 +878,7 @@ $loadFromProfileButton.Add_Click({
     if (Test-Path -Path $script:profileArray.AttributesXmlPath) {
         Open-XMLViewer($script:profileArray.AttributesXmlPath)
     } else {
+        $statusBar.Text = "Profile JSON doesn't contain attributes path."
         [System.Windows.Forms.MessageBox]::Show("profile json doesnt contain attributes path?")
     }
 })
@@ -883,6 +899,7 @@ $importButton.Add_Click({
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
+                $statusBar.Text = "XML looks good."
 
                 # Helper function to safely extract attribute values
                 function Get-AttributeValue {
@@ -908,7 +925,7 @@ $importButton.Add_Click({
                     if ([int]::TryParse($value, [ref]$null)) {
                         $comboBox.SelectedIndex = [int]$value
                     } else {
-                        if ($debug){[System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")}
+                        #if ($debug){[System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")}
                         $comboBox.SelectedIndex = $defaultValue
                     }
                 }
@@ -923,7 +940,8 @@ $importButton.Add_Click({
             }
         }
     } catch {
-        if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $($_.Exception.Message)")}
+        $statusBar.Text = "An error occurred while loading the XML file"
+        #if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $($_.Exception.Message)")}
     }
 })
 
