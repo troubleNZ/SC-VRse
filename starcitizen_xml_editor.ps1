@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.15.1"                        # enhancement: autodetect SC path from registry, additional statusbar notifications.
+$scriptVersion = "0.1.15.2"                        # enhancement: autodetect routine
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -178,8 +178,8 @@ function Set-ProfileArray {
             FOV = $fovTextBox.Text;
             Height = $heightTextBox.Text;
             Width = $widthTextBox.Text;
-            Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString();
-            HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString();
+            Headtracking = $headtrackerEnabledComboBox.SelectedIndex;
+            HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex;
             ChromaticAberration = $chromaticAberrationTextBox.Text;
             AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text;
             MotionBlur = $MotionBlurTextBox.Text;
@@ -267,7 +267,7 @@ function Open-XMLViewer {
                 }
                 if ($null -ne $script:profileArray.Headtracking) {
                     $headtrackerEnabledComboBox.SelectedIndex = $script:profileArray.Headtracking
-                } else {
+               } else {
                     $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.HeadtrackingSource) {
@@ -326,7 +326,8 @@ function Open-XMLViewer {
                 [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file?")
             }
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")
+            #if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $_")}
+            if ($debug) { Write-Host "An error occurred while loading the XML file: $_"}
         }
     } else {
         [System.Windows.Forms.MessageBox]::Show("XML file not found.")
@@ -475,13 +476,13 @@ function Get-GameRootDirFromRegistry {
 
         $matchedExe = Get-Item $matchedExeFullPath -ErrorAction SilentlyContinue
         if ($matchedExe -and $matchedExe.Name -eq "StarCitizen.exe") {
-            Write-Debug "Found Star Citizen as $($subKey.PSChildName): $matchedExeFullPath"
+            if ($debug) {Write-Host "Found Star Citizen as $($subKey.PSChildName): $matchedExeFullPath"}
             $dir = (Get-Item $matchedExe.Directory.FullName).Parent.Parent
             if (-not $dir -or -not (Test-Path $dir.FullName)) {
                 Write-Error "Star Citizen's root directory does not exist or is invalid: $($dir.FullName)"
                 continue
             }
-            Write-Debug "Found Star Citizen's root directory: $($dir.FullName)"
+            if ($debug) {Write-Host  "Found Star Citizen's root directory: $($dir.FullName)"}
             return $dir.FullName
         }
     }
@@ -670,7 +671,7 @@ $findLiveFolderButton.Add_Click({
                 } else {
                     $statusBar.Text = "attributes.xml file not found in the 'default' profile folder."
                     [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
-                    
+
                 }
             }
         } else {
@@ -898,9 +899,6 @@ $importButton.Add_Click({
 
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
 
-                if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
-                $statusBar.Text = "XML looks good."
-
                 # Helper function to safely extract attribute values
                 function Get-AttributeValue {
                     param (
@@ -908,7 +906,7 @@ $importButton.Add_Click({
                     )
                     return $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq $attributeName } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 }
-                
+
                 $fovTextBox.Text = Get-AttributeValue "FOV"
                 $widthTextBox.Text = Get-AttributeValue "Width"
                 $heightTextBox.Text = Get-AttributeValue "Height"
@@ -922,16 +920,22 @@ $importButton.Add_Click({
                         [string]$value,
                         [int]$defaultValue = 0
                     )
-                    if ([int]::TryParse($value, [ref]$null)) {
+                    if ($value -match '^\d+$') {
                         $comboBox.SelectedIndex = [int]$value
                     } else {
                         #if ($debug){[System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")}
+                        $statusBar.Text = "Invalid value for $($comboBox.Name). Setting to default ($defaultValue)."
                         $comboBox.SelectedIndex = $defaultValue
                     }
                 }
 
                 SetComboBoxValue -comboBox $headtrackerEnabledComboBox -value $headtrackingValue
                 SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value $headtrackingSourceValue
+
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
+                $statusBar.Text = "XML looks good."
+                Start-Sleep -Milliseconds 500
+                $statusBar.Text = "Ready"
             } else {
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")}
                 $fovTextBox.Text = ""
@@ -1272,7 +1276,6 @@ $saveButton.Add_Click({
         if ($null -ne $GForceHeadBobScaleNode) {
             $GForceHeadBobScaleNode.SetAttribute("value", $GForceHeadBobScaleTextBox.Text)  # GFORCEHEADBOBSCALE
         }
-        
         try {
             $script:xmlContent.Save($script:xmlPath)
             [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
@@ -1364,9 +1367,26 @@ $statusBar.Text = "Ready"
 $statusBar.Dock = [System.Windows.Forms.DockStyle]::Bottom
 $form.Controls.Add($statusBar)
 
-if ($AutoDetectSCPath -ne $null -and (Test-Path -Path $AutoDetectSCPath)) {
-    $statusBar.Text = "Star Citizen found at: $AutoDetectSCPath"
+
+if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
+    
+    $script:liveFolderPath = Join-Path -Path $AutoDetectSCPath -ChildPath "LIVE"
+    $script:xmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\attributes.xml"
+    Set-ProfileArray
+    #$script:profileArray.Add([PSCustomObject]@{ AttributesXmlPath = $script:xmlPath }) | Out-Null
+    if ($debug) {Write-Host "debug: $script:xmlPath" -BackgroundColor White -ForegroundColor Black}
+    if (Test-Path -Path $AutoDetectSCPath) {
+        $importButton.Enabled = $true
+        $statusBar.Text = "Star Citizen found at: $script:liveFolderPath"
+    } else {
+        $statusBar.Text = "attributes.xml file not found in the 'default' profile folder."
+        #[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+    }
+} else {
+    $statusBar.Text = "Star Citizen not found."
+    [System.Windows.Forms.MessageBox]::Show("Star Citizen not found.")
 }
+
 
 
 $form.Controls.Add($editGroupBox)
