@@ -21,7 +21,7 @@ Save some time and preload your VR configuration, or switch back to pancake mode
 
 
 ### Screenshot
-![](https://cdn.discordapp.com/attachments/1037213809800122470/1357907970830110830/image.png?ex=67f1e9d8&is=67f09858&hm=a278515c2ab6121495aef98a76ec4b66cf7b158ba66d36b61f908aea55b679b8&)
+![](https://cdn.discordapp.com/attachments/1037213809800122470/1359729390375931914/image.png?ex=67f88a2d&is=67f738ad&hm=5f4993e4cb7213f945aefd1e3c60f9a41fc2082f9f80d25fd879483c401007be&)
 
 
 ### How to use this script
