@@ -29,11 +29,12 @@ $script:attributesXmlPath = $null
 $fovTextBox = $null
 $heightTextBox = $null
 $widthTextBox = $null
+$headtrackerEnabledComboBox = $null
+$HeadtrackingSourceComboBox = $null
 $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
-$headtrackerEnabledComboBox = $null
-$HeadtrackingSourceComboBox = $null
+
 
 
 <# XML Nodes
