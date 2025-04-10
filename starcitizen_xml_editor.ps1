@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.15.2"                        # enhancement: autodetect routine
+$scriptVersion = "0.1.16"                        # enhancement: tool tips!
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -34,24 +34,6 @@ $HeadtrackingSourceComboBox = $null
 $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
-
-<# XML Nodes
-
-$fovNode                = @()   # not needed to declare here , reference only.
-$heightNode             = @()
-$widthNode              = @()
-$headtrackingNode       = @()
-$headtrackingSourceNode = @()
-[float]$chromaticAberrationNode = 0.0       # ChromaticAberration
-$AutoZoomNode = @()                         # AutoZoomOnSelectedTarget
-$MotionBlurNode = @()                      # MotionBlur
-$ShakeScaleNode = @()                      # ShakeScale
-$CameraSpringMovementNode = @()            # CameraSpringMovement
-$FilmGrainNode = @()                      # FilmGrain
-$GForceBoostZoomScaleNode = @()           # GForceBoostZoomScale
-$GForceHeadBobScaleNode = @()             # GForceHeadBobScale
-
-#>
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -625,6 +607,7 @@ $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
 # Create the Find Live Folder button
 $findLiveFolderButton = New-Object System.Windows.Forms.Button
+$findLiveFolderButton.Name = "FindLiveFolderButton"
 $findLiveFolderButton.Text = "Open SC Folder"
 $findLiveFolderButton.Width = 120
 $findLiveFolderButton.Height = 30
@@ -687,6 +670,7 @@ $ActionsGroupBox.Controls.Add($findLiveFolderButton)
 
 
 $openProfileButton = New-Object System.Windows.Forms.Button
+$openProfileButton.Name = "OpenProfileButton"
 $openProfileButton.Text = "Open Profile"
 $openProfileButton.Width = 120
 $openProfileButton.Height = 30
@@ -733,6 +717,7 @@ $eacGroupBox.Left = 160  # Position it to the right of the actions group box
 
 # Create the Hosts File Update button
 $hostsFileUpdateButton = New-Object System.Windows.Forms.Button
+$hostsFileUpdateButton.Name = "HostsFileUpdateButton"
 $hostsFileUpdateButton.Text = "Hosts File Update"
 $hostsFileUpdateButton.Width = 160
 $hostsFileUpdateButton.Height = 30
@@ -760,6 +745,7 @@ $eacGroupBox.Controls.Add($hostsFileUpdateButton)
 
 # Create the Delete AppData EAC TempFiles button
 $deleteEACTempFilesButton = New-Object System.Windows.Forms.Button
+$deleteEACTempFilesButton.Name = "DeleteEACTempFilesButton"
 $deleteEACTempFilesButton.Text = "Delete EAC TempFiles"
 $deleteEACTempFilesButton.Width = 160
 $deleteEACTempFilesButton.Height = 30
@@ -865,6 +851,7 @@ $editGroupBox.Visible = $true
 
 
 $loadFromProfileButton = New-Object System.Windows.Forms.Button
+$loadFromProfileButton.Name = "LoadFromProfileButton"
 $loadFromProfileButton.Text = "Import settings from profile"
 $loadFromProfileButton.Width = 200
 $loadFromProfileButton.Height = 30
@@ -886,6 +873,7 @@ $loadFromProfileButton.Add_Click({
 
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import settings from Game"
+$importButton.Name = "ImportButton"
 $importButton.Width = 200
 $importButton.Height = 30
 $importButton.Top = 30
@@ -961,6 +949,7 @@ $fovLabel.Width = 30
 $editGroupBox.Controls.Add($fovLabel)
 
 $fovTextBox = New-Object System.Windows.Forms.TextBox
+$fovTextBox.Name = "FOVTextBox"
 $fovTextBox.Top = 70
 $fovTextBox.Left = 90
 $fovTextBox.Width = 50  # Half the original width
@@ -978,6 +967,7 @@ $widthLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($widthLabel)
 
 $widthTextBox = New-Object System.Windows.Forms.TextBox
+$widthTextBox.Name = "WidthTextBox"
 $widthTextBox.Top = 70
 $widthTextBox.Left = 250
 $widthTextBox.Width = 50  # Half the original width
@@ -994,6 +984,7 @@ $heightLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($heightLabel)
 
 $heightTextBox = New-Object System.Windows.Forms.TextBox
+$heightTextBox.Name = "HeightTextBox"
 $heightTextBox.Top = 70
 $heightTextBox.Left = 400
 $heightTextBox.Width = 50  # Half the original width
@@ -1009,6 +1000,7 @@ $HeadtrackingLabel.Width = 110
 $editGroupBox.Controls.Add($HeadtrackingLabel)
 
 $headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
+$headtrackerEnabledComboBox.Name = "headtrackerEnabledComboBox"
 $headtrackerEnabledComboBox.Top = 110
 $headtrackerEnabledComboBox.Left = 140
 $headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
@@ -1028,6 +1020,7 @@ $HeadtrackingSourceLabel.Width = 120
 $editGroupBox.Controls.Add($HeadtrackingSourceLabel)
 
 $HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
+$HeadtrackingSourceComboBox.Name = "HeadtrackingSourceComboBox"
 $HeadtrackingSourceComboBox.Top = 110
 $HeadtrackingSourceComboBox.Left = 380
 $HeadtrackingSourceComboBox.Width = 100  # Adjusted width to fit the combo box
@@ -1048,6 +1041,7 @@ $chromaticAberrationLabel.Width = 120
 $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
+$chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
 $chromaticAberrationTextBox.Top = 160
 $chromaticAberrationTextBox.Left = 190
 $chromaticAberrationTextBox.Width = 50  # Half the original width
@@ -1063,6 +1057,7 @@ $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
 
 $AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
+$AutoZoomTextBox.Name = "AutoZoomTextBox"
 $AutoZoomTextBox.Top = 160
 $AutoZoomTextBox.Left = 410
 $AutoZoomTextBox.Width = 50  # Half the original width
@@ -1078,6 +1073,7 @@ $MotionBlurLabel.Width = 100
 $editGroupBox.Controls.Add($MotionBlurLabel)
 
 $MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
+$MotionBlurTextBox.Name = "MotionBlurTextBox"
 $MotionBlurTextBox.Top = 190
 $MotionBlurTextBox.Left = 190
 $MotionBlurTextBox.Width = 50  # Half the original width
@@ -1093,6 +1089,7 @@ $ShakeScaleLabel.Width = 100
 $editGroupBox.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
+$ShakeScaleTextBox.Name = "ShakeScaleTextBox"
 $ShakeScaleTextBox.Top = 190
 $ShakeScaleTextBox.Left = 410
 $ShakeScaleTextBox.Width = 50  # Half the original width
@@ -1108,6 +1105,7 @@ $CameraSpringMovementLabel.Width = 150
 $editGroupBox.Controls.Add($CameraSpringMovementLabel)
 
 $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
+$CameraSpringMovementTextBox.Name = "CameraSpringMovementTextBox"
 $CameraSpringMovementTextBox.Top = 220
 $CameraSpringMovementTextBox.Left = 190
 $CameraSpringMovementTextBox.Width = 50  # Half the original width
@@ -1123,6 +1121,7 @@ $FilmGrainLabel.Width = 100
 $editGroupBox.Controls.Add($FilmGrainLabel)
 
 $FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
+$FilmGrainTextBox.Name = "FilmGrainTextBox"
 $FilmGrainTextBox.Top = 220
 $FilmGrainTextBox.Left = 410
 $FilmGrainTextBox.Width = 50  # Half the original width
@@ -1138,6 +1137,7 @@ $GForceBoostZoomScaleLabel.Width = 150
 $editGroupBox.Controls.Add($GForceBoostZoomScaleLabel)
 
 $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
+$GForceBoostZoomScaleTextBox.Name = "GForceBoostZoomScaleTextBox"
 $GForceBoostZoomScaleTextBox.Top = 250
 $GForceBoostZoomScaleTextBox.Left = 190
 $GForceBoostZoomScaleTextBox.Width = 50  # Half the original width
@@ -1153,6 +1153,7 @@ $GForceHeadBobScaleLabel.Width = 150
 $editGroupBox.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
+$GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
 $GForceHeadBobScaleTextBox.Top = 250
 $GForceHeadBobScaleTextBox.Left = 410
 $GForceHeadBobScaleTextBox.Width = 50  # Half the original width
@@ -1163,6 +1164,7 @@ $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
 # Update the state of the buttons after loading the XML content
 
 $saveProfileButton = New-Object System.Windows.Forms.Button
+$saveProfileButton.Name = "SaveProfileButton"
 $saveProfileButton.Text = "Save Profile"
 $saveProfileButton.Width = 120
 $saveProfileButton.Height = 30
@@ -1176,6 +1178,7 @@ $saveProfileButton.Add_Click({
 $editGroupBox.Controls.Add($saveProfileButton)
 
 $saveButton = New-Object System.Windows.Forms.Button
+$saveButton.Name = "SaveButton"
 $saveButton.Text = "Save to Game"
 $saveButton.Width = 120
 $saveButton.Height = 30
@@ -1361,6 +1364,64 @@ $closeButton.Add_Click({
 })
 
 
+$fovTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$widthTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$heightTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$headtrackerEnabledComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$HeadtrackingSourceComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$chromaticAberrationTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$AutoZoomTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$MotionBlurTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$ShakeScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$CameraSpringMovementTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$FilmGrainTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$GForceBoostZoomScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$GForceHeadBobScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$saveButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$saveProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$deleteEACTempFilesButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$hostsFileUpdateButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+
+#connect the ShowHelp scriptblock with the _MouseHover event for this control
+
+$toolTips = New-Object System.Windows.Forms.ToolTip
+$ShowHelp={
+    if ($null -eq $this) {
+        Write-Host "Error: Control is null in MouseHover event." -ForegroundColor Red
+        return
+    }else {
+        if ($debug){Write-Host "MouseOver Control Name: $($this.Name)" -ForegroundColor Green}
+    }
+    #display popup help
+    #each value is the name of a control on the form.
+    #param ($sender)
+     Switch ($this.Name) {
+        "fovTextBox"  {$tip = "Vertical Field of View"}
+        "widthTextBox" {$tip = "Width of the screen in pixels"}
+        "heightTextBox" {$tip = "Height of the screen in pixels"}
+        "headtrackerEnabledComboBox" {$tip = "Enable or disable head tracking"}
+        "HeadtrackingSourceComboBox" {$tip = "Select the head tracking source"}
+        "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value"}
+        "AutoZoomTextBox" {$tip = "Auto Zoom on selected target 0/1"}
+        "MotionBlurTextBox" {$tip = "Motion Blur value"}
+        "ShakeScaleTextBox" {$tip = "Shake Scale value"}
+        "CameraSpringMovementTextBox" {$tip = "Camera Spring Movement value"}
+        "FilmGrainTextBox" {$tip = "Film Grain value"}
+        "GForceBoostZoomScaleTextBox" {$tip = "G-Force Boost Zoom Scale value"}
+        "GForceHeadBobScaleTextBox" {$tip = "G-Force Head Bob Scale value"}
+        "saveButton" {$tip = "Save settings to the game"}
+        "saveProfileButton" {$tip = "Save settings to the profile"}
+        "loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
+        "importButton" {$tip = "Import settings from the game"}
+        "deleteEACTempFilesButton" {$tip = "Delete EAC TempFiles"}
+        "hostsFileUpdateButton" {$tip = "Update hosts file for EAC Bypass"}
+        Default { $tip = "No tooltip available for this control." }
+      }
+     $toolTips.SetToolTip($this, $tip)
+}
+
 # Create a status bar
 $statusBar = New-Object System.Windows.Forms.StatusBar
 $statusBar.Text = "Ready"
@@ -1369,7 +1430,6 @@ $form.Controls.Add($statusBar)
 
 
 if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
-    
     $script:liveFolderPath = Join-Path -Path $AutoDetectSCPath -ChildPath "LIVE"
     $script:xmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\attributes.xml"
     Set-ProfileArray
@@ -1386,8 +1446,6 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     $statusBar.Text = "Star Citizen not found."
     [System.Windows.Forms.MessageBox]::Show("Star Citizen not found.")
 }
-
-
 
 $form.Controls.Add($editGroupBox)
 
