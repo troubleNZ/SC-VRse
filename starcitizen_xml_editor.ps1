@@ -35,26 +35,6 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
-
-
-<# XML Nodes
-
-$fovNode                = @()   # not needed to declare here , reference only.
-$heightNode             = @()
-$widthNode              = @()
-$headtrackingNode       = @()
-$headtrackingSourceNode = @()
-[float]$chromaticAberrationNode = 0.0       # ChromaticAberration
-$AutoZoomNode = @()                         # AutoZoomOnSelectedTarget
-$MotionBlurNode = @()                      # MotionBlur
-$ShakeScaleNode = @()                      # ShakeScale
-$CameraSpringMovementNode = @()            # CameraSpringMovement
-$FilmGrainNode = @()                      # FilmGrain
-$GForceBoostZoomScaleNode = @()           # GForceBoostZoomScale
-$GForceHeadBobScaleNode = @()             # GForceHeadBobScale
-
-#>
-
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
