@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.16"                        # enhancement: tool tips!
+$scriptVersion = "0.1.16.1"                        # enhancement: tool tips!
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -921,8 +921,6 @@ $importButton.Add_Click({
                 SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value $headtrackingSourceValue
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
-                $statusBar.Text = "XML looks good."
-                Start-Sleep -Milliseconds 500
                 $statusBar.Text = "Ready"
             } else {
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")}
