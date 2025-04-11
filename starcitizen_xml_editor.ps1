@@ -163,7 +163,8 @@ function Set-ProfileArray {
             Headtracking = $headtrackerEnabledComboBox.SelectedIndex;
             HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex;
             ChromaticAberration = $chromaticAberrationTextBox.Text;
-            AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text;
+            #AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text;
+            AutoZoomOnSelectedTarget = $AutoZoomComboBox.SelectedIndex;
             MotionBlur = $MotionBlurTextBox.Text;
             ShakeScale = $ShakeScaleTextBox.Text;
             CameraSpringMovement = $CameraSpringMovementTextBox.Text;
@@ -263,9 +264,11 @@ function Open-XMLViewer {
                     $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.AutoZoomOnSelectedTarget) {
-                    $AutoZoomTextBox.Text = $script:profileArray.AutoZoomOnSelectedTarget
+                    #$AutoZoomTextBox.Text = $script:profileArray.AutoZoomOnSelectedTarget
+                    $AutoZoomComboBox.SelectedIndex = $script:profileArray.AutoZoomOnSelectedTarget
                 } else {
-                    $AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                    #$AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                    $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.MotionBlur) {
                     $MotionBlurTextBox.Text = $script:profileArray.MotionBlur
@@ -336,10 +339,11 @@ function Save-Profile {
                 $script:profileArray[0].FOV = $fovTextBox.Text
                 $script:profileArray[0].Height = $heightTextBox.Text
                 $script:profileArray[0].Width = $widthTextBox.Text
-                $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex.ToString()
-                $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex.ToString()
+                $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex
+                $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex
                 $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
-                $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
+                #$script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
+                $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomComboBox.SelectedIndex
                 $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
                 $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
                 $script:profileArray[0].CameraSpringMovement = $CameraSpringMovementTextBox.Text
@@ -553,7 +557,8 @@ $openXmlMenuItem.Add_Click({
                         $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
                         $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
                         $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
-                        $AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                        #$AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                        $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                         $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                         $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
                         $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
@@ -900,6 +905,7 @@ $importButton.Add_Click({
                 $heightTextBox.Text = Get-AttributeValue "Height"
                 $headtrackingValue = Get-AttributeValue "HeadtrackingToggle"
                 $headtrackingSourceValue = Get-AttributeValue "HeadtrackingSource"
+                $AutoZoomComboBoxValue = Get-AttributeValue "AutoZoomOnSelectedTarget"
 
                 # Safely parse and set combo box values
                 function SetComboBoxValue {
@@ -919,6 +925,7 @@ $importButton.Add_Click({
 
                 SetComboBoxValue -comboBox $headtrackerEnabledComboBox -value $headtrackingValue
                 SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value $headtrackingSourceValue
+                SetComboBoxValue -comboBox $AutoZoomComboBox -value $AutoZoomComboBoxValue
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
                 $statusBar.Text = "Ready"
@@ -1054,14 +1061,26 @@ $AutoZoomLabel.Left = 300
 $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
 
-$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
+<#$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
 $AutoZoomTextBox.Name = "AutoZoomTextBox"
 $AutoZoomTextBox.Top = 160
 $AutoZoomTextBox.Left = 410
 $AutoZoomTextBox.Width = 50  # Half the original width
 $AutoZoomTextBox.TextAlign = 'Left'
 $AutoZoomTextBox.TabIndex = 12
-$editGroupBox.Controls.Add($AutoZoomTextBox)
+$editGroupBox.Controls.Add($AutoZoomTextBox)#>
+
+$AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
+$AutoZoomComboBox.Name = "AutoZoomComboBox"
+$AutoZoomComboBox.Top = 160
+$AutoZoomComboBox.Left = 410
+$AutoZoomComboBox.Width = 50  # Half the original width
+$AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$AutoZoomComboBox.Items.Add("Disabled")
+$AutoZoomComboBox.Items.Add("Enabled")
+$AutoZoomComboBox.TabIndex = 12
+$AutoZoomComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($AutoZoomComboBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
@@ -1251,7 +1270,13 @@ $saveButton.Add_Click({
         }
         $AutoZoomNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" }
         if ($null -ne $AutoZoomNode) {
-            $AutoZoomNode.SetAttribute("value", $AutoZoomTextBox.Text)  # AUTOZOOM
+            #$AutoZoomNode.SetAttribute("value", $AutoZoomTextBox.Text)  # AUTOZOOM
+            if ($AutoZoomComboBox.SelectedItem -eq "Disabled") {
+                $AutoZoomComboBox.SelectedIndex = 0
+            } elseif ($AutoZoomComboBox.SelectedItem -eq "Enabled") {
+                $AutoZoomComboBox.SelectedIndex = 1
+            }
+            $AutoZoomNode.SetAttribute("value", $AutoZoomComboBox.SelectedIndex.ToString())  # AUTOZOOM
         }
         $MotionBlurNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" }
         if ($null -ne $MotionBlurNode) {
@@ -1368,7 +1393,8 @@ $heightTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $headtrackerEnabledComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $HeadtrackingSourceComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $chromaticAberrationTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
-$AutoZoomTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+#$AutoZoomTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$AutoZoomComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $MotionBlurTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $ShakeScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $CameraSpringMovementTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -1402,7 +1428,8 @@ $ShowHelp={
         "headtrackerEnabledComboBox" {$tip = "Enable or disable head tracking"}
         "HeadtrackingSourceComboBox" {$tip = "Select the head tracking source"}
         "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value"}
-        "AutoZoomTextBox" {$tip = "Auto Zoom on selected target 0/1"}
+        #"AutoZoomTextBox" {$tip = "Auto Zoom on selected target 0/1"}
+        "AutoZoomComboBox" {$tip = "Auto Zoom on selected target 0/1"}
         "MotionBlurTextBox" {$tip = "Motion Blur value"}
         "ShakeScaleTextBox" {$tip = "Shake Scale value"}
         "CameraSpringMovementTextBox" {$tip = "Camera Spring Movement value"}
