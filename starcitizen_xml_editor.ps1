@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.16.2"                        # enhancement: autozoom text field to combo box
+$scriptVersion = "0.1.16.1"                        # enhancement: tool tips!
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
