@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.16.1"                        # enhancement: tool tips!
+$scriptVersion = "0.1.17"                        # enhancement: Update checker!
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -599,6 +599,37 @@ $darkModeMenuItem.Add_Click({
     Switch-DarkMode
 })
 $actionsMenuItem.MenuItems.Add($darkModeMenuItem)
+
+$CheckForUpdatesMenuItem = New-Object System.Windows.Forms.MenuItem
+$CheckForUpdatesMenuItem.Text = "Check for &Updates"
+$CheckForUpdatesMenuItem.Add_Click({
+    # Version check script block
+    try {
+        $url = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/starcitizen_xml_editor.ps1"
+        $remoteContent = Invoke-WebRequest -Uri $url -UseBasicParsing -ErrorAction Stop
+        if ($remoteContent.StatusCode -eq 200) {
+            $remoteScriptVersion = ($remoteContent.Content -split "`n" | Where-Object { $_ -match '\$scriptVersion' } | Select-Object -First 1) -replace '.*"(.*)".*', '$1'
+            if ([version]$scriptVersion -lt [version]$remoteScriptVersion) {
+                $statusBar.Text = "Update available! Current version: $scriptVersion, Latest version: $remoteScriptVersion"
+            } else {
+                $statusBar.Text = "You are using the latest version: $scriptVersion"
+            }
+        } else {
+            $statusBar.Text = "Failed to check for updates. HTTP Status: $($remoteContent.StatusCode)"
+        }
+    } catch {
+        $statusBar.Text = "Error checking for updates: $($_.Exception.Message)"
+        Write-Host "Error checking for updates: $($_.Exception.Message)" -ForegroundColor Red
+    }
+})
+$actionsMenuItem.MenuItems.Add($CheckForUpdatesMenuItem)  # Add the GitHub menu item to the main menu
+
+$GithubMenuItem = New-Object System.Windows.Forms.MenuItem
+$GithubMenuItem.Text = "Open &GitHub in your Browser"
+$GithubMenuItem.Add_Click({
+    Start-Process "https://github.com/troubleNZ/SC-VRse"
+})
+$actionsMenuItem.MenuItems.Add($GithubMenuItem)  # Add the GitHub menu item to the main menu
 
 #add an item - Exit, which will close the application
 $exitMenuItem = New-Object System.Windows.Forms.MenuItem
