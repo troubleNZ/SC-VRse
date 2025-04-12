@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.1"                        # bugfix: fixed the load from game attributes issue. things like motion blue and filmgrain are still not working correctly.
+$scriptVersion = "0.1.17.2"                        # bugfix: update 'save to game' button state correctly
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -930,21 +930,6 @@ $importButton.Add_Click({
                     )
                     return $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq $attributeName } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
                 }
-
-                $fovTextBox.Text = Get-AttributeValue "FOV"
-                $widthTextBox.Text = Get-AttributeValue "Width"
-                $heightTextBox.Text = Get-AttributeValue "Height"
-                $headtrackingValue = Get-AttributeValue "HeadtrackingToggle"
-                $headtrackingSourceValue = Get-AttributeValue "HeadtrackingSource"
-                $chromaticAberrationTextBox.Text = Get-AttributeValue "ChromaticAberration"
-                $AutoZoomComboBoxValue = Get-AttributeValue "AutoZoomOnSelectedTarget"
-                $MotionBlurTextBox.Text = Get-AttributeValue "MotionBlur"
-                $ShakeScaleTextBox.Text = Get-AttributeValue "ShakeScale"
-                $CameraSpringMovementTextBox.Text = Get-AttributeValue "CameraSpringMovement"
-                $FilmGrainTextBox.Text = Get-AttributeValue "FilmGrain"
-                $GForceBoostZoomScaleTextBox.Text = Get-AttributeValue "GForceBoostZoomScale"
-                $GForceHeadBobScaleTextBox.Text = Get-AttributeValue "GForceHeadBobScale"
-                
                 # Safely parse and set combo box values
                 function SetComboBoxValue {
                     param (
@@ -961,17 +946,27 @@ $importButton.Add_Click({
                     }
                 }
 
+                $fovTextBox.Text = Get-AttributeValue "FOV"
+                $widthTextBox.Text = Get-AttributeValue "Width"
+                $heightTextBox.Text = Get-AttributeValue "Height"
+
                 SetComboBoxValue -comboBox $headtrackerEnabledComboBox -value $headtrackingValue
                 SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value $headtrackingSourceValue
+                $chromaticAberrationTextBox.Text = Get-AttributeValue "ChromaticAberration"
                 SetComboBoxValue -comboBox $AutoZoomComboBox -value $AutoZoomComboBoxValue
+                $MotionBlurTextBox.Text = Get-AttributeValue "MotionBlur"
+                $ShakeScaleTextBox.Text = Get-AttributeValue "ShakeScale"
+                $CameraSpringMovementTextBox.Text = Get-AttributeValue "CameraSpringMovement"
+                $FilmGrainTextBox.Text = Get-AttributeValue "FilmGrain"
+                $GForceBoostZoomScaleTextBox.Text = Get-AttributeValue "GForceBoostZoomScale"
+                $GForceHeadBobScaleTextBox.Text = Get-AttributeValue "GForceHeadBobScale"
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
                 $statusBar.Text = "Ready"
+                Update-ButtonState
             } else {
-                if ($debug) {[System.Windows.Forms.MessageBox]::Show("FOV attribute is missing in the XML file.")}
-                $fovTextBox.Text = ""
-                $heightTextBox.Text = ""
-                $widthTextBox.Text = ""
+                $statusBar.Text = "No attributes found in the XML file."
+                #if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
             }
         }
     } catch {
