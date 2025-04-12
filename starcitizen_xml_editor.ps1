@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.2"                        # bugfix: update 'save to game' button state correctly
+$scriptVersion = "0.1.17.3"                        # bugfix: SetComboBoxValues - variables not set correctly
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -950,10 +950,10 @@ $importButton.Add_Click({
                 $widthTextBox.Text = Get-AttributeValue "Width"
                 $heightTextBox.Text = Get-AttributeValue "Height"
 
-                SetComboBoxValue -comboBox $headtrackerEnabledComboBox -value $headtrackingValue
-                SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value $headtrackingSourceValue
+                SetComboBoxValue -comboBox $headtrackerEnabledComboBox -value (Get-AttributeValue "HeadtrackingToggle")
+                SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value (Get-AttributeValue "HeadtrackingSource")
                 $chromaticAberrationTextBox.Text = Get-AttributeValue "ChromaticAberration"
-                SetComboBoxValue -comboBox $AutoZoomComboBox -value $AutoZoomComboBoxValue
+                SetComboBoxValue -comboBox $AutoZoomComboBox -value (Get-AttributeValue "AutoZoomOnSelectedTarget")
                 $MotionBlurTextBox.Text = Get-AttributeValue "MotionBlur"
                 $ShakeScaleTextBox.Text = Get-AttributeValue "ShakeScale"
                 $CameraSpringMovementTextBox.Text = Get-AttributeValue "CameraSpringMovement"
@@ -962,7 +962,7 @@ $importButton.Add_Click({
                 $GForceHeadBobScaleTextBox.Text = Get-AttributeValue "GForceHeadBobScale"
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
-                $statusBar.Text = "Ready"
+                #$statusBar.Text = "Ready"
                 Update-ButtonState
             } else {
                 $statusBar.Text = "No attributes found in the XML file."
