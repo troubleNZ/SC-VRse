@@ -962,8 +962,6 @@ $importButton.Add_Click({
                 $GForceHeadBobScaleTextBox.Text = Get-AttributeValue "GForceHeadBobScale"
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
-                $statusBar.Text = "XML looks good."
-                Start-Sleep -Milliseconds 500
                 $statusBar.Text = "Ready"
                 Update-ButtonState
             } else {
