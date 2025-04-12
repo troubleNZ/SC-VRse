@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17"                        # enhancement: Update checker!
+$scriptVersion = "0.1.17.1"                        # bugfix: fixed the load from game attributes issue. things like motion blue and filmgrain are still not working correctly.
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -936,8 +936,15 @@ $importButton.Add_Click({
                 $heightTextBox.Text = Get-AttributeValue "Height"
                 $headtrackingValue = Get-AttributeValue "HeadtrackingToggle"
                 $headtrackingSourceValue = Get-AttributeValue "HeadtrackingSource"
+                $chromaticAberrationTextBox.Text = Get-AttributeValue "ChromaticAberration"
                 $AutoZoomComboBoxValue = Get-AttributeValue "AutoZoomOnSelectedTarget"
-
+                $MotionBlurTextBox.Text = Get-AttributeValue "MotionBlur"
+                $ShakeScaleTextBox.Text = Get-AttributeValue "ShakeScale"
+                $CameraSpringMovementTextBox.Text = Get-AttributeValue "CameraSpringMovement"
+                $FilmGrainTextBox.Text = Get-AttributeValue "FilmGrain"
+                $GForceBoostZoomScaleTextBox.Text = Get-AttributeValue "GForceBoostZoomScale"
+                $GForceHeadBobScaleTextBox.Text = Get-AttributeValue "GForceHeadBobScale"
+                
                 # Safely parse and set combo box values
                 function SetComboBoxValue {
                     param (
@@ -1029,7 +1036,7 @@ $heightTextBox.TabIndex = 8
 $editGroupBox.Controls.Add($heightTextBox)
 
 $HeadtrackingLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingLabel.Text = "Headtracking Enabled"
+$HeadtrackingLabel.Text = "Headtracking Toggle"
 $HeadtrackingLabel.Top = 110
 $HeadtrackingLabel.Left = 30
 $HeadtrackingLabel.Width = 110
@@ -1049,7 +1056,7 @@ $headtrackerEnabledComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
 
 $HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingSourceLabel.Text = "HeadtrackingSource"
+$HeadtrackingSourceLabel.Text = "Headtracking Source"
 $HeadtrackingSourceLabel.Top = 110
 $HeadtrackingSourceLabel.Left = 260
 $HeadtrackingSourceLabel.Width = 120
@@ -1458,13 +1465,13 @@ $ShowHelp={
         "heightTextBox" {$tip = "Height of the screen in pixels"}
         "headtrackerEnabledComboBox" {$tip = "Enable or disable head tracking"}
         "HeadtrackingSourceComboBox" {$tip = "Select the head tracking source"}
-        "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value"}
+        "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value 0.00/1.00"}
         #"AutoZoomTextBox" {$tip = "Auto Zoom on selected target 0/1"}
         "AutoZoomComboBox" {$tip = "Auto Zoom on selected target 0/1"}
-        "MotionBlurTextBox" {$tip = "Motion Blur value"}
+        "MotionBlurTextBox" {$tip = "Motion Blur value 0/1"}
         "ShakeScaleTextBox" {$tip = "Shake Scale value"}
-        "CameraSpringMovementTextBox" {$tip = "Camera Spring Movement value"}
-        "FilmGrainTextBox" {$tip = "Film Grain value"}
+        "CameraSpringMovementTextBox" {$tip = "Camera Spring Movement value 0/1"}
+        "FilmGrainTextBox" {$tip = "Film Grain value 0/1"}
         "GForceBoostZoomScaleTextBox" {$tip = "G-Force Boost Zoom Scale value"}
         "GForceHeadBobScaleTextBox" {$tip = "G-Force Head Bob Scale value"}
         "saveButton" {$tip = "Save settings to the game"}
