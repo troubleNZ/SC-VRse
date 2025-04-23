@@ -1528,3 +1528,11 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
 $form.Controls.Add($editGroupBox)
 
 $form.ShowDialog()
+
+<#      extra to add to the form eventually.
+<Attr name="LookAheadEnabledSpaceship" value="0"/>
+<Attr name="HeadtrackingDisableDuringWalking" value="0"/>
+<Attr name="HeadtrackingThirdPersonCameraToggle" value="0"/>
+<Attr name="Upscaling" value="1"/>
+<Attr name="UpscalingTechnique" value="2"/> #DLSS
+#>
