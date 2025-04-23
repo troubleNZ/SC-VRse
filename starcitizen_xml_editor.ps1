@@ -9,10 +9,11 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.3"                        # bugfix: SetComboBoxValues - variables not set correctly
+$scriptVersion = "0.1.17.4"                        # bugfix: Get-AttributeValue - add override for items not found in XML where the default is Enabled
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
+$loadedProfile = $false
 
 $debug = $false
 
@@ -74,7 +75,7 @@ function Update-ButtonState {                           # used to grey out butto
             $importButton.Enabled = $true
             $saveButton.Enabled = $true
             $saveProfileButton.Enabled = $true
-            if ($script:profileArray.Count -gt 0) {
+            if ($loadedProfile -eq $true) {
                 $loadFromProfileButton.Enabled = $true
             } else {
                 $loadFromProfileButton.Enabled = $false
@@ -155,7 +156,7 @@ function Set-ProfileArray {
 
         $script:profileArray.Add([PSCustomObject]@{
             SCPath = $script:liveFolderPath;
-            AttributesXmlPath = $script:attributesXmlPath;
+            AttributesXmlPath = $script:xmlPath;
             DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false };
             FOV = $fovTextBox.Text;
             Height = $heightTextBox.Text;
@@ -395,6 +396,7 @@ function Open-Profile {
                                 Write-Host "Item: $item" -BackgroundColor White -ForegroundColor Black
                             }
                         }
+                        $loadedProfile = $true
                         $script:liveFolderPath = $script:profileArray.SCPath
                         $script:attributesXmlPath = $script:profileArray.AttributesXmlPath
                         $script:xmlPath = $script:attributesXmlPath
@@ -894,18 +896,57 @@ $loadFromProfileButton.Height = 30
 $loadFromProfileButton.Top = 30
 $loadFromProfileButton.Left = 20
 $loadFromProfileButton.TabIndex = 4
-$loadFromProfileButton.Enabled = $false  # Initially disabled
+$loadFromProfileButton.Enabled = $loadedProfile                 #$false  # Initially disabled
 $editGroupBox.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
-    $script:xmlPath = $script:profileArray.AttributesXmlPath
-    if (Test-Path -Path $script:profileArray.AttributesXmlPath) {
-        Open-XMLViewer($script:profileArray.AttributesXmlPath)
+    $script:xmlPath = $($script:profileArray.AttributesXmlPath)
+    Write-Host "Loading from profile: $($script:profileArray.AttributesXmlPath)" -BackgroundColor White -ForegroundColor Black
+    if ($null -ne $script:xmlPath) {
+        Open-XMLViewer($script:xmlPath)
     } else {
         $statusBar.Text = "Profile JSON doesn't contain attributes path."
         [System.Windows.Forms.MessageBox]::Show("profile json doesnt contain attributes path?")
     }
 })
+
+# Helper function to safely extract attribute values
+function Get-AttributeValue {
+    param (
+        [string]$attributeName
+    )
+    if ($script:xmlContent.Attributes.Attr) {
+        $attribute = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq $attributeName }
+        if ($attribute) {
+            return $attribute.value
+        } else {
+            switch ($attributeName) {
+                "FilmGrain" { return 1 }
+                "MotionBlur" { return 1 }
+                "AutoZoomOnSelectedTarget" { return 1 }
+                default { return $null }
+            }
+        }
+    } else {
+        return $null
+    }
+}
+# Safely parse and set combo box values
+function SetComboBoxValue {
+    param (
+        [System.Windows.Forms.ComboBox]$comboBox,
+        [string]$value,
+        [int]$defaultValue = 0
+    )
+    if ($value -match '^\d+$') {
+        $comboBox.SelectedIndex = [int]$value
+    } else {
+        #if ($debug){[System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")}
+        #$statusBar.Text = "Invalid value for $($comboBox.Name). Setting to default ($defaultValue)."
+        $comboBox.SelectedIndex = $defaultValue
+    }
+}
+
 
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import settings from Game"
@@ -923,28 +964,7 @@ $importButton.Add_Click({
 
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
 
-                # Helper function to safely extract attribute values
-                function Get-AttributeValue {
-                    param (
-                        [string]$attributeName
-                    )
-                    return $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq $attributeName } | Select-Object -ExpandProperty value -ErrorAction SilentlyContinue
-                }
-                # Safely parse and set combo box values
-                function SetComboBoxValue {
-                    param (
-                        [System.Windows.Forms.ComboBox]$comboBox,
-                        [string]$value,
-                        [int]$defaultValue = 0
-                    )
-                    if ($value -match '^\d+$') {
-                        $comboBox.SelectedIndex = [int]$value
-                    } else {
-                        #if ($debug){[System.Windows.Forms.MessageBox]::Show("Invalid value for $($comboBox.Name). Setting to default ($defaultValue).")}
-                        $statusBar.Text = "Invalid value for $($comboBox.Name). Setting to default ($defaultValue)."
-                        $comboBox.SelectedIndex = $defaultValue
-                    }
-                }
+                
 
                 $fovTextBox.Text = Get-AttributeValue "FOV"
                 $widthTextBox.Text = Get-AttributeValue "Width"
