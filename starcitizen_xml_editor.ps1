@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.4"                        # bugfix: Get-AttributeValue - add override for items not found in XML where the default is Enabled
+$scriptVersion = "0.1.17.1"                        # add: add an icon to the form and clean up of some rogue variables
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -36,9 +36,18 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
+# Set an icon for the form
+$iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
+if (Test-Path $iconPath) {
+    $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
+} else {
+    Write-Host "Icon file not found at $iconPath"
+}
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
+
+
 $form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
 $form.Width = 620
 $form.Height = 655
@@ -52,6 +61,19 @@ $form.Add_Shown({
     $form.TopMost = $true
     $form.TopMost = $false
 })
+$form.Icon = $scriptIcon
+
+
+# Update the taskbar icon to match the form icon
+if ($scriptIcon -ne $null) {
+    $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
+    $notifyIcon.Icon = $scriptIcon
+    $notifyIcon.Visible = $true
+    $form.Add_FormClosed({
+        $notifyIcon.Dispose()
+    })
+}
+
 $ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
 $ActionsGroupBox.Text = "Actions"
 $ActionsGroupBox.Width = 550
@@ -224,11 +246,11 @@ function Open-XMLViewer {
                 # Bind the DataTable to the DataGridView
                 $script:dataGridView.DataSource = $script:dataTable
 
-                $gridGroup.Controls.Add($script:dataGridView)
+                #$gridGroup.Controls.Add($script:dataGridView)
 
                 # Show the dataTableGroupBox and set its text to the XML path
-                $dataTableGroupBox.Text = $Path
-                $dataTableGroupBox.Visible = $true
+                #$dataTableGroupBox.Text = $Path
+                #$dataTableGroupBox.Visible = $true
                 Update-ButtonState
 
                 # Populate the input boxes with the first row values
@@ -1377,21 +1399,21 @@ $saveButton.Add_Click({
 
         # Add rows to the DataTable
         $script:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
-            $row = $script:dataTable.NewRow()
+            $row = $null
             $_.Attributes | ForEach-Object {
-                $row[$_.Name] = $_.Value
+                $row = $script:dataTable[$_.Name] = $_.Value
             }
             $script:dataTable.Rows.Add($row)
         }
 
         # Bind the DataTable to the DataGridView
-        $script:dataGridView.DataSource = $script:dataTable
+        #$script:dataGridView.DataSource = $script:dataTable
 
-        $gridGroup.Controls.Add($script:dataGridView)
+        #$gridGroup.Controls.Add($script:dataGridView)
 
         # Show the dataTableGroupBox and set its text to the XML path
-        $dataTableGroupBox.Text = $xmlPath
-        $dataTableGroupBox.Visible = $true
+        #dataTableGroupBox.Text = $xmlPath
+        #$dataTableGroupBox.Visible = $true
         #$fileTextBox.Text = $xmlPath
         #$fileTextBox.Visible = $true
         Update-ButtonState
