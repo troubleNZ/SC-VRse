@@ -37,10 +37,11 @@ $editGroupBox = $null
 $darkModeMenuItem = $null
 
 # Set an icon for the form
-if ($PSScriptRoot -eq "") {
+if (($null -eq $PSScriptRoot) -or ($PSScriptRoot -eq "")) {
     $PSScriptRoot = (Get-Item -Path ".").FullName
+    Write-Host $PSScriptRoot -BackgroundColor White -ForegroundColor Black
 }
-Write-Host $PSScriptRoot -BackgroundColor White -ForegroundColor Black
+
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
     $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
