@@ -46,14 +46,13 @@ $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
     $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
 } else {
-    #Write-Host "Icon file not found at $iconPath"
-    $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/dev/"
+    $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
     try {
         $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
         Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
         $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
     } catch {
-        Write-Host "Failed to download icon "#from $iconwebPath: $_" -ForegroundColor Red
+        if ($debug) {Write-Host "Failed to download icon"}
     }
 }
 Add-Type -AssemblyName System.Windows.Forms
