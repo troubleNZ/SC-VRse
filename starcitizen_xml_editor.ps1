@@ -39,7 +39,7 @@ $darkModeMenuItem = $null
 # Set an icon for the form
 if (($null -eq $PSScriptRoot) -or ($PSScriptRoot -eq "")) {
     $PSScriptRoot = (Get-Item -Path ".").FullName
-    Write-Host $PSScriptRoot -BackgroundColor White -ForegroundColor Black
+    if ($debug) {Write-Host $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
 }
 
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
