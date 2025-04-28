@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.1"                        # add: add an icon to the form and clean up of some rogue variables
+$scriptVersion = "0.1.17.2"                        # bugfix: set a $PSScriptRoot in case loaded remotely
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -37,6 +37,9 @@ $editGroupBox = $null
 $darkModeMenuItem = $null
 
 # Set an icon for the form
+if ($PSScriptRoot -eq $null) {
+    $PSScriptRoot = (Get-Item -Path ".").FullName
+}
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
     $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
