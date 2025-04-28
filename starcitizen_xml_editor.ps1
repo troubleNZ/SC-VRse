@@ -40,6 +40,7 @@ $darkModeMenuItem = $null
 if ($PSScriptRoot -eq "") {
     $PSScriptRoot = (Get-Item -Path ".").FullName
 }
+Write-Host $PSScriptRoot -BackgroundColor White -ForegroundColor Black
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
     $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
