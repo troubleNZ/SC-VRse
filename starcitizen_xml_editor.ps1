@@ -46,7 +46,7 @@ $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
     $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
 } else {
-    Write-Host "Icon file not found at $iconPath"
+    #Write-Host "Icon file not found at $iconPath"
     $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/dev/"
     try {
         $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
