@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.1"                        # add: add an icon to the form and clean up of some rogue variables
+$scriptVersion = "0.1.17.3"                        # bugfix: i broke the refresh part earlier, now fixed i hope
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -19,7 +19,7 @@ $debug = $false
 
 $script:xmlPath = $null
 $script:xmlContent = @()
-$script:dataTable = $null
+$script:dataTable = New-Object System.Data.DataTable
 $script:xmlArray = @()
 $script:dataGridView = @()
 
@@ -36,12 +36,20 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
-# Set an icon for the form
+
+
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
     $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
 } else {
-    Write-Host "Icon file not found at $iconPath"
+    $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
+    try {
+        $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
+        Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
+        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
+    } catch {
+        if ($debug) {Write-Host "Failed to download icon"}
+    }
 }
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -1389,21 +1397,35 @@ $saveButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
     }
 
-
     # Refresh and update the dataTable with the new data
     $script:dataTable.Clear()
     if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-        $script:xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
-            #$script:dataTable.Columns.Add($_.Name) | Out-Null                              #investigate why this says column already exists
+    #if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
+        #$script:xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
+        #$script:xmlContent.Attributes | ForEach-Object {
+            #if ($debug) {Write-Host "debug: $_.Name" -BackgroundColor White -ForegroundColor Black}
+        #    $script:dataTable.Columns.Add($_) | Out-Null                              #investigate why this says column already exists
+        #}
+        foreach ($node in $script:xmlContent.SelectNodes("//*")) {
+            foreach ($attribute in $node.Attributes) {
+                if (-not $script:dataTable.Columns.Contains($attribute.Name)) {
+                    $script:dataTable.Columns.Add($attribute.Name) | Out-Null
+                    #Write-Host "func:XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)"
+                    $script:xmlArray += $($attribute.Name) + " : " + "$($attribute.Value)"
+                }
+            }
         }
 
         # Add rows to the DataTable
-        $script:xmlContent.DocumentElement.ChildNodes | ForEach-Object {
-            $row = $null
-            $_.Attributes | ForEach-Object {
-                $row = $script:dataTable[$_.Name] = $_.Value
+        foreach ($node in $script:xmlContent.SelectNodes("//*")) {
+            $row = $script:dataTable.NewRow()
+            foreach ($attribute in $node.Attributes) {
+                if ($script:dataTable.Columns.Contains($attribute.Name)) {
+                    $row[$attribute.Name] = $attribute.Value
+                }
             }
-            $script:dataTable.Rows.Add($row)
+            $script:dataTable.Rows.Add($row) | Out-Null
+            #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
         }
 
         # Bind the DataTable to the DataGridView
@@ -1420,7 +1442,8 @@ $saveButton.Add_Click({
 
         # Populate the input boxes with the first row values
         $script:xmlContent = [xml](Get-Content $script:xmlPath)
-        if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+        #if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+        if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
 
 
             $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
