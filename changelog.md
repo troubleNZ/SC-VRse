@@ -36,3 +36,4 @@
 **0.1.17.4** bugfix: Get-AttributeValue - add override for items not found in XML where the default is Enabled  
 **0.1.18** (+) added more head tracking options and (~) changed some text fields to combo boxes
 **0.1.18.1** ~ tidied up input box positions and sizes
+**0.1.18.2** ~ fixed saving attributes path to profile
