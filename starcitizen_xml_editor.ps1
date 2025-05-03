@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.18"                        # added more head tracking options and changed some text fields to combo boxes
+$scriptVersion = "0.1.18.1"                        # tidied up input box positions and sizes
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -1081,7 +1081,7 @@ $fovTextBox = New-Object System.Windows.Forms.TextBox
 $fovTextBox.Name = "FOVTextBox"
 $fovTextBox.Top = 70
 $fovTextBox.Left = 90
-$fovTextBox.Width = 50  # Half the original width
+$fovTextBox.Width = 50
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
 $fovTextBox.TabIndex = 6
@@ -1099,7 +1099,7 @@ $widthTextBox = New-Object System.Windows.Forms.TextBox
 $widthTextBox.Name = "WidthTextBox"
 $widthTextBox.Top = 70
 $widthTextBox.Left = 250
-$widthTextBox.Width = 50  # Half the original width
+$widthTextBox.Width = 50
 $widthTextBox.TextAlign = 'Left'
 $widthTextBox.TabIndex = 7
 $editGroupBox.Controls.Add($widthTextBox)
@@ -1116,7 +1116,7 @@ $heightTextBox = New-Object System.Windows.Forms.TextBox
 $heightTextBox.Name = "HeightTextBox"
 $heightTextBox.Top = 70
 $heightTextBox.Left = 400
-$heightTextBox.Width = 50  # Half the original width
+$heightTextBox.Width = 50
 $heightTextBox.TextAlign = 'Left'
 $heightTextBox.TabIndex = 8
 $editGroupBox.Controls.Add($heightTextBox)
@@ -1173,7 +1173,7 @@ $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
 $chromaticAberrationTextBox.Top = 140
 $chromaticAberrationTextBox.Left = 190
-$chromaticAberrationTextBox.Width = 50  # Half the original width
+$chromaticAberrationTextBox.Width = 50
 $chromaticAberrationTextBox.TextAlign = 'Left'
 $chromaticAberrationTextBox.TabIndex = 11
 $editGroupBox.Controls.Add($chromaticAberrationTextBox)
@@ -1189,7 +1189,7 @@ $editGroupBox.Controls.Add($AutoZoomLabel)
 $AutoZoomTextBox.Name = "AutoZoomTextBox"
 $AutoZoomTextBox.Top = 140
 $AutoZoomTextBox.Left = 410
-$AutoZoomTextBox.Width = 50  # Half the original width
+$AutoZoomTextBox.Width = 50
 $AutoZoomTextBox.TextAlign = 'Left'
 $AutoZoomTextBox.TabIndex = 12
 $editGroupBox.Controls.Add($AutoZoomTextBox)#>
@@ -1198,7 +1198,7 @@ $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
 $AutoZoomComboBox.Top = 140
 $AutoZoomComboBox.Left = 410
-$AutoZoomComboBox.Width = 50  # Half the original width
+$AutoZoomComboBox.Width = 75
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $AutoZoomComboBox.Items.Add("Disabled")
 $AutoZoomComboBox.Items.Add("Enabled")
@@ -1217,7 +1217,7 @@ $editGroupBox.Controls.Add($MotionBlurLabel)
 #$MotionBlurTextBox.Name = "MotionBlurTextBox"
 #$MotionBlurTextBox.Top = 170
 #$MotionBlurTextBox.Left = 190
-#$MotionBlurTextBox.Width = 50  # Half the original width
+#$MotionBlurTextBox.Width = 50
 #$MotionBlurTextBox.TextAlign = 'Left'
 #$MotionBlurTextBox.TabIndex = 13
 #$editGroupBox.Controls.Add($MotionBlurTextBox)
@@ -1226,10 +1226,12 @@ $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
 $MotionBlurComboBox.Top = 170
 $MotionBlurComboBox.Left = 190
-$MotionBlurComboBox.Width = 50  # Half the original width
+$MotionBlurComboBox.Width = 75
 $MotionBlurComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $MotionBlurComboBox.Items.Add("Disabled")
 $MotionBlurComboBox.Items.Add("Enabled")
+$MotionBlurComboBox.Items.Add("Ship Only")
+$MotionBlurComboBox.Items.Add("Debug Mode")
 $MotionBlurComboBox.TabIndex = 13
 $MotionBlurComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($MotionBlurComboBox)
@@ -1245,7 +1247,7 @@ $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Name = "ShakeScaleTextBox"
 $ShakeScaleTextBox.Top = 170
 $ShakeScaleTextBox.Left = 410
-$ShakeScaleTextBox.Width = 50  # Half the original width
+$ShakeScaleTextBox.Width = 50
 $ShakeScaleTextBox.TextAlign = 'Left'
 $ShakeScaleTextBox.TabIndex = 14
 $editGroupBox.Controls.Add($ShakeScaleTextBox)
@@ -1261,7 +1263,7 @@ $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
 $CameraSpringMovementTextBox.Name = "CameraSpringMovementTextBox"
 $CameraSpringMovementTextBox.Top = 200
 $CameraSpringMovementTextBox.Left = 190
-$CameraSpringMovementTextBox.Width = 50  # Half the original width
+$CameraSpringMovementTextBox.Width = 50
 $CameraSpringMovementTextBox.TextAlign = 'Left'
 $CameraSpringMovementTextBox.TabIndex = 15
 $editGroupBox.Controls.Add($CameraSpringMovementTextBox)
@@ -1277,7 +1279,7 @@ $editGroupBox.Controls.Add($FilmGrainLabel)
 #$FilmGrainTextBox.Name = "FilmGrainTextBox"
 #$FilmGrainTextBox.Top = 200
 #$FilmGrainTextBox.Left = 410
-#$FilmGrainTextBox.Width = 50  # Half the original width
+#$FilmGrainTextBox.Width = 50
 #$FilmGrainTextBox.TextAlign = 'Left'
 #$FilmGrainTextBox.TabIndex = 16
 #$editGroupBox.Controls.Add($FilmGrainTextBox)
@@ -1285,7 +1287,7 @@ $FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
 $FilmGrainComboBox.Name = "FilmGrainComboBox"
 $FilmGrainComboBox.Top = 200
 $FilmGrainComboBox.Left = 410
-$FilmGrainComboBox.Width = 50  # Half the original width
+$FilmGrainComboBox.Width = 75
 $FilmGrainComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $FilmGrainComboBox.Items.Add("Disabled")
 $FilmGrainComboBox.Items.Add("Enabled")
@@ -1304,7 +1306,7 @@ $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceBoostZoomScaleTextBox.Name = "GForceBoostZoomScaleTextBox"
 $GForceBoostZoomScaleTextBox.Top = 230
 $GForceBoostZoomScaleTextBox.Left = 190
-$GForceBoostZoomScaleTextBox.Width = 50  # Half the original width
+$GForceBoostZoomScaleTextBox.Width = 50
 $GForceBoostZoomScaleTextBox.TextAlign = 'Left'
 $GForceBoostZoomScaleTextBox.TabIndex = 17
 $editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
@@ -1320,7 +1322,7 @@ $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
 $GForceHeadBobScaleTextBox.Top = 230
 $GForceHeadBobScaleTextBox.Left = 410
-$GForceHeadBobScaleTextBox.Width = 50  # Half the original width
+$GForceHeadBobScaleTextBox.Width = 50
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
 $GForceHeadBobScaleTextBox.TabIndex = 18
 $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
@@ -1336,7 +1338,7 @@ $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
 $HeadtrackingEnableRollFPSComboBox.Top = 260
 $HeadtrackingEnableRollFPSComboBox.Left = 190
-$HeadtrackingEnableRollFPSComboBox.Width = 50  # Half the original width
+$HeadtrackingEnableRollFPSComboBox.Width = 75
 $HeadtrackingEnableRollFPSComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
@@ -1345,17 +1347,17 @@ $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking First Person"
+$HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
 $HeadtrackingDisableDuringWalkingLabel.Top = 260
-$HeadtrackingDisableDuringWalkingLabel.Left = 260
-$HeadtrackingDisableDuringWalkingLabel.Width = 150
+$HeadtrackingDisableDuringWalkingLabel.Left = 270
+$HeadtrackingDisableDuringWalkingLabel.Width = 120
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
 $HeadtrackingDisableDuringWalkingComboBox.Top = 260
 $HeadtrackingDisableDuringWalkingComboBox.Left = 410
-$HeadtrackingDisableDuringWalkingComboBox.Width = 50  # Half the original width
+$HeadtrackingDisableDuringWalkingComboBox.Width = 75
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
@@ -1364,17 +1366,17 @@ $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
 
 $HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking Third Person"
+$HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
 $HeadtrackingThirdPersonCameraToggleLabel.Top = 290
 $HeadtrackingThirdPersonCameraToggleLabel.Left = 30
-$HeadtrackingThirdPersonCameraToggleLabel.Width = 150
+$HeadtrackingThirdPersonCameraToggleLabel.Width = 160
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
 $HeadtrackingThirdPersonCameraToggleComboBox.Top = 290
 $HeadtrackingThirdPersonCameraToggleComboBox.Left = 190
-$HeadtrackingThirdPersonCameraToggleComboBox.Width = 50  # Half the original width
+$HeadtrackingThirdPersonCameraToggleComboBox.Width = 75
 $HeadtrackingThirdPersonCameraToggleComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
@@ -1488,6 +1490,10 @@ $saveButton.Add_Click({
                 $MotionBlurComboBox.SelectedIndex = 0
             } elseif ($MotionBlurComboBox.SelectedItem -eq "Enabled") {
                 $MotionBlurComboBox.SelectedIndex = 1
+            } elseif ($MotionBlurComboBox.SelectedItem -eq "Ship Only") {
+                $MotionBlurComboBox.SelectedIndex = 2
+            } elseif ($MotionBlurComboBox.SelectedItem -eq "Debug Mode") {
+                $MotionBlurComboBox.SelectedIndex = 3
             }
             #$MotionBlurNode.SetAttribute("value", $MotionBlurTextBox.Text)  # MOTIONBLUR
             $MotionBlurNode.SetAttribute("value", $MotionBlurComboBox.SelectedIndex.ToString())  # MOTIONBLUR
