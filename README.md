@@ -21,7 +21,7 @@ Save some time and preload your VR configuration, or switch back to pancake mode
 
 
 ### Screenshot
-![](https://cdn.discordapp.com/attachments/1037213809800122470/1359729390375931914/image.png?ex=67f88a2d&is=67f738ad&hm=5f4993e4cb7213f945aefd1e3c60f9a41fc2082f9f80d25fd879483c401007be&)
+![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot-0.1.18.2.jpg)
 
 
 ### How to use this script
