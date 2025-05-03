@@ -34,3 +34,4 @@
 **0.1.17.2** bugfix: update 'save to game' button state correctly  
 **0.1.17.3** bugfix: SetComboBoxValues - variables not set correctly  
 **0.1.17.4** bugfix: Get-AttributeValue - add override for items not found in XML where the default is Enabled  
+**0.1.18** (+) added more head tracking options and (~) changed some text fields to combo boxes
