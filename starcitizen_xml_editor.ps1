@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.17.3"                        # bugfix: i broke the refresh part earlier, now fixed i hope
+$scriptVersion = "0.1.18"                        # added more head tracking options and changed some text fields to combo boxes
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -196,12 +196,18 @@ function Set-ProfileArray {
             ChromaticAberration = $chromaticAberrationTextBox.Text;
             #AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text;
             AutoZoomOnSelectedTarget = $AutoZoomComboBox.SelectedIndex;
-            MotionBlur = $MotionBlurTextBox.Text;
+            #MotionBlur = $MotionBlurTextBox.Text;
+            MotionBlur = $MotionBlurComboBox.SelectedIndex;
             ShakeScale = $ShakeScaleTextBox.Text;
             CameraSpringMovement = $CameraSpringMovementTextBox.Text;
-            FilmGrain = $FilmGrainTextBox.Text;
+            #FilmGrain = $FilmGrainTextBox.Text;
+            FilmGrain = $FilmGrainComboBox.SelectedIndex;
             GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text;
             GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text;
+            HeadtrackingEnableRollFPS = $HeadtrackingEnableRollFPSComboBox.SelectedIndex;
+            HeadtrackingDisableDuringWalking = $HeadtrackingDuringFPSComboBox.SelectedIndex;
+            HeadtrackingThirdPersonCameraToggle = $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex;
+
 
         }) | Out-Null
     }
@@ -302,9 +308,11 @@ function Open-XMLViewer {
                     $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.MotionBlur) {
-                    $MotionBlurTextBox.Text = $script:profileArray.MotionBlur
+                    #$MotionBlurTextBox.Text = $script:profileArray.MotionBlur
+                    $MotionBlurComboBox.SelectedIndex = $script:profileArray.MotionBlur
                 } else {
-                    $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                    #$MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                    $MotionBlurComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.ShakeScale) {
                     $ShakeScaleTextBox.Text = $script:profileArray.ShakeScale
@@ -317,9 +325,11 @@ function Open-XMLViewer {
                     $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.FilmGrain) {
-                    $FilmGrainTextBox.Text = $script:profileArray.FilmGrain
+                    #$FilmGrainTextBox.Text = $script:profileArray.FilmGrain
+                    $FilmGrainComboBox.SelectedIndex = $script:profileArray.FilmGrain
                 } else {
-                    $FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                    #$FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                    $FilmGrainComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.GForceBoostZoomScale) {
                     $GForceBoostZoomScaleTextBox.Text = $script:profileArray.GForceBoostZoomScale
@@ -330,6 +340,21 @@ function Open-XMLViewer {
                     $GForceHeadBobScaleTextBox.Text = $script:profileArray.GForceHeadBobScale
                 } else {
                     $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.HeadtrackingEnableRollFPS) {
+                    $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingEnableRollFPS
+                } else {
+                    $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.HeadtrackingDisableDuringWalking) {
+                    $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingDisableDuringWalking
+                } else {
+                    $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.HeadtrackingThirdPersonCameraToggle) {
+                    $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:profileArray.HeadtrackingThirdPersonCameraToggle
+                } else {
+                    $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" } | Select-Object -ExpandProperty value
                 }
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
@@ -375,12 +400,18 @@ function Save-Profile {
                 $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
                 #$script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
                 $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomComboBox.SelectedIndex
-                $script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
+                #$script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
+                $script:profileArray[0].MotionBlur = $MotionBlurComboBox.SelectedIndex
                 $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
                 $script:profileArray[0].CameraSpringMovement = $CameraSpringMovementTextBox.Text
-                $script:profileArray[0].FilmGrain = $FilmGrainTextBox.Text
+                #$script:profileArray[0].FilmGrain = $FilmGrainTextBox.Text
+                $script:profileArray[0].FilmGrain = $FilmGrainComboBox.SelectedIndex
                 $script:profileArray[0].GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text
                 $script:profileArray[0].GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text
+                $script:profileArray[0].HeadtrackingEnableRollFPS = $HeadtrackingEnableRollFPSComboBox.SelectedIndex
+                $script:profileArray[0].HeadtrackingDisableDuringWalking = $HeadtrackingDuringFPSComboBox.SelectedIndex
+                #$script:profileArray[0].HeadtrackingDuringFPS = $HeadtrackingDuringFPSComboBox.SelectedIndex
+                $script:profileArray[0].HeadtrackingThirdPersonCameraToggle = $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex
 
                 $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
                 if ($null -ne $jsonContent) {
@@ -591,12 +622,17 @@ $openXmlMenuItem.Add_Click({
                         $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
                         #$AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                         $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
-                        $MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                        #$MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                        $MotionBlurComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                         $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
                         $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
-                        $FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                        #$FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                        $FilmGrainComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
                         $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
                         $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
+                        $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" } | Select-Object -ExpandProperty value
+                        $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
+                        $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" } | Select-Object -ExpandProperty value
 
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
@@ -913,7 +949,7 @@ $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "VR Centric Settings"
 $editGroupBox.Width = 550
 $editGroupBox.Height = 350
-$editGroupBox.Top = 220         ## Adjusted the Top property to move the group box up
+$editGroupBox.Top = 200         ## Adjusted the Top property to move the group box up
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $true
 
@@ -954,6 +990,7 @@ function Get-AttributeValue {
                 "FilmGrain" { return 1 }
                 "MotionBlur" { return 1 }
                 "AutoZoomOnSelectedTarget" { return 1 }
+                "HeadtrackingDisableDuringWalking" { return 1 }
                 default { return $null }
             }
         }
@@ -994,8 +1031,6 @@ $importButton.Add_Click({
 
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
 
-                
-
                 $fovTextBox.Text = Get-AttributeValue "FOV"
                 $widthTextBox.Text = Get-AttributeValue "Width"
                 $heightTextBox.Text = Get-AttributeValue "Height"
@@ -1004,16 +1039,20 @@ $importButton.Add_Click({
                 SetComboBoxValue -comboBox $HeadtrackingSourceComboBox -value (Get-AttributeValue "HeadtrackingSource")
                 $chromaticAberrationTextBox.Text = Get-AttributeValue "ChromaticAberration"
                 SetComboBoxValue -comboBox $AutoZoomComboBox -value (Get-AttributeValue "AutoZoomOnSelectedTarget")
-                $MotionBlurTextBox.Text = Get-AttributeValue "MotionBlur"
+                SetComboBoxValue -comboBox $MotionBlurComboBox -value (Get-AttributeValue "MotionBlur")
                 $ShakeScaleTextBox.Text = Get-AttributeValue "ShakeScale"
                 $CameraSpringMovementTextBox.Text = Get-AttributeValue "CameraSpringMovement"
-                $FilmGrainTextBox.Text = Get-AttributeValue "FilmGrain"
+                SetComboBoxValue -comboBox $FilmGrainComboBox -value (Get-AttributeValue "FilmGrain")
                 $GForceBoostZoomScaleTextBox.Text = Get-AttributeValue "GForceBoostZoomScale"
                 $GForceHeadBobScaleTextBox.Text = Get-AttributeValue "GForceHeadBobScale"
+                SetComboBoxValue -comboBox $HeadtrackingEnableRollFPSComboBox -value (Get-AttributeValue "HeadtrackingEnableRollFPS")
+                SetComboBoxValue -comboBox $HeadtrackingDisableDuringWalkingComboBox -value (Get-AttributeValue "HeadtrackingDisableDuringWalking")
+                SetComboBoxValue -comboBox $HeadtrackingThirdPersonCameraToggleComboBox -value (Get-AttributeValue "HeadtrackingThirdPersonCameraToggle")
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
-                #$statusBar.Text = "Ready"
                 Update-ButtonState
+                Set-ProfileArray
+                if ($debug) {Write-Host "importButton lets see Paul Allens ProfileArray : " $script:profileArray -BackgroundColor White -ForegroundColor Black}
             } else {
                 $statusBar.Text = "No attributes found in the XML file."
                 #if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
@@ -1021,7 +1060,9 @@ $importButton.Add_Click({
         }
     } catch {
         $statusBar.Text = "An error occurred while loading the XML file"
-        #if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $($_.Exception.Message)")}
+        if ($debug) {[System.Windows.Forms.MessageBox]::Show("An error occurred while loading the XML file: $($_.Exception.Message)")
+        Set-ProfileArray
+        }
     }
 })
 
@@ -1123,14 +1164,14 @@ $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
 $chromaticAberrationLabel.Text = "Chromatic Aberration"
-$chromaticAberrationLabel.Top = 160
+$chromaticAberrationLabel.Top = 140
 $chromaticAberrationLabel.Left = 30
 $chromaticAberrationLabel.Width = 120
 $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
-$chromaticAberrationTextBox.Top = 160
+$chromaticAberrationTextBox.Top = 140
 $chromaticAberrationTextBox.Left = 190
 $chromaticAberrationTextBox.Width = 50  # Half the original width
 $chromaticAberrationTextBox.TextAlign = 'Left'
@@ -1139,14 +1180,14 @@ $editGroupBox.Controls.Add($chromaticAberrationTextBox)
 
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
-$AutoZoomLabel.Top = 160
+$AutoZoomLabel.Top = 140
 $AutoZoomLabel.Left = 300
 $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
 
 <#$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
 $AutoZoomTextBox.Name = "AutoZoomTextBox"
-$AutoZoomTextBox.Top = 160
+$AutoZoomTextBox.Top = 140
 $AutoZoomTextBox.Left = 410
 $AutoZoomTextBox.Width = 50  # Half the original width
 $AutoZoomTextBox.TextAlign = 'Left'
@@ -1155,7 +1196,7 @@ $editGroupBox.Controls.Add($AutoZoomTextBox)#>
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
-$AutoZoomComboBox.Top = 160
+$AutoZoomComboBox.Top = 140
 $AutoZoomComboBox.Left = 410
 $AutoZoomComboBox.Width = 50  # Half the original width
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
@@ -1167,30 +1208,42 @@ $editGroupBox.Controls.Add($AutoZoomComboBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
-$MotionBlurLabel.Top = 190
+$MotionBlurLabel.Top = 170
 $MotionBlurLabel.Left = 70
 $MotionBlurLabel.Width = 100
 $editGroupBox.Controls.Add($MotionBlurLabel)
 
-$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
-$MotionBlurTextBox.Name = "MotionBlurTextBox"
-$MotionBlurTextBox.Top = 190
-$MotionBlurTextBox.Left = 190
-$MotionBlurTextBox.Width = 50  # Half the original width
-$MotionBlurTextBox.TextAlign = 'Left'
-$MotionBlurTextBox.TabIndex = 13
-$editGroupBox.Controls.Add($MotionBlurTextBox)
+#$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
+#$MotionBlurTextBox.Name = "MotionBlurTextBox"
+#$MotionBlurTextBox.Top = 170
+#$MotionBlurTextBox.Left = 190
+#$MotionBlurTextBox.Width = 50  # Half the original width
+#$MotionBlurTextBox.TextAlign = 'Left'
+#$MotionBlurTextBox.TabIndex = 13
+#$editGroupBox.Controls.Add($MotionBlurTextBox)
+
+$MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
+$MotionBlurComboBox.Name = "MotionBlurComboBox"
+$MotionBlurComboBox.Top = 170
+$MotionBlurComboBox.Left = 190
+$MotionBlurComboBox.Width = 50  # Half the original width
+$MotionBlurComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$MotionBlurComboBox.Items.Add("Disabled")
+$MotionBlurComboBox.Items.Add("Enabled")
+$MotionBlurComboBox.TabIndex = 13
+$MotionBlurComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($MotionBlurComboBox)
 
 $ShakeScaleLabel = New-Object System.Windows.Forms.Label
 $ShakeScaleLabel.Text = "Shake Scale"
-$ShakeScaleLabel.Top = 190
+$ShakeScaleLabel.Top = 170
 $ShakeScaleLabel.Left = 300
 $ShakeScaleLabel.Width = 100
 $editGroupBox.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Name = "ShakeScaleTextBox"
-$ShakeScaleTextBox.Top = 190
+$ShakeScaleTextBox.Top = 170
 $ShakeScaleTextBox.Left = 410
 $ShakeScaleTextBox.Width = 50  # Half the original width
 $ShakeScaleTextBox.TextAlign = 'Left'
@@ -1199,14 +1252,14 @@ $editGroupBox.Controls.Add($ShakeScaleTextBox)
 
 $CameraSpringMovementLabel = New-Object System.Windows.Forms.Label
 $CameraSpringMovementLabel.Text = "Camera Spring Movement"
-$CameraSpringMovementLabel.Top = 220
+$CameraSpringMovementLabel.Top = 200
 $CameraSpringMovementLabel.Left = 30
 $CameraSpringMovementLabel.Width = 150
 $editGroupBox.Controls.Add($CameraSpringMovementLabel)
 
 $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
 $CameraSpringMovementTextBox.Name = "CameraSpringMovementTextBox"
-$CameraSpringMovementTextBox.Top = 220
+$CameraSpringMovementTextBox.Top = 200
 $CameraSpringMovementTextBox.Left = 190
 $CameraSpringMovementTextBox.Width = 50  # Half the original width
 $CameraSpringMovementTextBox.TextAlign = 'Left'
@@ -1215,30 +1268,41 @@ $editGroupBox.Controls.Add($CameraSpringMovementTextBox)
 
 $FilmGrainLabel = New-Object System.Windows.Forms.Label
 $FilmGrainLabel.Text = "Film Grain"
-$FilmGrainLabel.Top = 220
+$FilmGrainLabel.Top = 200
 $FilmGrainLabel.Left = 300
 $FilmGrainLabel.Width = 100
 $editGroupBox.Controls.Add($FilmGrainLabel)
 
-$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
-$FilmGrainTextBox.Name = "FilmGrainTextBox"
-$FilmGrainTextBox.Top = 220
-$FilmGrainTextBox.Left = 410
-$FilmGrainTextBox.Width = 50  # Half the original width
-$FilmGrainTextBox.TextAlign = 'Left'
-$FilmGrainTextBox.TabIndex = 16
-$editGroupBox.Controls.Add($FilmGrainTextBox)
+#$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
+#$FilmGrainTextBox.Name = "FilmGrainTextBox"
+#$FilmGrainTextBox.Top = 200
+#$FilmGrainTextBox.Left = 410
+#$FilmGrainTextBox.Width = 50  # Half the original width
+#$FilmGrainTextBox.TextAlign = 'Left'
+#$FilmGrainTextBox.TabIndex = 16
+#$editGroupBox.Controls.Add($FilmGrainTextBox)
+$FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
+$FilmGrainComboBox.Name = "FilmGrainComboBox"
+$FilmGrainComboBox.Top = 200
+$FilmGrainComboBox.Left = 410
+$FilmGrainComboBox.Width = 50  # Half the original width
+$FilmGrainComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$FilmGrainComboBox.Items.Add("Disabled")
+$FilmGrainComboBox.Items.Add("Enabled")
+$FilmGrainComboBox.TabIndex = 16
+$FilmGrainComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($FilmGrainComboBox)
 
 $GForceBoostZoomScaleLabel = New-Object System.Windows.Forms.Label
 $GForceBoostZoomScaleLabel.Text = "G-Force Boost Zoom Scale"
-$GForceBoostZoomScaleLabel.Top = 250
+$GForceBoostZoomScaleLabel.Top = 230
 $GForceBoostZoomScaleLabel.Left = 30
 $GForceBoostZoomScaleLabel.Width = 150
 $editGroupBox.Controls.Add($GForceBoostZoomScaleLabel)
 
 $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceBoostZoomScaleTextBox.Name = "GForceBoostZoomScaleTextBox"
-$GForceBoostZoomScaleTextBox.Top = 250
+$GForceBoostZoomScaleTextBox.Top = 230
 $GForceBoostZoomScaleTextBox.Left = 190
 $GForceBoostZoomScaleTextBox.Width = 50  # Half the original width
 $GForceBoostZoomScaleTextBox.TextAlign = 'Left'
@@ -1247,19 +1311,76 @@ $editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
 
 $GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
 $GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
-$GForceHeadBobScaleLabel.Top = 250
+$GForceHeadBobScaleLabel.Top = 230
 $GForceHeadBobScaleLabel.Left = 260
 $GForceHeadBobScaleLabel.Width = 150
 $editGroupBox.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
-$GForceHeadBobScaleTextBox.Top = 250
+$GForceHeadBobScaleTextBox.Top = 230
 $GForceHeadBobScaleTextBox.Left = 410
 $GForceHeadBobScaleTextBox.Width = 50  # Half the original width
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
 $GForceHeadBobScaleTextBox.TabIndex = 18
 $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
+
+$HeadtrackingEnableRollFPSLabel = New-Object System.Windows.Forms.Label
+$HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
+$HeadtrackingEnableRollFPSLabel.Top = 260
+$HeadtrackingEnableRollFPSLabel.Left = 30
+$HeadtrackingEnableRollFPSLabel.Width = 150
+$editGroupBox.Controls.Add($HeadtrackingEnableRollFPSLabel)
+
+$HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
+$HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
+$HeadtrackingEnableRollFPSComboBox.Top = 260
+$HeadtrackingEnableRollFPSComboBox.Left = 190
+$HeadtrackingEnableRollFPSComboBox.Width = 50  # Half the original width
+$HeadtrackingEnableRollFPSComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
+$HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
+$HeadtrackingEnableRollFPSComboBox.TabIndex = 19
+$HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
+
+$HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
+$HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking First Person"
+$HeadtrackingDisableDuringWalkingLabel.Top = 260
+$HeadtrackingDisableDuringWalkingLabel.Left = 260
+$HeadtrackingDisableDuringWalkingLabel.Width = 150
+$editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
+
+$HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
+$HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
+$HeadtrackingDisableDuringWalkingComboBox.Top = 260
+$HeadtrackingDisableDuringWalkingComboBox.Left = 410
+$HeadtrackingDisableDuringWalkingComboBox.Width = 50  # Half the original width
+$HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
+$HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
+$HeadtrackingDisableDuringWalkingComboBox.TabIndex = 20
+$HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
+
+$HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
+$HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking Third Person"
+$HeadtrackingThirdPersonCameraToggleLabel.Top = 290
+$HeadtrackingThirdPersonCameraToggleLabel.Left = 30
+$HeadtrackingThirdPersonCameraToggleLabel.Width = 150
+$editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
+
+$HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
+$HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
+$HeadtrackingThirdPersonCameraToggleComboBox.Top = 290
+$HeadtrackingThirdPersonCameraToggleComboBox.Left = 190
+$HeadtrackingThirdPersonCameraToggleComboBox.Width = 50  # Half the original width
+$HeadtrackingThirdPersonCameraToggleComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
+$HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
+$HeadtrackingThirdPersonCameraToggleComboBox.TabIndex = 21
+$HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
+$editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleComboBox)
 
 # Update the state of the buttons after loading the XML content
 
@@ -1268,9 +1389,9 @@ $saveProfileButton.Name = "SaveProfileButton"
 $saveProfileButton.Text = "Save Profile"
 $saveProfileButton.Width = 120
 $saveProfileButton.Height = 30
-$saveProfileButton.Top = 295
-$saveProfileButton.Left = 20
-$saveProfileButton.TabIndex = 19
+$saveProfileButton.Top = 315
+$saveProfileButton.Left = 130
+$saveProfileButton.TabIndex = 21
 $saveProfileButton.Enabled = $false  # Initially disabled
 $saveProfileButton.Add_Click({
     Save-Profile
@@ -1282,9 +1403,9 @@ $saveButton.Name = "SaveButton"
 $saveButton.Text = "Save to Game"
 $saveButton.Width = 120
 $saveButton.Height = 30
-$saveButton.Top = 295
+$saveButton.Top = 315
 $saveButton.Left = 330
-$saveButton.TabIndex = 20
+$saveButton.TabIndex = 22
 $saveButton.Add_Click({
     try {
         if ($null -eq $script:xmlContent) {
@@ -1363,7 +1484,13 @@ $saveButton.Add_Click({
         }
         $MotionBlurNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" }
         if ($null -ne $MotionBlurNode) {
-            $MotionBlurNode.SetAttribute("value", $MotionBlurTextBox.Text)  # MOTIONBLUR
+            if ($MotionBlurComboBox.SelectedItem -eq "Disabled") {
+                $MotionBlurComboBox.SelectedIndex = 0
+            } elseif ($MotionBlurComboBox.SelectedItem -eq "Enabled") {
+                $MotionBlurComboBox.SelectedIndex = 1
+            }
+            #$MotionBlurNode.SetAttribute("value", $MotionBlurTextBox.Text)  # MOTIONBLUR
+            $MotionBlurNode.SetAttribute("value", $MotionBlurComboBox.SelectedIndex.ToString())  # MOTIONBLUR
         }
         $ShakeScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" }
         if ($null -ne $ShakeScaleNode) {
@@ -1375,7 +1502,13 @@ $saveButton.Add_Click({
         }
         $FilmGrainNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" }
         if ($null -ne $FilmGrainNode) {
-            $FilmGrainNode.SetAttribute("value", $FilmGrainTextBox.Text)  # FILM GRAIN
+            #$FilmGrainNode.SetAttribute("value", $FilmGrainTextBox.Text)  # FILM GRAIN
+            if ($FilmGrainComboBox.SelectedItem -eq "Disabled") {
+                $FilmGrainComboBox.SelectedIndex = 0
+            } elseif ($FilmGrainComboBox.SelectedItem -eq "Enabled") {
+                $FilmGrainComboBox.SelectedIndex = 1
+            }
+            $FilmGrainNode.SetAttribute("value", $FilmGrainComboBox.SelectedIndex.ToString())  # FILM GRAIN
         }
         $GForceBoostZoomScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" }
         if ($null -ne $GForceBoostZoomScaleNode) {
@@ -1385,6 +1518,35 @@ $saveButton.Add_Click({
         if ($null -ne $GForceHeadBobScaleNode) {
             $GForceHeadBobScaleNode.SetAttribute("value", $GForceHeadBobScaleTextBox.Text)  # GFORCEHEADBOBSCALE
         }
+        $HeadtrackingEnableRollFPSNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" }
+        if ($null -ne $HeadtrackingEnableRollFPSNode) {
+            if ($HeadtrackingEnableRollFPSComboBox.SelectedItem -eq "Disabled") {
+                $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
+            } elseif ($HeadtrackingEnableRollFPSComboBox.SelectedItem -eq "Enabled") {
+                $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 1
+            }
+            $HeadtrackingEnableRollFPSNode.SetAttribute("value", $HeadtrackingEnableRollFPSComboBox.SelectedIndex.ToString())  # HEADTRACKINGENABLEROLLFPS
+        }
+        $HeadtrackingDisableDuringWalkingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" }
+        if ($null -ne $HeadtrackingDisableDuringWalkingNode) {
+            if ($HeadtrackingDisableDuringWalkingComboBox.SelectedItem -eq "On") {
+                $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
+            } elseif ($HeadtrackingDisableDuringWalkingComboBox.SelectedItem -eq "Off") {
+                $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 1
+            }
+            $HeadtrackingDisableDuringWalkingNode.SetAttribute("value", $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex.ToString())  # HEADTRACKINGDISABLEDURINGWALKING
+        }
+        $HeadtrackingThirdPersonCameraToggleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" }
+        if ($null -ne $HeadtrackingThirdPersonCameraToggleNode) {
+            if ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedItem -eq "Off") {
+                $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
+            } elseif ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedItem -eq "On") {
+                $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 1
+            }
+            $HeadtrackingThirdPersonCameraToggleNode.SetAttribute("value", $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex.ToString())  # HEADTRACKINGTHIRDPERSONCAMERATOGGLE
+        }
+        # Save the XML content to the specified path
+
         try {
             $script:xmlContent.Save($script:xmlPath)
             [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
@@ -1479,7 +1641,7 @@ $closeButton.Height = 30
 $closeButton.Top = 115
 
 $closeButton.Left = 300
-$closeButton.TabIndex = 21
+$closeButton.TabIndex = 23
 $closeButton.Add_Click({
     $form.Close()
 })
@@ -1493,12 +1655,17 @@ $HeadtrackingSourceComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $chromaticAberrationTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 #$AutoZoomTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $AutoZoomComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
-$MotionBlurTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+#$MotionBlurTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$MotionBlurComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $ShakeScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $CameraSpringMovementTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
-$FilmGrainTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+#$FilmGrainTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$FilmGrainComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $GForceBoostZoomScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $GForceHeadBobScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$HeadtrackingEnableRollFPSComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$HeadtrackingDisableDuringWalkingComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
+$HeadtrackingThirdPersonCameraToggleComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $saveButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $saveProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -1534,6 +1701,9 @@ $ShowHelp={
         "FilmGrainTextBox" {$tip = "Film Grain value 0/1"}
         "GForceBoostZoomScaleTextBox" {$tip = "G-Force Boost Zoom Scale value"}
         "GForceHeadBobScaleTextBox" {$tip = "G-Force Head Bob Scale value"}
+        "HeadtrackingEnableRollFPSComboBox" {$tip = "Enable Roll FPS 0/1"}
+        "HeadtrackingDisableDuringWalkingComboBox" {$tip = "Disable Headtracking during walking 0/1"}
+        "HeadtrackingThirdPersonCameraToggleComboBox" {$tip = "Enable Headtracking in Third Person 0/1"}
         "saveButton" {$tip = "Save settings to the game"}
         "saveProfileButton" {$tip = "Save settings to the profile"}
         "loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
@@ -1576,6 +1746,7 @@ $form.ShowDialog()
 
 <#      extra to add to the form eventually.
 <Attr name="LookAheadEnabledSpaceship" value="0"/>
+<Attr name="HeadtrackingEnableRollFPS" value="1" />
 <Attr name="HeadtrackingDisableDuringWalking" value="0"/>
 <Attr name="HeadtrackingThirdPersonCameraToggle" value="0"/>
 <Attr name="Upscaling" value="1"/>
