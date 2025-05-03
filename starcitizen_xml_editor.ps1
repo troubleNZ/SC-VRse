@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.18.1"                        # tidied up input box positions and sizes
+$scriptVersion = "0.1.18.2"                        # fixed saving attributes path to profile
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -390,7 +390,7 @@ function Save-Profile {
             try {
                 if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
                 $script:profileArray[0].SCPath = $script:liveFolderPath
-                $script:profileArray[0].AttributesXmlPath = $script:attributesXmlPath
+                $script:profileArray[0].AttributesXmlPath = $script:xmlPath
                 $script:profileArray[0].DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false }
                 $script:profileArray[0].FOV = $fovTextBox.Text
                 $script:profileArray[0].Height = $heightTextBox.Text
@@ -459,7 +459,7 @@ function Open-Profile {
                         }
                         $loadedProfile = $true
                         $script:liveFolderPath = $script:profileArray.SCPath
-                        $script:attributesXmlPath = $script:profileArray.AttributesXmlPath
+                        $script:attributesXmlPath = if ($null -ne $script:profileArray.AttributesXmlPath) { $script:profileArray.AttributesXmlPath } else { $script:xmlPath }
                         $script:xmlPath = $script:attributesXmlPath
                         $script:darkMode = $script:profileArray.DarkMode
                         if ($script:darkMode) {
