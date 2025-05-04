@@ -1,5 +1,3 @@
-# SC-VRse
-## VRse-AE (Attribute Editor)
 <p align="center">
   <a href="https://github.com/troubleNZ/SC-VRse/issues">
     <img src="https://img.shields.io/github/issues/troubleNZ/SC-VRse"/> 
@@ -14,6 +12,10 @@
     <img src="https://img.shields.io/github/license/troubleNZ/SC-VRse?color=black"/> 
   </a>      
 </p>
+# SC-VRse
+## VRse-AE (Attribute Editor)
+
+
 Easy Virtual Reality configuration manager for Star Citizen Live.
 
 Get help with VR in Star Citizen at  
