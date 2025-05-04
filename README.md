@@ -65,7 +65,7 @@ once you have a saved profile, you can Open it from the same File Menu. having 2
 
 ### current issues
 
-- dark mode is broken sorry
+- no major issues reported
 
 ### future plans
 - visualize and interact with the mbk/hotas binding xml
