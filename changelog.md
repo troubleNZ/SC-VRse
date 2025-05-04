@@ -37,3 +37,4 @@
 **0.1.18** (+) added more head tracking options and (~) changed some text fields to combo boxes  
 **0.1.18.1** ~ tidied up input box positions and sizes  
 **0.1.18.2** ~ fixed saving attributes path to profile  
+**0.1.19** enhancements to hosts file adding and removing
