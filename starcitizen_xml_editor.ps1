@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.18.2"                        # fixed saving attributes path to profile
+$scriptVersion = "0.1.19"                        # enhancements to hosts file adding and removing
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -151,9 +151,7 @@ function Set-LightMode {
 Set-LightMode -control $form
 
 function Switch-DarkMode {
-    <#param (
-        [System.Windows.Forms.DataGridView]$script:dataGridView
-    )#>
+    
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) {
         Set-LightMode -control $form
         $darkModeMenuItem.Text = "Enable Dark Mode"
@@ -819,16 +817,16 @@ $eacGroupBox.Height = 100
 $eacGroupBox.Top = 20
 $eacGroupBox.Left = 160  # Position it to the right of the actions group box
 
-# Create the Hosts File Update button
-$hostsFileUpdateButton = New-Object System.Windows.Forms.Button
-$hostsFileUpdateButton.Name = "HostsFileUpdateButton"
-$hostsFileUpdateButton.Text = "Hosts File Update"
-$hostsFileUpdateButton.Width = 160
-$hostsFileUpdateButton.Height = 30
-$hostsFileUpdateButton.Top = 30
-$hostsFileUpdateButton.Left = 20
-$hostsFileUpdateButton.TabIndex = 2
-$hostsFileUpdateButton.Add_Click({
+# Create the Hosts File Add button
+$hostsFileAddButton = New-Object System.Windows.Forms.Button
+$hostsFileAddButton.Name = "hostsFileAddButton"
+$hostsFileAddButton.Text = "Add Bypass to Hosts File"
+$hostsFileAddButton.Width = 160
+$hostsFileAddButton.Height = 30
+$hostsFileAddButton.Top = 20
+$hostsFileAddButton.Left = 20
+$hostsFileAddButton.TabIndex = 2
+$hostsFileAddButton.Add_Click({
     $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
     if (-not (Test-Path -Path $hostsFilePath)) {
         [System.Windows.Forms.MessageBox]::Show("Hosts file not found. Operation aborted.")
@@ -840,12 +838,63 @@ $hostsFileUpdateButton.Add_Click({
         return
     }else {
         #$cmd = "Start-Process cmd -ArgumentList '/c cd %systemroot%\System32\drivers\etc && echo #SC Bypass >> hosts && echo 127.0.0.1    modules-cdn.eac-prod.on.epicgames.com >> hosts && echo ::1    modules-cdn.eac-prod.on.epicgames.com >> hosts' -Verb RunAs"
-        Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd %systemroot%\System32\drivers\etc && echo #SC Bypass >> hosts && echo 127.0.0.1    modules-cdn.eac-prod.on.epicgames.com >> hosts && echo ::1    modules-cdn.eac-prod.on.epicgames.com >> hosts" -Verb RunAs
+        Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd %systemroot%\System32\drivers\etc && echo 127.0.0.1    modules-cdn.eac-prod.on.epicgames.com >> hosts && echo ::1    modules-cdn.eac-prod.on.epicgames.com >> hosts" -Verb RunAs
         $statusBar.Text = "Hosts file updated successfully!"
         [System.Windows.Forms.MessageBox]::Show("Hosts file updated successfully!")
     }
 })
-$eacGroupBox.Controls.Add($hostsFileUpdateButton)
+$eacGroupBox.Controls.Add($hostsFileAddButton)
+
+
+function RemoveFromHostsFile {
+    param([string]$Hostname = "modules-cdn.eac-prod.on.epicgames.com")
+        # Remove entry from hosts file. Removes all entries that match the hostname (i.e. both IPv4 and IPv6).
+        #Requires -RunAsAdministrator
+        $hostsFile = Get-Content $hostsFilePath
+        #Write-Host "About to remove $Hostname from hosts file" -ForegroundColor Gray
+        $escapedHostname = [Regex]::Escape($Hostname)
+        if (($hostsFile) -match ".*\s+$escapedHostname.*")  {
+            $statusBar.Text = "Removing $Hostname from hosts file..."
+            $hostsFile | Where-Object { -not ($_ -match ".*\s+$escapedHostname.*") } | Out-File $hostsFilePath -Encoding UTF8
+            $statusBar.Text = "Hosts file updated successfully!"
+            [System.Windows.Forms.MessageBox]::Show("Hosts file updated successfully!")
+        } else {
+            $statusBar.Text = "Hosts file not updated!"
+            [System.Windows.Forms.MessageBox]::Show("$Hostname - not in hosts file (perhaps already removed); nothing to do")
+        }
+}
+
+
+# Create the Hosts File Removal button
+$hostsFileRemoveButton = New-Object System.Windows.Forms.Button
+$hostsFileRemoveButton.Name = "hostsFileAddButton"
+$hostsFileRemoveButton.Text = "Remove Bypass to Hosts File"
+$hostsFileRemoveButton.Width = 160
+$hostsFileRemoveButton.Height = 30
+$hostsFileRemoveButton.Top = 60
+$hostsFileRemoveButton.Left = 20
+$hostsFileRemoveButton.TabIndex = 2
+$hostsFileRemoveButton.Add_Click({
+    $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
+    if (-not (Test-Path -Path $hostsFilePath)) {
+        [System.Windows.Forms.MessageBox]::Show("Hosts file not found. Operation aborted.")
+        return
+    }
+
+    $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
+        return
+    }else {
+        RemoveFromHostsFile
+    }
+})
+$eacGroupBox.Controls.Add($hostsFileRemoveButton)
+
+
+
+
+
+
 
 # Create the Delete AppData EAC TempFiles button
 $deleteEACTempFilesButton = New-Object System.Windows.Forms.Button
@@ -853,7 +902,7 @@ $deleteEACTempFilesButton.Name = "DeleteEACTempFilesButton"
 $deleteEACTempFilesButton.Text = "Delete EAC TempFiles"
 $deleteEACTempFilesButton.Width = 160
 $deleteEACTempFilesButton.Height = 30
-$deleteEACTempFilesButton.Top = 30
+$deleteEACTempFilesButton.Top = 20
 $deleteEACTempFilesButton.Left = 190  # Position it to the right of the Hosts File Update button
 $deleteEACTempFilesButton.TabIndex = 3
 $deleteEACTempFilesButton.Add_Click({
@@ -1677,7 +1726,7 @@ $saveProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $deleteEACTempFilesButton.add_MouseHover({ $ShowHelp.Invoke($_) })
-$hostsFileUpdateButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$hostsFileAddButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 
 #connect the ShowHelp scriptblock with the _MouseHover event for this control
 
@@ -1715,7 +1764,7 @@ $ShowHelp={
         "loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
         "importButton" {$tip = "Import settings from the game"}
         "deleteEACTempFilesButton" {$tip = "Delete EAC TempFiles"}
-        "hostsFileUpdateButton" {$tip = "Update hosts file for EAC Bypass"}
+        "hostsFileAddButton" {$tip = "Update hosts file for EAC Bypass"}
         Default { $tip = "No tooltip available for this control." }
       }
      $toolTips.SetToolTip($this, $tip)
@@ -1751,10 +1800,6 @@ $form.Controls.Add($editGroupBox)
 $form.ShowDialog()
 
 <#      extra to add to the form eventually.
-<Attr name="LookAheadEnabledSpaceship" value="0"/>
-<Attr name="HeadtrackingEnableRollFPS" value="1" />
-<Attr name="HeadtrackingDisableDuringWalking" value="0"/>
-<Attr name="HeadtrackingThirdPersonCameraToggle" value="0"/>
 <Attr name="Upscaling" value="1"/>
 <Attr name="UpscalingTechnique" value="2"/> #DLSS
 #>
