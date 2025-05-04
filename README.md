@@ -1,8 +1,25 @@
+<p align="center">
+  <a href="https://github.com/troubleNZ/SC-VRse/issues">
+    <img src="https://img.shields.io/github/issues/troubleNZ/SC-VRse"/> 
+  </a>
+  <a href="https://github.com/troubleNZ/SC-VRse/network/members">
+    <img src="https://img.shields.io/github/forks/troubleNZ/SC-VRse"/> 
+  </a>  
+  <a href="https://github.com/troubleNZ/SC-VRse/stargazers">
+    <img src="https://img.shields.io/github/stars/troubleNZ/SC-VRse?color=white"/> 
+  </a>
+  <a href="https://github.com/troubleNZ/SC-VRse/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/troubleNZ/SC-VRse?color=black"/> 
+  </a>      
+</p>
+
 # SC-VRse
 ## VRse-AE (Attribute Editor)
 
-VR fan project for
-Chachi_Sanchez's VRse
+### Easy Virtual Reality configuration manager for Star Citizen Live.
+
+Get help with VR in Star Citizen at  
+Chachi_Sanchez's VRse  
 https://discord.gg/g2jn2vzju3
 
 ### Description
@@ -50,7 +67,7 @@ once you have a saved profile, you can Open it from the same File Menu. having 2
 
 ### current issues
 
-- dark mode is broken sorry
+- no major issues reported
 
 ### future plans
 - visualize and interact with the mbk/hotas binding xml
