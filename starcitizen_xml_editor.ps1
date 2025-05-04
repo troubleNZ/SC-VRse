@@ -868,7 +868,7 @@ function RemoveFromHostsFile {
 # Create the Hosts File Removal button
 $hostsFileRemoveButton = New-Object System.Windows.Forms.Button
 $hostsFileRemoveButton.Name = "hostsFileAddButton"
-$hostsFileRemoveButton.Text = "Remove Bypass to Hosts File"
+$hostsFileRemoveButton.Text = "Remove Hosts File entry"
 $hostsFileRemoveButton.Width = 160
 $hostsFileRemoveButton.Height = 30
 $hostsFileRemoveButton.Top = 60
