@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.19"                        # enhancements to hosts file adding and removing
+$scriptVersion = "0.2"                        # fov wizard version 0.2 has dependencies for both powershell and python and must be run from a command prompt, not powershell. bat file included in the repo.
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -36,7 +36,23 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
+# Set default font for all controls on the form
+$defaultFont = New-Object System.Drawing.Font("Arial", 8)
 
+function Set-DefaultFont {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param (
+        [System.Windows.Forms.Control]$control
+    )
+    if ($PSCmdlet.ShouldProcess("Control", "Set default font")) {
+        $control.Font = $defaultFont
+        foreach ($child in $control.Controls) {
+            Set-DefaultFont -control $child
+        }
+    }
+}
+$scriptIcon = $null
+Set-DefaultFont -control $form
 
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
@@ -52,7 +68,7 @@ if (Test-Path $iconPath) {
     }
 }
 
-
+Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -TypeDefinition '
 public class DPIAware
@@ -64,7 +80,7 @@ public class DPIAware
 
 [System.Windows.Forms.Application]::EnableVisualStyles()
 [void] [DPIAware]::SetProcessDPIAware()
-Add-Type -AssemblyName System.Drawing
+#Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 
 
@@ -720,7 +736,7 @@ $fileMenuItem.MenuItems.Add($exitMenuItem)  # Add the Exit menu item to the File
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
 # Create the Find Live Folder button
-$findLiveFolderButton = New-Object System.Windows.Forms.Button
+<#$findLiveFolderButton = New-Object System.Windows.Forms.Button
 $findLiveFolderButton.Name = "FindLiveFolderButton"
 $findLiveFolderButton.Text = "Open SC Folder"
 $findLiveFolderButton.Width = 120
@@ -781,7 +797,7 @@ $findLiveFolderButton.Add_Click({
     }
 })
 $ActionsGroupBox.Controls.Add($findLiveFolderButton)
-
+#>
 
 $openProfileButton = New-Object System.Windows.Forms.Button
 $openProfileButton.Name = "OpenProfileButton"
@@ -796,8 +812,9 @@ $openProfileButton.Add_Click({
     Open-Profile
 })
 $ActionsGroupBox.Controls.Add($openProfileButton)
-$openProfileButton.Visible = $true
-$openProfileButton.Enabled = $true
+$openProfileButton.Visible = $false
+$openProfileButton.Enabled = $false
+$openProfileButton.TabStop = $false
 
 
 <# unused
@@ -1028,7 +1045,7 @@ $editGroupBox.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
     $script:xmlPath = $($script:profileArray.AttributesXmlPath)
-    Write-Host "Loading from profile: $($script:profileArray.AttributesXmlPath)" -BackgroundColor White -ForegroundColor Black
+    #Write-Host "Loading from profile: $($script:profileArray.AttributesXmlPath)" -BackgroundColor White -ForegroundColor Black
     if ($null -ne $script:xmlPath) {
         Open-XMLViewer($script:xmlPath)
     } else {
@@ -1134,15 +1151,15 @@ $editGroupBox.Controls.Add($importButton)
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
 $fovLabel.Top = 70
-$fovLabel.Left = 40
+$fovLabel.Left = 150
 $fovLabel.Width = 30
 $editGroupBox.Controls.Add($fovLabel)
 
 $fovTextBox = New-Object System.Windows.Forms.TextBox
 $fovTextBox.Name = "FOVTextBox"
 $fovTextBox.Top = 70
-$fovTextBox.Left = 90
-$fovTextBox.Width = 50
+$fovTextBox.Left = 185
+$fovTextBox.Width = 25
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
 $fovTextBox.TabIndex = 6
@@ -1151,7 +1168,7 @@ $editGroupBox.Controls.Add($fovTextBox)
 $widthLabel = New-Object System.Windows.Forms.Label
 $widthLabel.Text = "Width"
 $widthLabel.Top = 70
-$widthLabel.Left = 180
+$widthLabel.Left = 215
 $widthLabel.Width = 50
 $widthLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($widthLabel)
@@ -1159,8 +1176,8 @@ $editGroupBox.Controls.Add($widthLabel)
 $widthTextBox = New-Object System.Windows.Forms.TextBox
 $widthTextBox.Name = "WidthTextBox"
 $widthTextBox.Top = 70
-$widthTextBox.Left = 250
-$widthTextBox.Width = 50
+$widthTextBox.Left = 280
+$widthTextBox.Width = 40
 $widthTextBox.TextAlign = 'Left'
 $widthTextBox.TabIndex = 7
 $editGroupBox.Controls.Add($widthTextBox)
@@ -1168,7 +1185,7 @@ $editGroupBox.Controls.Add($widthTextBox)
 $heightLabel = New-Object System.Windows.Forms.Label
 $heightLabel.Text = "Height"
 $heightLabel.Top = 70
-$heightLabel.Left = 320
+$heightLabel.Left = 330
 $heightLabel.Width = 50
 $heightLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($heightLabel)
@@ -1176,8 +1193,8 @@ $editGroupBox.Controls.Add($heightLabel)
 $heightTextBox = New-Object System.Windows.Forms.TextBox
 $heightTextBox.Name = "HeightTextBox"
 $heightTextBox.Top = 70
-$heightTextBox.Left = 400
-$heightTextBox.Width = 50
+$heightTextBox.Left = 390
+$heightTextBox.Width = 40
 $heightTextBox.TextAlign = 'Left'
 $heightTextBox.TabIndex = 8
 $editGroupBox.Controls.Add($heightTextBox)
@@ -1826,8 +1843,11 @@ function Open-FovWizard {
         $pythonProcess.StartInfo.Arguments = "`"$pythonScriptPath`""
         $pythonProcess.StartInfo.UseShellExecute = $false
         $pythonProcess.StartInfo.RedirectStandardOutput = $true
-        $pythonProcess.StartInfo.RedirectStandardError = $true
+        $pythonProcess.StartInfo.RedirectStandardError = $false
         $pythonProcess.StartInfo.CreateNoWindow = $true
+
+        #we are using the clipboard to pass data between the python script and this script.
+        [System.Windows.Forms.Clipboard]::Clear()
 
         # Start the Python process
         $pythonProcess.Start() | Out-Null
@@ -1852,10 +1872,21 @@ function Open-FovWizard {
         if ($pythonProcess.ExitCode -ne 0) {
             [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script. Exit code: $($pythonProcess.ExitCode)")
         } else {
-            [System.Windows.Forms.MessageBox]::Show("FOV Wizard completed. Clipboard content: $clipboardContent")
+            #[System.Windows.Forms.MessageBox]::Show("FOV Wizard completed. Clipboard content: $clipboardContent. Populating input boxes...")
+            
+            #[System.Windows.Forms.MessageBox]::Show("Populating input boxes: $clipboardContent")
+            # Populate the input boxes with the values from the clipboard
+            if ($clipboardContent -match 'FOV:\s*(\d+\.?\d*)') {
+                $fovTextBox.Text = $matches[1]
+            }
+            if ($clipboardContent -match 'Width:\s*(\d+\.?\d*)') {
+                $widthTextBox.Text = $matches[1]
+            }
+            if ($clipboardContent -match 'Height:\s*(\d+\.?\d*)') {
+                $heightTextBox.Text = $matches[1]
+            }
         }
-
-        [System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
+        #[System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
     } catch {
         [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
     }
@@ -1871,11 +1902,11 @@ function Open-FovWizard {
 # LETS ADD A NEW BUTTON TO THE FORM BELOW THE OPEN PROFILE BUTTON THAT IS CALLED CHOOSE FOV WIZARD
 $chooseFovWizardButton = New-Object System.Windows.Forms.Button
 $chooseFovWizardButton.Name = "ChooseFovWizardButton"
-$chooseFovWizardButton.Text = "Choose FOV Wizard"
-$chooseFovWizardButton.Width = 120
+$chooseFovWizardButton.Text = "FOV Wizard"
+$chooseFovWizardButton.Width = 80
 $chooseFovWizardButton.Height = 30
-$chooseFovWizardButton.Top = 115
-$chooseFovWizardButton.Left = 20
+$chooseFovWizardButton.Top = 65
+$chooseFovWizardButton.Left = 30
 $chooseFovWizardButton.TabIndex = 24
 $chooseFovWizardButton.Add_Click({
     # Call the function to open the FOV wizard
@@ -1884,7 +1915,7 @@ $chooseFovWizardButton.Add_Click({
 $chooseFovWizardButton.Visible = $true
 $chooseFovWizardButton.Enabled = $true
 $chooseFovWizardButton.add_MouseHover({ $ShowHelp.Invoke($_) })
-$ActionsGroupBox.Controls.Add($chooseFovWizardButton)
+$editGroupBox.Controls.Add($chooseFovWizardButton)
 
 $form.Controls.Add($editGroupBox)
 

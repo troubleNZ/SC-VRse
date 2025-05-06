@@ -158,18 +158,13 @@ def update_headset_data(fov_var, *args):
 # Bind the update function to the headset dropdown
 lense_var.trace_add("write", lambda *args: update_headset_data(fov_var, *args))
 fov_var = tk.DoubleVar()
-
-def on_complete():
-    root.quit()  # Close the GUI after updating
-    root.destroy()  # Destroy the GUI window
     
 def on_update():
     try:
         selected_data = get_selected_data()
         fov = fov_var.get()
+        fov = round(fov)
         resolution = resolution_var.get()
-        messagebox.showinfo("Success", resolution)
-        print(f"Selected Resolution: {resolution}")
         
         # Ensure resolution is valid and parse it into width and height
         match = re.match(r"^(\d+)\s*[xX]\s*(\d+)", resolution)
@@ -180,25 +175,20 @@ def on_update():
             return
         
         # Format the output as a string
-        output = f"FOV: {fov}, Width: {width}, Height: {height}"
         clipboard_output = f"FOV: {fov}\nWidth: {width}\nHeight: {height}"
         print(clipboard_output)
         
-        # Write the output to the clipboard
+        # Copy the output directly to the clipboard
         root.clipboard_clear()
-        root.clipboard_append(output)
+        root.clipboard_append(clipboard_output)
         root.update()  # Update the clipboard
         
-        # Notify the user
-        messagebox.showinfo("Copied to Clipboard", "The FOV, width, and height have been copied to the clipboard.")
-        
-        # Return the values (you can modify this to pass the values to another function)
-        print(output)
-        on_complete()
-        return fov, width, height
+        # Show a success message
+        #messagebox.showinfo("Success", "The FOV, width, and height have been copied to the clipboard.")
+        root.after(1000, root.quit)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to update: {e}")
-    
+ 
 
 # Add the Update button
 update_button = tk.Button(root, text="Update", command=on_update, font=("Arial", 12))

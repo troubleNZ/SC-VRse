@@ -1,0 +1,1 @@
+powershell -ExecutionPolicy Bypass -file starcitizen_xml_editor.ps1
