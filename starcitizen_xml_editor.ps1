@@ -51,7 +51,19 @@ if (Test-Path $iconPath) {
         if ($debug) {Write-Host "Failed to download icon"}
     }
 }
+
+
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type -TypeDefinition '
+public class DPIAware
+{
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+'
+
+[System.Windows.Forms.Application]::EnableVisualStyles()
+[void] [DPIAware]::SetProcessDPIAware()
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 
@@ -849,7 +861,7 @@ $eacGroupBox.Controls.Add($hostsFileAddButton)
 function RemoveFromHostsFile {
     param([string]$Hostname = "modules-cdn.eac-prod.on.epicgames.com")
         # Remove entry from hosts file. Removes all entries that match the hostname (i.e. both IPv4 and IPv6).
-        #Requires -RunAsAdministrator
+        # Requires -RunAsAdministrator
         $hostsFile = Get-Content $hostsFilePath
         #Write-Host "About to remove $Hostname from hosts file" -ForegroundColor Gray
         $escapedHostname = [Regex]::Escape($Hostname)
@@ -1794,6 +1806,85 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     $statusBar.Text = "Star Citizen not found."
     [System.Windows.Forms.MessageBox]::Show("Star Citizen not found.")
 }
+
+
+
+function Open-FovWizard {
+    # Open the FOV wizard form
+    # Define the path to the Python script
+    $pythonScriptPath = Join-Path -Path $PSScriptRoot -ChildPath "fovwizard.py"
+
+    # Check if the Python script exists
+    if (-not (Test-Path -Path $pythonScriptPath)) {
+        [System.Windows.Forms.MessageBox]::Show("FOV Wizard script not found at: $pythonScriptPath")
+        return
+    }
+    # Launch the Python script GUI inside a form
+    try {
+        $pythonProcess = New-Object System.Diagnostics.Process
+        $pythonProcess.StartInfo.FileName = "python"
+        $pythonProcess.StartInfo.Arguments = "`"$pythonScriptPath`""
+        $pythonProcess.StartInfo.UseShellExecute = $false
+        $pythonProcess.StartInfo.RedirectStandardOutput = $true
+        $pythonProcess.StartInfo.RedirectStandardError = $true
+        $pythonProcess.StartInfo.CreateNoWindow = $true
+
+        # Start the Python process
+        $pythonProcess.Start() | Out-Null
+
+        # Wait for the Python process to write to the clipboard
+        Add-Type -AssemblyName System.Windows.Forms
+        $clipboardContent = $null
+        while ($pythonProcess.HasExited -eq $false) {
+            try {
+            $clipboardContent = [System.Windows.Forms.Clipboard]::GetText()
+            if (-not [string]::IsNullOrWhiteSpace($clipboardContent)) {
+                break
+            }
+            } catch {
+            Start-Sleep -Milliseconds 100
+            }
+        }
+
+        # Wait for the Python process to exit
+        $pythonProcess.WaitForExit()
+
+        if ($pythonProcess.ExitCode -ne 0) {
+            [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script. Exit code: $($pythonProcess.ExitCode)")
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("FOV Wizard completed. Clipboard content: $clipboardContent")
+        }
+
+        [System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
+    }
+
+    #$pythonOutput = & python $pythonScriptPath 2>&1
+    #if ($LASTEXITCODE -ne 0) {
+    #    [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script: $pythonOutput")
+    #    return
+    #}
+
+}
+
+# LETS ADD A NEW BUTTON TO THE FORM BELOW THE OPEN PROFILE BUTTON THAT IS CALLED CHOOSE FOV WIZARD
+$chooseFovWizardButton = New-Object System.Windows.Forms.Button
+$chooseFovWizardButton.Name = "ChooseFovWizardButton"
+$chooseFovWizardButton.Text = "Choose FOV Wizard"
+$chooseFovWizardButton.Width = 120
+$chooseFovWizardButton.Height = 30
+$chooseFovWizardButton.Top = 115
+$chooseFovWizardButton.Left = 20
+$chooseFovWizardButton.TabIndex = 24
+$chooseFovWizardButton.Add_Click({
+    # Call the function to open the FOV wizard
+    Open-FovWizard
+})
+$chooseFovWizardButton.Visible = $true
+$chooseFovWizardButton.Enabled = $true
+$chooseFovWizardButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$ActionsGroupBox.Controls.Add($chooseFovWizardButton)
 
 $form.Controls.Add($editGroupBox)
 
