@@ -41,3 +41,5 @@
 **0.2.0** fov preview
 **0.2.1** credits panel
 **0.2.2** + batch file launching stuff, ~ moved some buttons to the Actions Menu, + auto populate form on start up, ~ more descriptive tool tips
+**0.2.2.1** screensize smaller than selected resolution warning
+**0.2.2.2** top window layout cleanup
