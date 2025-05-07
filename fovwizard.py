@@ -198,7 +198,7 @@ def on_update():
         
         # Show a success message
         #messagebox.showinfo("Success", "The FOV, width, and height have been copied to the clipboard.")
-        root.after(1000, root.quit)
+        root.after(10, root.quit)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to update: {e}")
  

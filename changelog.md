@@ -38,3 +38,6 @@
 **0.1.18.1** ~ tidied up input box positions and sizes  
 **0.1.18.2** ~ fixed saving attributes path to profile  
 **0.1.19** enhancements to hosts file adding and removing
+**0.2.0** fov preview
+**0.2.1** credits panel
+**0.2.2** + batch file launching stuff, ~ moved some buttons to the Actions Menu, + auto populate form on start up, ~ more descriptive tool tips
