@@ -10,21 +10,34 @@ import re
 from tkinter import messagebox
 # GUI setup
 root = tk.Tk()
-root.title("VRCitizen Settings Updater")
+root.title("VRCitizen FOV Wizard")
 #root.configure(bg="green")
 
+# Disable resizing
+root.resizable(False, False)
+
+# Center the window on the screen
+window_width = 500  # Set your desired window width
+window_height = 600  # Set your desired window height
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+x_position = (screen_width // 2) - (window_width // 2)
+y_position = (screen_height // 2) - (window_height // 2)
+
+root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
 # Additional text label
-additional_text = "Very Special thanks to RifleJock for getting all the VR Headset data in one place and for the suggestions and for being an idea soundboard. Special thanks to SilvanVR at CIG and Chachi Sanchez for getting VRCitizen going. Find them both on YouTube and Twitch. See you in the 'VRse  o7 "
-label_text = Label(root, text=additional_text, font=("Arial", 12), wraplength=400, justify="center", anchor="n")
-label_text.pack(padx=10, pady=10, anchor="n")
+#additional_text = "Very Special thanks to RifleJock for getting all the VR Headset data in one place and for the suggestions and for being an idea soundboard. Special thanks to SilvanVR at CIG and Chachi Sanchez for getting VRCitizen going. Find them both on YouTube and Twitch. See you in the 'VRse  o7 "
+#label_text = Label(root, text=additional_text, font=("Arial", 12), wraplength=400, justify="center", anchor="n")
+#label_text.pack(padx=10, pady=10, anchor="n")
 
 # Get the list of available drives
 import string
 drives = [f"{letter}:" for letter in string.ascii_uppercase if os.path.exists(f"{letter}:\\")]
 
 # Load headset data from the JSON file
-with open('configs.json', 'r') as json_file:
+with open('fovwizard/configs.json', 'r') as json_file:
     data = json.load(json_file)
 
 brands = data["hmds"]

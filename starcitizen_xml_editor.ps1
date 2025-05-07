@@ -37,7 +37,26 @@ $editGroupBox = $null
 $darkModeMenuItem = $null
 
 # Set default font for all controls on the form
-$defaultFont = New-Object System.Drawing.Font("Arial", 8)
+#$defaultFont = New-Object System.Drawing.Font("segoia", 12) #segoia UI, 12pt, style=Regular
+#$defaultFontBold = New-Object System.Drawing.Font("segoia", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=Bold
+
+
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -TypeDefinition '
+public class DPIAware
+{
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+'
+
+[System.Windows.Forms.Application]::EnableVisualStyles()
+[void] [DPIAware]::SetProcessDPIAware()
+#Add-Type -AssemblyName System.Drawing
+
+
+
 
 function Set-DefaultFont {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -50,9 +69,9 @@ function Set-DefaultFont {
             Set-DefaultFont -control $child
         }
     }
-}
+}#>
 $scriptIcon = $null
-Set-DefaultFont -control $form
+#Set-DefaultFont -control $form
 
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
@@ -68,19 +87,8 @@ if (Test-Path $iconPath) {
     }
 }
 
-Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -TypeDefinition '
-public class DPIAware
-{
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    public static extern bool SetProcessDPIAware();
-}
-'
 
-[System.Windows.Forms.Application]::EnableVisualStyles()
-[void] [DPIAware]::SetProcessDPIAware()
-#Add-Type -AssemblyName System.Drawing
+
 $form = New-Object System.Windows.Forms.Form
 
 
@@ -589,6 +597,11 @@ $actionsMenuItem = New-Object System.Windows.Forms.MenuItem
 $actionsMenuItem.Text = "&Actions"
 $mainMenu.MenuItems.Add($actionsMenuItem)
 
+$helpMenuItem = New-Object System.Windows.Forms.MenuItem
+$helpMenuItem.Text = "&Help"
+$mainMenu.MenuItems.Add($helpMenuItem)
+
+
 $openXmlMenuItem = New-Object System.Windows.Forms.MenuItem
 $openXmlMenuItem.Text = "&Open XML"
 
@@ -724,6 +737,57 @@ $GithubMenuItem.Add_Click({
     Start-Process "https://github.com/troubleNZ/SC-VRse"
 })
 $actionsMenuItem.MenuItems.Add($GithubMenuItem)  # Add the GitHub menu item to the main menu
+
+
+$creditsMenuItem = New-Object System.Windows.Forms.MenuItem
+$creditsMenuItem.Text = "&Credits"
+$creditsMenuItem.Add_Click({
+    $creditsForm = New-Object System.Windows.Forms.Form
+    $creditsForm.Text = "Credits"
+    $creditsForm.Width = 400
+    $creditsForm.Height = 300
+    $creditsForm.StartPosition = 'CenterScreen'
+    $creditsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $creditsForm.MaximizeBox = $false
+    $creditsForm.MinimizeBox = $false
+
+    $creditsPanel = New-Object System.Windows.Forms.Panel
+    $creditsPanel.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $creditsPanel.AutoScroll = $false
+    $creditsForm.Controls.Add($creditsPanel)
+
+    $creditsLabel = New-Object System.Windows.Forms.Label
+    $creditsLabel.Text = "VRCitizen FOV Editor (AKA SC-Patcher) Credits:" +
+        "`n`n" +
+        "Very Special thanks to RifleJock for getting all the VR Headset data in one place and for the suggestions and for being an idea soundboard. Special thanks to SilvanVR at CIG and Chachi Sanchez for getting VRCitizen going. Find them both on YouTube and Twitch. See you in the 'VRse  o7 " +
+        "`n`n" +
+        "This tool is not affiliated with CIG or Star Citizen. Use at your own risk." +
+        "`n`n" +
+        "This tool is open source and available on GitHub:" +
+        "`n" +
+        "https://github.com/star-citizen-vr/scvr-patcher"
+
+    $creditsLabel.AutoSize = $false
+    $creditsLabel.Top = 10
+    $creditsLabel.Left = 10
+    $creditsLabel.Width = 380
+    $creditsLabel.Height = 250
+    $creditsLabel.TextAlign = 'MiddleCenter'
+    $creditsLabel.BackColor = [System.Drawing.Color]::Transparent
+    $creditsLabel.Font = New-Object System.Drawing.Font("Arial", 10)
+    $creditsLabel.ForeColor = [System.Drawing.Color]::Black
+    $creditsLabel.BorderStyle = [System.Windows.Forms.BorderStyle]::None
+    $creditsLabel.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $creditsLabel.Text = $creditsLabel.Text -replace "`n", [Environment]::NewLine  # Replace `n with new line
+
+    $creditsPanel.Controls.Add($creditsLabel)
+
+    $creditsForm.ShowDialog()
+})
+
+$helpMenuItem.MenuItems.Add($creditsMenuItem)  # Add the Credits menu item to the Help menu
+
+
 
 #add an item - Exit, which will close the application
 $exitMenuItem = New-Object System.Windows.Forms.MenuItem
