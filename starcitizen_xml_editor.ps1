@@ -1977,7 +1977,14 @@ function Open-FovWizard {
             }
             if ($clipboardContent -match 'Height:\s*(\d+\.?\d*)') {
                 $heightTextBox.Text = $matches[1]
+
+                    $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
+                    if ([int]$matches[1] -gt $screenHeight) {
+                        [System.Windows.Forms.MessageBox]::Show("Warning: The specified height ($($matches[1])) exceeds your screen's vertical resolution ($screenHeight).")
+                        $statusBar.Text = "Warning: Height exceeds screen resolution."
+                    }
             }
+
         }
         #[System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
     } catch {
