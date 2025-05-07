@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.1"                        # 0.2.1 batch file launching stuff, moved some buttons to the Actions Menu, auto populate form on start up, more descriptive tool tips
+$scriptVersion = "0.2.2.2"                        # top window layout cleanup
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -121,7 +121,7 @@ if ($scriptIcon -ne $null) {
 $ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
 $ActionsGroupBox.Text = "Actions"
 $ActionsGroupBox.Width = 550
-$ActionsGroupBox.Height = 150
+$ActionsGroupBox.Height = 100
 $ActionsGroupBox.Top = 20
 $ActionsGroupBox.Left = 20
 
@@ -918,6 +918,8 @@ $eacGroupBox.Width = 380
 $eacGroupBox.Height = 100
 $eacGroupBox.Top = 20
 $eacGroupBox.Left = 160  # Position it to the right of the actions group box
+$eacGroupBox.Visible = $false
+
 
 # Create the Hosts File Add button
 $hostsFileAddButton = New-Object System.Windows.Forms.Button
@@ -945,7 +947,7 @@ $hostsFileAddButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show("Hosts file updated successfully!")
     }
 })
-$eacGroupBox.Controls.Add($hostsFileAddButton)
+$ActionsGroupBox.Controls.Add($hostsFileAddButton)
 
 
 function RemoveFromHostsFile {
@@ -990,7 +992,7 @@ $hostsFileRemoveButton.Add_Click({
         RemoveFromHostsFile
     }
 })
-$eacGroupBox.Controls.Add($hostsFileRemoveButton)
+$ActionsGroupBox.Controls.Add($hostsFileRemoveButton)
 
 
 
@@ -1047,9 +1049,10 @@ $deleteEACTempFilesButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show("EasyAntiCheat directory not found.")
     }
 })
-$eacGroupBox.Controls.Add($deleteEACTempFilesButton)
+$ActionsGroupBox.Controls.Add($deleteEACTempFilesButton)
 
 $ActionsGroupBox.Controls.Add($eacGroupBox)
+
 $xmlPathLabel = New-Object System.Windows.Forms.Label
 $xmlPathLabel.Text = "XML found at: $xmlPath"
 $xmlPathLabel.Top = $eacGroupBox.Top + $eacGroupBox.Height + 10
@@ -1100,7 +1103,7 @@ $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "VR Centric Settings"
 $editGroupBox.Width = 550
 $editGroupBox.Height = 350
-$editGroupBox.Top = 200         ## Adjusted the Top property to move the group box up
+$editGroupBox.Top = 150         ## Adjusted the Top property to move the group box up
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $true
 
