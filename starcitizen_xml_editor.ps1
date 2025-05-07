@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.1.19"                        # enhancements to hosts file adding and removing
+$scriptVersion = "0.2.1"                        # 0.2.1 batch file launching stuff, moved some buttons to the Actions Menu, auto populate form on start up, more descriptive tool tips
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -36,7 +36,42 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
+# Set default font for all controls on the form
+#$defaultFont = New-Object System.Drawing.Font("segoia", 12) #segoia UI, 12pt, style=Regular
+#$defaultFontBold = New-Object System.Drawing.Font("segoia", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=Bold
 
+
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -TypeDefinition '
+public class DPIAware
+{
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+'
+
+[System.Windows.Forms.Application]::EnableVisualStyles()
+[void] [DPIAware]::SetProcessDPIAware()
+#Add-Type -AssemblyName System.Drawing
+
+
+
+
+function Set-DefaultFont {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param (
+        [System.Windows.Forms.Control]$control
+    )
+    if ($PSCmdlet.ShouldProcess("Control", "Set default font")) {
+        $control.Font = $defaultFont
+        foreach ($child in $control.Controls) {
+            Set-DefaultFont -control $child
+        }
+    }
+}#>
+$scriptIcon = $null
+#Set-DefaultFont -control $form
 
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
@@ -51,8 +86,9 @@ if (Test-Path $iconPath) {
         if ($debug) {Write-Host "Failed to download icon"}
     }
 }
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
+
+
+
 $form = New-Object System.Windows.Forms.Form
 
 
@@ -556,13 +592,27 @@ $saveProfileMenuItem.Add_Click({
 })
 $fileMenuItem.MenuItems.Add($saveProfileMenuItem)  # Add the Save Profile menu item to the File menu
 
-# Add an item to the menu called "Open XML"
+
 $actionsMenuItem = New-Object System.Windows.Forms.MenuItem
 $actionsMenuItem.Text = "&Actions"
 $mainMenu.MenuItems.Add($actionsMenuItem)
 
+$helpMenuItem = New-Object System.Windows.Forms.MenuItem
+$helpMenuItem.Text = "&Help"
+$mainMenu.MenuItems.Add($helpMenuItem)
+
+$loadsettingsfromGameMenuItem = New-Object System.Windows.Forms.MenuItem
+$loadsettingsfromGameMenuItem.Text = "&Load Settings from Game"
+$loadsettingsfromGameMenuItem.Add_Click({
+    Import-SettingsFromGame
+})
+$actionsMenuItem.MenuItems.Add($loadsettingsfromGameMenuItem)  # Add the Load Settings from Game menu item to the Actions menu
+
+# Add an item to the menu called "Open XML"
 $openXmlMenuItem = New-Object System.Windows.Forms.MenuItem
 $openXmlMenuItem.Text = "&Open XML"
+$openXmlMenuItem.Enabled = $false
+$openXmlMenuItem.Visible = $false
 
 $openXmlMenuItem.Add_Click({
     $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -697,6 +747,57 @@ $GithubMenuItem.Add_Click({
 })
 $actionsMenuItem.MenuItems.Add($GithubMenuItem)  # Add the GitHub menu item to the main menu
 
+
+$creditsMenuItem = New-Object System.Windows.Forms.MenuItem
+$creditsMenuItem.Text = "&Credits"
+$creditsMenuItem.Add_Click({
+    $creditsForm = New-Object System.Windows.Forms.Form
+    $creditsForm.Text = "Credits"
+    $creditsForm.Width = 400
+    $creditsForm.Height = 300
+    $creditsForm.StartPosition = 'CenterScreen'
+    $creditsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $creditsForm.MaximizeBox = $false
+    $creditsForm.MinimizeBox = $false
+
+    $creditsPanel = New-Object System.Windows.Forms.Panel
+    $creditsPanel.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $creditsPanel.AutoScroll = $false
+    $creditsForm.Controls.Add($creditsPanel)
+
+    $creditsLabel = New-Object System.Windows.Forms.Label
+    $creditsLabel.Text = "VRCitizen FOV Editor (AKA SC-Patcher) Credits:" +
+        "`n`n" +
+        "Very Special thanks to RifleJock for getting all the VR Headset data in one place and for the suggestions and for being an idea soundboard. Special thanks to SilvanVR at CIG and Chachi Sanchez for getting VRCitizen going. Find them both on YouTube and Twitch. See you in the 'VRse  o7 " +
+        "`n`n" +
+        "This tool is not affiliated with CIG or Star Citizen. Use at your own risk." +
+        "`n`n" +
+        "This tool is open source and available on GitHub:" +
+        "`n" +
+        "https://github.com/star-citizen-vr/scvr-patcher"
+
+    $creditsLabel.AutoSize = $false
+    $creditsLabel.Top = 10
+    $creditsLabel.Left = 10
+    $creditsLabel.Width = 380
+    $creditsLabel.Height = 250
+    $creditsLabel.TextAlign = 'MiddleCenter'
+    $creditsLabel.BackColor = [System.Drawing.Color]::Transparent
+    $creditsLabel.Font = New-Object System.Drawing.Font("Arial", 10)
+    $creditsLabel.ForeColor = [System.Drawing.Color]::Black
+    $creditsLabel.BorderStyle = [System.Windows.Forms.BorderStyle]::None
+    $creditsLabel.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $creditsLabel.Text = $creditsLabel.Text -replace "`n", [Environment]::NewLine  # Replace `n with new line
+
+    $creditsPanel.Controls.Add($creditsLabel)
+
+    $creditsForm.ShowDialog()
+})
+
+$helpMenuItem.MenuItems.Add($creditsMenuItem)  # Add the Credits menu item to the Help menu
+
+
+
 #add an item - Exit, which will close the application
 $exitMenuItem = New-Object System.Windows.Forms.MenuItem
 $exitMenuItem.Text = "E&xit"
@@ -708,7 +809,7 @@ $fileMenuItem.MenuItems.Add($exitMenuItem)  # Add the Exit menu item to the File
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
 # Create the Find Live Folder button
-$findLiveFolderButton = New-Object System.Windows.Forms.Button
+<#$findLiveFolderButton = New-Object System.Windows.Forms.Button
 $findLiveFolderButton.Name = "FindLiveFolderButton"
 $findLiveFolderButton.Text = "Open SC Folder"
 $findLiveFolderButton.Width = 120
@@ -769,7 +870,7 @@ $findLiveFolderButton.Add_Click({
     }
 })
 $ActionsGroupBox.Controls.Add($findLiveFolderButton)
-
+#>
 
 $openProfileButton = New-Object System.Windows.Forms.Button
 $openProfileButton.Name = "OpenProfileButton"
@@ -784,8 +885,9 @@ $openProfileButton.Add_Click({
     Open-Profile
 })
 $ActionsGroupBox.Controls.Add($openProfileButton)
-$openProfileButton.Visible = $true
-$openProfileButton.Enabled = $true
+$openProfileButton.Visible = $false
+$openProfileButton.Enabled = $false
+$openProfileButton.TabStop = $false
 
 
 <# unused
@@ -849,7 +951,7 @@ $eacGroupBox.Controls.Add($hostsFileAddButton)
 function RemoveFromHostsFile {
     param([string]$Hostname = "modules-cdn.eac-prod.on.epicgames.com")
         # Remove entry from hosts file. Removes all entries that match the hostname (i.e. both IPv4 and IPv6).
-        #Requires -RunAsAdministrator
+        # Requires -RunAsAdministrator
         $hostsFile = Get-Content $hostsFilePath
         #Write-Host "About to remove $Hostname from hosts file" -ForegroundColor Gray
         $escapedHostname = [Regex]::Escape($Hostname)
@@ -1016,7 +1118,7 @@ $editGroupBox.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
     $script:xmlPath = $($script:profileArray.AttributesXmlPath)
-    Write-Host "Loading from profile: $($script:profileArray.AttributesXmlPath)" -BackgroundColor White -ForegroundColor Black
+    #Write-Host "Loading from profile: $($script:profileArray.AttributesXmlPath)" -BackgroundColor White -ForegroundColor Black
     if ($null -ne $script:xmlPath) {
         Open-XMLViewer($script:xmlPath)
     } else {
@@ -1063,17 +1165,7 @@ function SetComboBoxValue {
     }
 }
 
-
-$importButton = New-Object System.Windows.Forms.Button
-$importButton.Text = "Import settings from Game"
-$importButton.Name = "ImportButton"
-$importButton.Width = 200
-$importButton.Height = 30
-$importButton.Top = 30
-$importButton.Left = 260
-$importButton.TabIndex = 5
-
-$importButton.Add_Click({
+function Import-SettingsFromGame {
     try {
         $script:xmlContent = [xml](Get-Content $script:xmlPath)
         if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
@@ -1113,6 +1205,23 @@ $importButton.Add_Click({
         Set-ProfileArray
         }
     }
+}
+
+$importButton = New-Object System.Windows.Forms.Button
+$importButton.Text = "Import settings from Game"
+$importButton.Name = "ImportButton"
+$importButton.Width = 200
+$importButton.Height = 30
+$importButton.Top = 30
+$importButton.Left = 260
+$importButton.TabIndex = 5
+$importButton.TabStop = $false
+$importButton.Visible = $false  # Initially hidden
+$importButton.Enabled = $false  # Initially disabled
+
+
+$importButton.Add_Click({
+    Import-SettingsFromGame
 })
 
 # Initially disable the import and save buttons
@@ -1122,15 +1231,15 @@ $editGroupBox.Controls.Add($importButton)
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
 $fovLabel.Top = 70
-$fovLabel.Left = 40
+$fovLabel.Left = 150
 $fovLabel.Width = 30
 $editGroupBox.Controls.Add($fovLabel)
 
 $fovTextBox = New-Object System.Windows.Forms.TextBox
 $fovTextBox.Name = "FOVTextBox"
 $fovTextBox.Top = 70
-$fovTextBox.Left = 90
-$fovTextBox.Width = 50
+$fovTextBox.Left = 185
+$fovTextBox.Width = 25
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
 $fovTextBox.TabIndex = 6
@@ -1139,7 +1248,7 @@ $editGroupBox.Controls.Add($fovTextBox)
 $widthLabel = New-Object System.Windows.Forms.Label
 $widthLabel.Text = "Width"
 $widthLabel.Top = 70
-$widthLabel.Left = 180
+$widthLabel.Left = 215
 $widthLabel.Width = 50
 $widthLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($widthLabel)
@@ -1147,8 +1256,8 @@ $editGroupBox.Controls.Add($widthLabel)
 $widthTextBox = New-Object System.Windows.Forms.TextBox
 $widthTextBox.Name = "WidthTextBox"
 $widthTextBox.Top = 70
-$widthTextBox.Left = 250
-$widthTextBox.Width = 50
+$widthTextBox.Left = 280
+$widthTextBox.Width = 40
 $widthTextBox.TextAlign = 'Left'
 $widthTextBox.TabIndex = 7
 $editGroupBox.Controls.Add($widthTextBox)
@@ -1156,7 +1265,7 @@ $editGroupBox.Controls.Add($widthTextBox)
 $heightLabel = New-Object System.Windows.Forms.Label
 $heightLabel.Text = "Height"
 $heightLabel.Top = 70
-$heightLabel.Left = 320
+$heightLabel.Left = 330
 $heightLabel.Width = 50
 $heightLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($heightLabel)
@@ -1164,8 +1273,8 @@ $editGroupBox.Controls.Add($heightLabel)
 $heightTextBox = New-Object System.Windows.Forms.TextBox
 $heightTextBox.Name = "HeightTextBox"
 $heightTextBox.Top = 70
-$heightTextBox.Left = 400
-$heightTextBox.Width = 50
+$heightTextBox.Left = 390
+$heightTextBox.Width = 40
 $heightTextBox.TextAlign = 'Left'
 $heightTextBox.TabIndex = 8
 $editGroupBox.Controls.Add($heightTextBox)
@@ -1601,10 +1710,22 @@ $saveButton.Add_Click({
             $HeadtrackingThirdPersonCameraToggleNode.SetAttribute("value", $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex.ToString())  # HEADTRACKINGTHIRDPERSONCAMERATOGGLE
         }
         # Save the XML content to the specified path
+        # Check if VorpX task is running
+
+        $vorpxRunning = Get-Process -Name "vorpControl" -ErrorAction SilentlyContinue
+        if ($vorpxRunning) {
+            #$statusBar.Text = "VorpX is running."
+            $vorpxindicatorText = "VorpX is running."
+        } else {
+            #$statusBar.Text = "VorpX is NOT running."
+            $vorpxindicatorText = "VorpX is NOT running."
+        }
 
         try {
             $script:xmlContent.Save($script:xmlPath)
-            [System.Windows.Forms.MessageBox]::Show("Values saved successfully!")
+            [System.Windows.Forms.MessageBox]::Show("Saved. You may now close this window. Remember to start VorpX Control Panel and start the listener before launching Star Citizen!" + 
+            "`n`n" +
+            $vorpxindicatorText)
         } catch {
             [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $script:xmlPath: $_")
         }
@@ -1747,20 +1868,20 @@ $ShowHelp={
         "heightTextBox" {$tip = "Height of the screen in pixels"}
         "headtrackerEnabledComboBox" {$tip = "Enable or disable head tracking"}
         "HeadtrackingSourceComboBox" {$tip = "Select the head tracking source"}
-        "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value 0.00/1.00"}
+        "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value 0.00/1.00. Recommended value 0.00"}
         #"AutoZoomTextBox" {$tip = "Auto Zoom on selected target 0/1"}
-        "AutoZoomComboBox" {$tip = "Auto Zoom on selected target 0/1"}
-        "MotionBlurTextBox" {$tip = "Motion Blur value 0/1"}
-        "ShakeScaleTextBox" {$tip = "Shake Scale value"}
-        "CameraSpringMovementTextBox" {$tip = "Camera Spring Movement value 0/1"}
-        "FilmGrainTextBox" {$tip = "Film Grain value 0/1"}
-        "GForceBoostZoomScaleTextBox" {$tip = "G-Force Boost Zoom Scale value"}
-        "GForceHeadBobScaleTextBox" {$tip = "G-Force Head Bob Scale value"}
-        "HeadtrackingEnableRollFPSComboBox" {$tip = "Enable Roll FPS 0/1"}
-        "HeadtrackingDisableDuringWalkingComboBox" {$tip = "Disable Headtracking during walking 0/1"}
-        "HeadtrackingThirdPersonCameraToggleComboBox" {$tip = "Enable Headtracking in Third Person 0/1"}
-        "saveButton" {$tip = "Save settings to the game"}
-        "saveProfileButton" {$tip = "Save settings to the profile"}
+        "AutoZoomComboBox" {$tip = "Auto Zoom on selected target. Recommended Disabled"}
+        "MotionBlurTextBox" {$tip = "Motion Blur. Recommended Disabled"}
+        "ShakeScaleTextBox" {$tip = "Shake Scale value. Recommended value 0"}
+        "CameraSpringMovementTextBox" {$tip = "Camera Spring Movement value. Recommended value 0"}
+        "FilmGrainTextBox" {$tip = "Film Grain. Recommended Disabled"}
+        "GForceBoostZoomScaleTextBox" {$tip = "G-Force Boost Zoom Scale value. valid value 0.0 to 1.0. Recommended value 0."}
+        "GForceHeadBobScaleTextBox" {$tip = "G-Force Head Bob Scale value. valid value 0.0 to 1.0. Recommended value 0."}
+        "HeadtrackingEnableRollFPSComboBox" {$tip = "Sets whether head-tilt to left/right is enabled in FPS mode.May also apply in vehicles"}
+        "HeadtrackingDisableDuringWalkingComboBox" {$tip = "Disable Headtracking during walking On/Off"}
+        "HeadtrackingThirdPersonCameraToggleComboBox" {$tip = "Enable Headtracking in Third Person On/Off"}
+        "saveButton" {$tip = "Save this configuration to the game"}
+        "saveProfileButton" {$tip = "Save these settings to a config file for later use"}
         "loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
         "importButton" {$tip = "Import settings from the game"}
         "deleteEACTempFilesButton" {$tip = "Delete EAC TempFiles"}
@@ -1786,6 +1907,7 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     if (Test-Path -Path $AutoDetectSCPath) {
         $importButton.Enabled = $true
         $statusBar.Text = "Star Citizen found at: $script:liveFolderPath"
+        Import-SettingsFromGame
     } else {
         $statusBar.Text = "attributes.xml file not found in the 'default' profile folder."
         #[System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
@@ -1794,6 +1916,100 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     $statusBar.Text = "Star Citizen not found."
     [System.Windows.Forms.MessageBox]::Show("Star Citizen not found.")
 }
+
+
+
+function Open-FovWizard {
+    # Open the FOV wizard form
+    # Define the path to the Python script
+    $pythonScriptPath = Join-Path -Path $PSScriptRoot -ChildPath "fovwizard.py"
+
+    # Check if the Python script exists
+    if (-not (Test-Path -Path $pythonScriptPath)) {
+        [System.Windows.Forms.MessageBox]::Show("FOV Wizard script not found at: $pythonScriptPath")
+        return
+    }
+    # Launch the Python script GUI inside a form
+    try {
+        $pythonProcess = New-Object System.Diagnostics.Process
+        $pythonProcess.StartInfo.FileName = "python"
+        $pythonProcess.StartInfo.Arguments = "`"$pythonScriptPath`""
+        $pythonProcess.StartInfo.UseShellExecute = $false
+        $pythonProcess.StartInfo.RedirectStandardOutput = $true
+        $pythonProcess.StartInfo.RedirectStandardError = $false
+        $pythonProcess.StartInfo.CreateNoWindow = $true
+
+        #we are using the clipboard to pass data between the python script and this script.
+        [System.Windows.Forms.Clipboard]::Clear()
+
+        # Start the Python process
+        $pythonProcess.Start() | Out-Null
+
+        # Wait for the Python process to write to the clipboard
+        Add-Type -AssemblyName System.Windows.Forms
+        $clipboardContent = $null
+        while ($pythonProcess.HasExited -eq $false) {
+            try {
+            $clipboardContent = [System.Windows.Forms.Clipboard]::GetText()
+            if (-not [string]::IsNullOrWhiteSpace($clipboardContent)) {
+                break
+            }
+            } catch {
+            Start-Sleep -Milliseconds 100
+            }
+        }
+
+        # Wait for the Python process to exit
+        $pythonProcess.WaitForExit()
+
+        if ($pythonProcess.ExitCode -ne 0) {
+            [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script. Exit code: $($pythonProcess.ExitCode)")
+        } else {
+            #[System.Windows.Forms.MessageBox]::Show("FOV Wizard completed. Clipboard content: $clipboardContent. Populating input boxes...")
+            
+            #[System.Windows.Forms.MessageBox]::Show("Populating input boxes: $clipboardContent")
+            # Populate the input boxes with the values from the clipboard
+            if ($clipboardContent -match 'FOV:\s*(\d+\.?\d*)') {
+                $fovTextBox.Text = $matches[1]
+            }
+            if ($clipboardContent -match 'Width:\s*(\d+\.?\d*)') {
+                $widthTextBox.Text = $matches[1]
+            }
+            if ($clipboardContent -match 'Height:\s*(\d+\.?\d*)') {
+                $heightTextBox.Text = $matches[1]
+            }
+        }
+        #[System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
+    }
+
+    #$pythonOutput = & python $pythonScriptPath 2>&1
+    #if ($LASTEXITCODE -ne 0) {
+    #    [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script: $pythonOutput")
+    #    return
+    #}
+
+}
+
+# LETS ADD A NEW BUTTON TO THE FORM BELOW THE OPEN PROFILE BUTTON THAT IS CALLED CHOOSE FOV WIZARD
+$chooseFovWizardButton = New-Object System.Windows.Forms.Button
+$chooseFovWizardButton.Name = "ChooseFovWizardButton"
+$chooseFovWizardButton.Text = "FOV Wizard"
+$chooseFovWizardButton.Font = New-Object System.Drawing.Font($chooseFovWizardButton.Font.FontFamily, $chooseFovWizardButton.Font.Size, [System.Drawing.FontStyle]::Bold)
+$chooseFovWizardButton.Width = 80
+$chooseFovWizardButton.Height = 30
+$chooseFovWizardButton.Top = 65
+$chooseFovWizardButton.Left = 30
+$chooseFovWizardButton.TabIndex = 24
+$chooseFovWizardButton.Add_Click({
+    # Call the function to open the FOV wizard
+    Open-FovWizard
+})
+$chooseFovWizardButton.Visible = $true
+$chooseFovWizardButton.Enabled = $true
+$chooseFovWizardButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$editGroupBox.Controls.Add($chooseFovWizardButton)
 
 $form.Controls.Add($editGroupBox)
 

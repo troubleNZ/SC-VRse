@@ -43,16 +43,14 @@ Save some time and preload your VR configuration, or switch back to pancake mode
 
 ### How to use this script
 
-download the .ps1 somewhere and run it through powershell. simples.
+download the release on the right hand side - >
+unzip to a folder.
+open a command prompt (cmd.exe aka terminal) as administrator (i.e. right click on the command prompt shortcut and select Run as Administrator)
+then navigate to the folder where you unzipped the files.
 
-` powershell.exe -ExecutionPolicy Bypass -File "C:\Path\To\star citizen xml editor.ps1"`
+run the bat file StarCitizenVRSetUp.bat or run powershell as below
 
-You can run it remotely directly from your standard powershell session. no admin rights are required.
-
-just open the powershell (or the IDE) and run this:
-
-` iex ((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/starcitizen_xml_editor.ps1"))`
-
+` powershell.exe -ExecutionPolicy Bypass -File "Path\To\starcitizen_xml_editor.ps1"`
 
 ### Then what?
 click the Open SC Folder button, and navigate to your main Star Citizen folder.
