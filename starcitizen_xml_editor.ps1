@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.2.3"                        # disable dpi scaling for now, as it seems to scale everything badly , moved nicedate to the script block where it is used
+$scriptVersion = "0.2.3"                        # Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -1710,9 +1710,10 @@ $saveButton.Add_Click({
 
         try {
             $script:xmlContent.Save($script:xmlPath)
-            [System.Windows.Forms.MessageBox]::Show("Saved. You may now close this window. Remember to start VorpX Control Panel and start the listener before launching Star Citizen!" + 
-            "`n`n" +
-            $vorpxindicatorText)
+            
+            ### $saveAcknowledgeLabel.Visible = $true
+            ### Start-Sleep -Seconds 5
+            ### $saveAcknowledgeLabel.Visible = $false
         } catch {
             [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $script:xmlPath: $_")
         }
@@ -1808,6 +1809,17 @@ $closeButton.TabIndex = 23
 $closeButton.Add_Click({
     $form.Close()
 })
+
+<#$saveAcknowledgeLabel = New-Object System.Windows.Forms.Label
+$saveAcknowledgeLabel.Text = "Saved. You may now close this window. Remember to start VorpX Control Panel and the Watcher before launching Star Citizen!" + "`n`n" + $vorpxindicatorText
+$saveAcknowledgeLabel.Font = New-Object System.Drawing.Font($saveAcknowledgeLabel.Font.FontFamily, $saveAcknowledgeLabel.Font.Size, [System.Drawing.FontStyle]::Bold)
+$saveAcknowledgeLabel.ForeColor = [System.Drawing.Color]::Red
+$saveAcknowledgeLabel.Top = 530
+$saveAcknowledgeLabel.Left = 30
+$saveAcknowledgeLabel.Width = 500
+$saveAcknowledgeLabel.Height = 50
+$saveAcknowledgeLabel.Visible = $false
+$form.Controls.Add($saveAcknowledgeLabel)#>
 
 
 $fovTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -2007,9 +2019,90 @@ $editGroupBox.Controls.Add($chooseFovWizardButton)
 
 $form.Controls.Add($editGroupBox)
 
+
+# Create the Toggle VR button
+$toggleVRButton = New-Object System.Windows.Forms.Button
+$toggleVRButton.Name = "ToggleVRButton"
+#$toggleVRButton.Text = "Toggle VR On"
+if ($headtrackerEnabledComboBox.SelectedIndex -eq 0) {
+    $toggleVRButton.Text = "Toggle VR On"
+}
+elseif ($headtrackerEnabledComboBox.SelectedIndex -gt 0) {
+    $toggleVRButton.Text = "Toggle VR Off"
+}
+$toggleVRButton.Width = 160
+$toggleVRButton.Height = 60  # Twice as tall as nearby buttons
+$toggleVRButton.Top = 20
+#$toggleVRButton.Left = $ActionsGroupBox.Width - $toggleVRButton.Width - 20  # Align to the right-hand side
+$toggleVRButton.Left = 360  # Position it to the right of the Hosts File Update button
+$toggleVRButton.TabIndex = 25
+$toggleVRButton.Visible = $true
+$toggleVRButton.Enabled = $true
+$toggleVRButton.Add_Click({
+    if ($toggleVRButton.Text -eq "Toggle VR On") {
+        # Set VR mode values
+        #$fovTextBox.Text = "110"  # Example FOV for VR
+        #$widthTextBox.Text = "1920"  # Example width for VR
+        #$heightTextBox.Text = "1080"  # Example height for VR
+        $headtrackerEnabledComboBox.SelectedIndex = 1  # Enable head tracking
+        $HeadtrackingSourceComboBox.SelectedIndex = 1  # Set to TrackIR
+        $chromaticAberrationTextBox.Text = "0.00"  # Recommended value for VR
+        $AutoZoomComboBox.SelectedIndex = 0  # Disable auto zoom
+        $MotionBlurComboBox.SelectedIndex = 0  # Disable motion blur
+        $ShakeScaleTextBox.Text = "0"  # Disable shake scale
+        $CameraSpringMovementTextBox.Text = "0"  # Disable camera spring movement
+        $FilmGrainComboBox.SelectedIndex = 0  # Disable film grain
+        $GForceBoostZoomScaleTextBox.Text = "0.0"  # Recommended value for VR
+        $GForceHeadBobScaleTextBox.Text = "0.0"  # Recommended value for VR
+        $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 1  # Enable head roll in FPS
+        $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0  # Enable head tracking during walking
+        $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 1  # Enable head tracking in third person
+
+        # Launch the FOV Wizard
+        #Open-FovWizard
+
+        # Confirm settings with the user
+        #$confirmation = [System.Windows.Forms.MessageBox]::Show(
+        #    "VR settings have been applied. Please review the settings and confirm to save them to the game.",
+        #    "Confirm VR Settings",
+        #    [System.Windows.Forms.MessageBoxButtons]::OKCancel,
+        #    [System.Windows.Forms.MessageBoxIcon]::Information
+        #)
+
+        #if ($confirmation -eq [System.Windows.Forms.DialogResult]::OK) {
+            # Save settings to the game
+            $saveButton.PerformClick()
+            $statusBar.Text = "Saved. You may now close this window. Remember to start VorpX and the listener before launching Star Citizen!"
+            $toggleVRButton.Text = "Toggle VR Off"
+        #}
+    } else {
+        # Reset to default or non-VR mode (optional)
+        $headtrackerEnabledComboBox.SelectedIndex = 0  # Enable head tracking
+        $HeadtrackingSourceComboBox.SelectedIndex = 0  # Set to TrackIR
+        #$chromaticAberrationTextBox.Text = "0.00"  # Recommended value for VR
+        $AutoZoomComboBox.SelectedIndex = 1  # Disable auto zoom
+        #$MotionBlurComboBox.SelectedIndex = 0  # Disable motion blur
+        $ShakeScaleTextBox.Text = "0"  # Disable shake scale
+        $CameraSpringMovementTextBox.Text = "1"  # camera spring movement
+        #$FilmGrainComboBox.SelectedIndex = 0  # film grain
+        $GForceBoostZoomScaleTextBox.Text = "1.0"
+        $GForceHeadBobScaleTextBox.Text = "1.0"
+        $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0  # Enable head roll in FPS
+        $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 1  # Enable head tracking during walking (disabled is on state)
+        $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0  # Enable head tracking in third person
+        # [System.Windows.Forms.MessageBox]::Show("VR settings have been disabled.")
+        $statusBar.Text = "Settings have been Saved. Remember to stop VorpX or Pause the Watcher before launching Star Citizen!"
+        $saveButton.PerformClick()
+        $toggleVRButton.Text = "Toggle VR On"
+    }
+})
+$ActionsGroupBox.Controls.Add($toggleVRButton)
+
+
 $form.ShowDialog()
 
 <#      extra to add to the form eventually.
 <Attr name="Upscaling" value="1"/>
 <Attr name="UpscalingTechnique" value="2"/> #DLSS
 #>
+

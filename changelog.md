@@ -43,3 +43,5 @@
 **0.2.2** + batch file launching stuff, ~ moved some buttons to the Actions Menu, + auto populate form on start up, ~ more descriptive tool tips
 **0.2.2.1** screensize smaller than selected resolution warning
 **0.2.2.2** top window layout cleanup
+**0.2.2.3** disable dpiawareness scaling for now, as it seems to scale everything badly , moved nicedate to the script block where it is used
+**0.2.3** Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
