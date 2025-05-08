@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.2.2"                        # top window layout cleanup
+$scriptVersion = "0.2.2.3"                        # disable dpi scaling for now, as it seems to scale everything badly , moved nicedate to the script block where it is used
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -23,7 +23,7 @@ $script:dataTable = New-Object System.Data.DataTable
 $script:xmlArray = @()
 $script:dataGridView = @()
 
-$niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+
 
 $script:liveFolderPath = $null
 $script:attributesXmlPath = $null
@@ -52,11 +52,7 @@ public class DPIAware
 '
 
 [System.Windows.Forms.Application]::EnableVisualStyles()
-[void] [DPIAware]::SetProcessDPIAware()
-#Add-Type -AssemblyName System.Drawing
-
-
-
+# [void] [DPIAware]::SetProcessDPIAware()                    # this seems to scale everything badly, so commented out for now until i get more time to test it
 
 function Set-DefaultFont {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -71,7 +67,6 @@ function Set-DefaultFont {
     }
 }#>
 $scriptIcon = $null
-#Set-DefaultFont -control $form
 
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
 if (Test-Path $iconPath) {
@@ -87,10 +82,7 @@ if (Test-Path $iconPath) {
     }
 }
 
-
-
 $form = New-Object System.Windows.Forms.Form
-
 
 $form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
 $form.Width = 620
@@ -106,7 +98,6 @@ $form.Add_Shown({
     $form.TopMost = $false
 })
 $form.Icon = $scriptIcon
-
 
 # Update the taskbar icon to match the form icon
 if ($scriptIcon -ne $null) {
@@ -187,7 +178,6 @@ function Set-LightMode {
 Set-LightMode -control $form
 
 function Switch-DarkMode {
-    
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) {
         Set-LightMode -control $form
         $darkModeMenuItem.Text = "Enable Dark Mode"
@@ -241,8 +231,6 @@ function Set-ProfileArray {
             HeadtrackingEnableRollFPS = $HeadtrackingEnableRollFPSComboBox.SelectedIndex;
             HeadtrackingDisableDuringWalking = $HeadtrackingDuringFPSComboBox.SelectedIndex;
             HeadtrackingThirdPersonCameraToggle = $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex;
-
-
         }) | Out-Null
     }
 
@@ -995,11 +983,6 @@ $hostsFileRemoveButton.Add_Click({
 $ActionsGroupBox.Controls.Add($hostsFileRemoveButton)
 
 
-
-
-
-
-
 # Create the Delete AppData EAC TempFiles button
 $deleteEACTempFilesButton = New-Object System.Windows.Forms.Button
 $deleteEACTempFilesButton.Name = "DeleteEACTempFilesButton"
@@ -1021,6 +1004,7 @@ $deleteEACTempFilesButton.Add_Click({
             )
             if ($userConfirmation -eq [System.Windows.Forms.DialogResult]::OK) {
                 try {
+                    $niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
                     $zipFilePath = Join-Path -Path $env:USERPROFILE -ChildPath "AppData\Roaming\EAC_TempFiles_Backup_$niceDate.zip"
                     if (Test-Path -Path $zipFilePath) {
                         Remove-Item -Path $zipFilePath -Force -ErrorAction SilentlyContinue
