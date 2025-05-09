@@ -972,13 +972,17 @@ $hostsFileRemoveButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show("Hosts file not found. Operation aborted.")
         return
     }
-
-    $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
-    if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
-        return
-    }else {
-        RemoveFromHostsFile
+    try {
+        $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+        if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
+            return
+        }else {
+            RemoveFromHostsFile
+        }
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Permission denied. Please run the script as an administrator.")
     }
+    
 })
 $ActionsGroupBox.Controls.Add($hostsFileRemoveButton)
 
