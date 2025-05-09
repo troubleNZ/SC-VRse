@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.3"                        # Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
+$scriptVersion = "0.2.3.1"                        # Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -1710,7 +1710,8 @@ $saveButton.Add_Click({
 
         try {
             $script:xmlContent.Save($script:xmlPath)
-            
+            #[System.Windows.Forms.MessageBox]::Show("Settings have been saved.")
+            $statusBar.Text = "Settings have been saved."
             ### $saveAcknowledgeLabel.Visible = $true
             ### Start-Sleep -Seconds 5
             ### $saveAcknowledgeLabel.Visible = $false
