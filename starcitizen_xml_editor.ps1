@@ -1995,7 +1995,8 @@ function Open-FovWizard {
         }
         #[System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
+        # [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
+        [System.Windows.Forms.MessageBox]::Show("Could not launch FOV Wizard. Please ensure Python is installed and the script is accessible.")
     }
 
     #$pythonOutput = & python $pythonScriptPath 2>&1
