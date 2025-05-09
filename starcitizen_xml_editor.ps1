@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.3.1"                        # Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
+$scriptVersion = "0.2.3.2"                        # some error handling around fovwizard and hosts file
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
