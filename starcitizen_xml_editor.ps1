@@ -1015,7 +1015,10 @@ $deleteEACTempFilesButton.Add_Click({
                         Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
                     }
                     $statusBar.Text = "EAC TempFiles deleted successfully!"
-                    [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
+                    #[System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
+                    $deleteEACTempFilesButton.Enabled = $false
+                    $deleteEACTempFilesButton.Text = "TempFiles removed!"
+                    
                 } catch {
                     $statusBar.Text = "An error occurred while deleting EAC TempFiles: "
                     [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles")
