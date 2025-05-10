@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.3.1"                        # Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
+$scriptVersion = "0.2.3.2"                        # some error handling around fovwizard and hosts file
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -972,13 +972,17 @@ $hostsFileRemoveButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show("Hosts file not found. Operation aborted.")
         return
     }
-
-    $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
-    if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
-        return
-    }else {
-        RemoveFromHostsFile
+    try {
+        $userConfirmation = [System.Windows.Forms.MessageBox]::Show("This will modify the hosts file. Do you want to proceed?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+        if ($userConfirmation -ne [System.Windows.Forms.DialogResult]::Yes) {
+            return
+        }else {
+            RemoveFromHostsFile
+        }
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Permission denied. Please run the script as an administrator.")
     }
+    
 })
 $ActionsGroupBox.Controls.Add($hostsFileRemoveButton)
 
@@ -1015,7 +1019,10 @@ $deleteEACTempFilesButton.Add_Click({
                         Remove-Item -Path $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
                     }
                     $statusBar.Text = "EAC TempFiles deleted successfully!"
-                    [System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
+                    #[System.Windows.Forms.MessageBox]::Show("EAC TempFiles deleted successfully!")
+                    $deleteEACTempFilesButton.Enabled = $false
+                    $deleteEACTempFilesButton.Text = "TempFiles removed!"
+                    
                 } catch {
                     $statusBar.Text = "An error occurred while deleting EAC TempFiles: "
                     [System.Windows.Forms.MessageBox]::Show("An error occurred while deleting EAC TempFiles")
@@ -1988,7 +1995,8 @@ function Open-FovWizard {
         }
         #[System.Windows.Forms.MessageBox]::Show("FOV Wizard launched successfully!")
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
+        # [System.Windows.Forms.MessageBox]::Show("An error occurred while launching the FOV Wizard: $($_.Exception.Message)")
+        [System.Windows.Forms.MessageBox]::Show("Could not launch FOV Wizard. Please ensure Python is installed and the script is accessible.")
     }
 
     #$pythonOutput = & python $pythonScriptPath 2>&1
