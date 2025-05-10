@@ -45,3 +45,6 @@
 **0.2.2.2** top window layout cleanup
 **0.2.2.3** disable dpiawareness scaling for now, as it seems to scale everything badly , moved nicedate to the script block where it is used
 **0.2.3** Toggle VR Button. makes some assumptions about the user's setup, but should work for most people.
+**0.2.3.1** quick addition of a status bar notification on manual save.
+**0.2.3.2** some error handling around fovwizard and hosts file
+**0.2.4** menu layout updates
