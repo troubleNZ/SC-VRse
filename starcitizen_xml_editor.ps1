@@ -562,6 +562,256 @@ function Get-GameRootDirFromRegistry {
     return $null
 }
 
+
+function Save-SettingsToGame {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    if ($PSCmdlet.ShouldProcess("Game", "Save settings to game")) {
+        try {
+            if ($null -eq $script:xmlContent) {
+                if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")}
+                return
+            }
+    
+            #$fovNode = $script:xmlContent.SelectSingleNode("//attribute[@name='FOV']")
+            $fovNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" }
+            if ($null -ne $fovNode) {
+                $fovNode.SetAttribute("value", $fovTextBox.Text)  # FOV
+            }
+    
+            #$heightNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Height']")
+            $heightNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" }
+            if ($null -ne $heightNode) {
+                $heightNode.SetAttribute("value", $heightTextBox.Text)  # HEIGHT
+            }
+    
+            #$widthNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Width']")
+            $widthNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" }
+            if ($null -ne $widthNode) {
+                $widthNode.SetAttribute("value", $widthTextBox.Text)  # WIDTH
+            }
+    
+            #$headtrackingNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Headtracking']")
+            $headtrackingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" }
+            if ($null -ne $headtrackingNode) {
+                if ($headtrackerEnabledComboBox.SelectedItem -eq "Disabled") {
+                    $headtrackerEnabledComboBox.SelectedIndex = 0
+                } elseif ($headtrackerEnabledComboBox.SelectedItem -eq "Enabled") {
+                    $headtrackerEnabledComboBox.SelectedIndex = 1
+                }
+                $headtrackingNode.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())  # HEADTRACKING
+            } else {
+                $newElement = $script:xmlContent.CreateElement("Attr")
+                $newElement.SetAttribute("name", "HeadtrackingToggle")
+                $newElement.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())
+                $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
+            }
+    
+            #$headtrackingSourceNode = $script:xmlContent.SelectSingleNode("//attribute[@name='HeadtrackingSource']")
+            $headtrackingSourceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" }
+            if ($null -ne $headtrackingSourceNode) {
+    
+                if ($HeadtrackingSourceComboBox.SelectedItem -eq "None") {
+                    $HeadtrackingSourceComboBox.SelectedIndex = 0
+                } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "TrackIR") {
+                    $HeadtrackingSourceComboBox.SelectedIndex = 1
+                } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "Faceware") {
+                    $HeadtrackingSourceComboBox.SelectedIndex = 2
+                } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "Tobii") {
+                    $HeadtrackingSourceComboBox.SelectedIndex = 3
+                }
+                $headtrackingSourceNode.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())  # HEADTRACKINGSOURCE
+            } else {
+                $newElement = $script:xmlContent.CreateElement("Attr")
+                $newElement.SetAttribute("name", "HeadtrackingSource")
+                $newElement.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())
+                $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
+            }
+    
+            $chromaticAberrationNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" }
+            if ($null -ne $chromaticAberrationNode) {
+                $chromaticAberrationNode.SetAttribute("value", $chromaticAberrationTextBox.Text)  # CHROMATICABERRATION
+            }
+            $AutoZoomNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" }
+            if ($null -ne $AutoZoomNode) {
+                #$AutoZoomNode.SetAttribute("value", $AutoZoomTextBox.Text)  # AUTOZOOM
+                if ($AutoZoomComboBox.SelectedItem -eq "Disabled") {
+                    $AutoZoomComboBox.SelectedIndex = 0
+                } elseif ($AutoZoomComboBox.SelectedItem -eq "Enabled") {
+                    $AutoZoomComboBox.SelectedIndex = 1
+                }
+                $AutoZoomNode.SetAttribute("value", $AutoZoomComboBox.SelectedIndex.ToString())  # AUTOZOOM
+            }
+            $MotionBlurNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" }
+            if ($null -ne $MotionBlurNode) {
+                if ($MotionBlurComboBox.SelectedItem -eq "Disabled") {
+                    $MotionBlurComboBox.SelectedIndex = 0
+                } elseif ($MotionBlurComboBox.SelectedItem -eq "Enabled") {
+                    $MotionBlurComboBox.SelectedIndex = 1
+                } elseif ($MotionBlurComboBox.SelectedItem -eq "Ship Only") {
+                    $MotionBlurComboBox.SelectedIndex = 2
+                } elseif ($MotionBlurComboBox.SelectedItem -eq "Debug Mode") {
+                    $MotionBlurComboBox.SelectedIndex = 3
+                }
+                #$MotionBlurNode.SetAttribute("value", $MotionBlurTextBox.Text)  # MOTIONBLUR
+                $MotionBlurNode.SetAttribute("value", $MotionBlurComboBox.SelectedIndex.ToString())  # MOTIONBLUR
+            }
+            $ShakeScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" }
+            if ($null -ne $ShakeScaleNode) {
+                $ShakeScaleNode.SetAttribute("value", $ShakeScaleTextBox.Text)  # SHAKESCALE
+            }
+            $CameraSpringMovementNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" }
+            if ($null -ne $CameraSpringMovementNode) {
+                $CameraSpringMovementNode.SetAttribute("value", $CameraSpringMovementTextBox.Text)  # CAMERASPRINGMOVEMENT
+            }
+            $FilmGrainNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" }
+            if ($null -ne $FilmGrainNode) {
+                #$FilmGrainNode.SetAttribute("value", $FilmGrainTextBox.Text)  # FILM GRAIN
+                if ($FilmGrainComboBox.SelectedItem -eq "Disabled") {
+                    $FilmGrainComboBox.SelectedIndex = 0
+                } elseif ($FilmGrainComboBox.SelectedItem -eq "Enabled") {
+                    $FilmGrainComboBox.SelectedIndex = 1
+                }
+                $FilmGrainNode.SetAttribute("value", $FilmGrainComboBox.SelectedIndex.ToString())  # FILM GRAIN
+            }
+            $GForceBoostZoomScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" }
+            if ($null -ne $GForceBoostZoomScaleNode) {
+                $GForceBoostZoomScaleNode.SetAttribute("value", $GForceBoostZoomScaleTextBox.Text)  # GFORCEBOOSTZOOMSCALE
+            }
+            $GForceHeadBobScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" }
+            if ($null -ne $GForceHeadBobScaleNode) {
+                $GForceHeadBobScaleNode.SetAttribute("value", $GForceHeadBobScaleTextBox.Text)  # GFORCEHEADBOBSCALE
+            }
+            $HeadtrackingEnableRollFPSNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" }
+            if ($null -ne $HeadtrackingEnableRollFPSNode) {
+                if ($HeadtrackingEnableRollFPSComboBox.SelectedItem -eq "Disabled") {
+                    $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
+                } elseif ($HeadtrackingEnableRollFPSComboBox.SelectedItem -eq "Enabled") {
+                    $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 1
+                }
+                $HeadtrackingEnableRollFPSNode.SetAttribute("value", $HeadtrackingEnableRollFPSComboBox.SelectedIndex.ToString())  # HEADTRACKINGENABLEROLLFPS
+            }
+            $HeadtrackingDisableDuringWalkingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" }
+            if ($null -ne $HeadtrackingDisableDuringWalkingNode) {
+                if ($HeadtrackingDisableDuringWalkingComboBox.SelectedItem -eq "On") {
+                    $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
+                } elseif ($HeadtrackingDisableDuringWalkingComboBox.SelectedItem -eq "Off") {
+                    $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 1
+                }
+                $HeadtrackingDisableDuringWalkingNode.SetAttribute("value", $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex.ToString())  # HEADTRACKINGDISABLEDURINGWALKING
+            }
+            $HeadtrackingThirdPersonCameraToggleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" }
+            if ($null -ne $HeadtrackingThirdPersonCameraToggleNode) {
+                if ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedItem -eq "Off") {
+                    $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
+                } elseif ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedItem -eq "On") {
+                    $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 1
+                }
+                $HeadtrackingThirdPersonCameraToggleNode.SetAttribute("value", $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex.ToString())  # HEADTRACKINGTHIRDPERSONCAMERATOGGLE
+            }
+            # Save the XML content to the specified path
+            # Check if VorpX task is running
+    
+            $vorpxRunning = Get-Process -Name "vorpControl" -ErrorAction SilentlyContinue
+            if ($vorpxRunning) {
+                #$statusBar.Text = "VorpX is running."
+                $vorpxindicatorText = "VorpX is running."
+            } else {
+                #$statusBar.Text = "VorpX is NOT running."
+                $vorpxindicatorText = "VorpX is NOT running."
+            }
+    
+            try {
+                $script:xmlContent.Save($script:xmlPath)
+                #[System.Windows.Forms.MessageBox]::Show("Settings have been saved.")
+                $statusBar.Text = "Settings have been saved."
+                ### $saveAcknowledgeLabel.Visible = $true
+                ### Start-Sleep -Seconds 5
+                ### $saveAcknowledgeLabel.Visible = $false
+            } catch {
+                [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $script:xmlPath: $_")
+            }
+                #$script:xmlContent.Save($script:xmlPath)
+    
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
+        }
+    
+        # Refresh and update the dataTable with the new data
+        $script:dataTable.Clear()
+        if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+        #if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
+            #$script:xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
+            #$script:xmlContent.Attributes | ForEach-Object {
+                #if ($debug) {Write-Host "debug: $_.Name" -BackgroundColor White -ForegroundColor Black}
+            #    $script:dataTable.Columns.Add($_) | Out-Null                              #investigate why this says column already exists
+            #}
+            foreach ($node in $script:xmlContent.SelectNodes("//*")) {
+                foreach ($attribute in $node.Attributes) {
+                    if (-not $script:dataTable.Columns.Contains($attribute.Name)) {
+                        $script:dataTable.Columns.Add($attribute.Name) | Out-Null
+                        #Write-Host "func:XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)"
+                        $script:xmlArray += $($attribute.Name) + " : " + "$($attribute.Value)"
+                    }
+                }
+            }
+    
+            # Add rows to the DataTable
+            foreach ($node in $script:xmlContent.SelectNodes("//*")) {
+                $row = $script:dataTable.NewRow()
+                foreach ($attribute in $node.Attributes) {
+                    if ($script:dataTable.Columns.Contains($attribute.Name)) {
+                        $row[$attribute.Name] = $attribute.Value
+                    }
+                }
+                $script:dataTable.Rows.Add($row) | Out-Null
+                #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
+            }
+    
+            # Bind the DataTable to the DataGridView
+            #$script:dataGridView.DataSource = $script:dataTable
+    
+            #$gridGroup.Controls.Add($script:dataGridView)
+    
+            # Show the dataTableGroupBox and set its text to the XML path
+            #dataTableGroupBox.Text = $xmlPath
+            #$dataTableGroupBox.Visible = $true
+            #$fileTextBox.Text = $xmlPath
+            #$fileTextBox.Visible = $true
+            Update-ButtonState
+    
+            # Populate the input boxes with the first row values
+            $script:xmlContent = [xml](Get-Content $script:xmlPath)
+            #if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
+            if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
+    
+    
+                $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
+                $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
+                $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
+                $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
+                $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
+    
+                    if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
+    
+                Set-ProfileArray
+    
+            }
+    
+            # Show the edit group box
+            $editGroupBox.Visible = $true
+    
+            # Update button state
+            Update-ButtonState
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
+        }
+
+
+    }
+}
+
 $AutoDetectSCPath = Get-GameRootDirFromRegistry
 
 #add an item Open Profile, which will load the profile.json file
@@ -595,6 +845,26 @@ $loadsettingsfromGameMenuItem.Add_Click({
     Import-SettingsFromGame
 })
 $actionsMenuItem.MenuItems.Add($loadsettingsfromGameMenuItem)  # Add the Load Settings from Game menu item to the Actions menu
+
+$loadsettingsfromProfileMenuItem = New-Object System.Windows.Forms.MenuItem
+$loadsettingsfromProfileMenuItem.Text = "&Load Settings from Profile"
+$loadsettingsfromProfileMenuItem.Add_Click({
+    $script:xmlPath = $($script:profileArray.AttributesXmlPath)
+    #Write-Host "Loading from profile: $($script:profileArray.AttributesXmlPath)" -BackgroundColor White -ForegroundColor Black
+    if ($null -ne $script:xmlPath) {
+        Open-XMLViewer($script:xmlPath)
+    } else {
+        $statusBar.Text = "Profile JSON doesn't contain attributes path."
+        [System.Windows.Forms.MessageBox]::Show("profile json doesnt contain attributes path?")
+    }
+})
+$actionsMenuItem.MenuItems.Add($loadsettingsfromProfileMenuItem)  # Add the Load Settings from Profile menu item to the Actions menu
+$saveSettingsToGameMenuItem = New-Object System.Windows.Forms.MenuItem
+$saveSettingsToGameMenuItem.Text = "&Save Settings to Game"
+$saveSettingsToGameMenuItem.Add_Click({
+    Save-SettingsToGame
+})
+$actionsMenuItem.MenuItems.Add($saveSettingsToGameMenuItem)  # Add the Save Settings to Game menu item to the Actions menu
 
 # Add an item to the menu called "Open XML"
 $openXmlMenuItem = New-Object System.Windows.Forms.MenuItem
@@ -726,15 +996,15 @@ $CheckForUpdatesMenuItem.Add_Click({
         Write-Host "Error checking for updates: $($_.Exception.Message)" -ForegroundColor Red
     }
 })
-$actionsMenuItem.MenuItems.Add($CheckForUpdatesMenuItem)  # Add the GitHub menu item to the main menu
+$helpMenuItem.MenuItems.Add($CheckForUpdatesMenuItem)  # Add the GitHub menu item to the main menu
+
 
 $GithubMenuItem = New-Object System.Windows.Forms.MenuItem
 $GithubMenuItem.Text = "Open &GitHub in your Browser"
 $GithubMenuItem.Add_Click({
     Start-Process "https://github.com/troubleNZ/SC-VRse"
 })
-$actionsMenuItem.MenuItems.Add($GithubMenuItem)  # Add the GitHub menu item to the main menu
-
+$helpMenuItem.MenuItems.Add($GithubMenuItem)  # Add the GitHub menu item to the main menu
 
 $creditsMenuItem = New-Object System.Windows.Forms.MenuItem
 $creditsMenuItem.Text = "&Credits"
@@ -1561,245 +1831,7 @@ $saveButton.Top = 315
 $saveButton.Left = 330
 $saveButton.TabIndex = 22
 $saveButton.Add_Click({
-    try {
-        if ($null -eq $script:xmlContent) {
-            if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")}
-            return
-        }
-
-        #$fovNode = $script:xmlContent.SelectSingleNode("//attribute[@name='FOV']")
-        $fovNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" }
-        if ($null -ne $fovNode) {
-            $fovNode.SetAttribute("value", $fovTextBox.Text)  # FOV
-        }
-
-        #$heightNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Height']")
-        $heightNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" }
-        if ($null -ne $heightNode) {
-            $heightNode.SetAttribute("value", $heightTextBox.Text)  # HEIGHT
-        }
-
-        #$widthNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Width']")
-        $widthNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" }
-        if ($null -ne $widthNode) {
-            $widthNode.SetAttribute("value", $widthTextBox.Text)  # WIDTH
-        }
-
-        #$headtrackingNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Headtracking']")
-        $headtrackingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" }
-        if ($null -ne $headtrackingNode) {
-            if ($headtrackerEnabledComboBox.SelectedItem -eq "Disabled") {
-                $headtrackerEnabledComboBox.SelectedIndex = 0
-            } elseif ($headtrackerEnabledComboBox.SelectedItem -eq "Enabled") {
-                $headtrackerEnabledComboBox.SelectedIndex = 1
-            }
-            $headtrackingNode.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())  # HEADTRACKING
-        } else {
-            $newElement = $script:xmlContent.CreateElement("Attr")
-            $newElement.SetAttribute("name", "HeadtrackingToggle")
-            $newElement.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())
-            $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
-        }
-
-        #$headtrackingSourceNode = $script:xmlContent.SelectSingleNode("//attribute[@name='HeadtrackingSource']")
-        $headtrackingSourceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" }
-        if ($null -ne $headtrackingSourceNode) {
-
-            if ($HeadtrackingSourceComboBox.SelectedItem -eq "None") {
-                $HeadtrackingSourceComboBox.SelectedIndex = 0
-            } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "TrackIR") {
-                $HeadtrackingSourceComboBox.SelectedIndex = 1
-            } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "Faceware") {
-                $HeadtrackingSourceComboBox.SelectedIndex = 2
-            } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "Tobii") {
-                $HeadtrackingSourceComboBox.SelectedIndex = 3
-            }
-            $headtrackingSourceNode.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())  # HEADTRACKINGSOURCE
-        } else {
-            $newElement = $script:xmlContent.CreateElement("Attr")
-            $newElement.SetAttribute("name", "HeadtrackingSource")
-            $newElement.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())
-            $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
-        }
-
-        $chromaticAberrationNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" }
-        if ($null -ne $chromaticAberrationNode) {
-            $chromaticAberrationNode.SetAttribute("value", $chromaticAberrationTextBox.Text)  # CHROMATICABERRATION
-        }
-        $AutoZoomNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" }
-        if ($null -ne $AutoZoomNode) {
-            #$AutoZoomNode.SetAttribute("value", $AutoZoomTextBox.Text)  # AUTOZOOM
-            if ($AutoZoomComboBox.SelectedItem -eq "Disabled") {
-                $AutoZoomComboBox.SelectedIndex = 0
-            } elseif ($AutoZoomComboBox.SelectedItem -eq "Enabled") {
-                $AutoZoomComboBox.SelectedIndex = 1
-            }
-            $AutoZoomNode.SetAttribute("value", $AutoZoomComboBox.SelectedIndex.ToString())  # AUTOZOOM
-        }
-        $MotionBlurNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" }
-        if ($null -ne $MotionBlurNode) {
-            if ($MotionBlurComboBox.SelectedItem -eq "Disabled") {
-                $MotionBlurComboBox.SelectedIndex = 0
-            } elseif ($MotionBlurComboBox.SelectedItem -eq "Enabled") {
-                $MotionBlurComboBox.SelectedIndex = 1
-            } elseif ($MotionBlurComboBox.SelectedItem -eq "Ship Only") {
-                $MotionBlurComboBox.SelectedIndex = 2
-            } elseif ($MotionBlurComboBox.SelectedItem -eq "Debug Mode") {
-                $MotionBlurComboBox.SelectedIndex = 3
-            }
-            #$MotionBlurNode.SetAttribute("value", $MotionBlurTextBox.Text)  # MOTIONBLUR
-            $MotionBlurNode.SetAttribute("value", $MotionBlurComboBox.SelectedIndex.ToString())  # MOTIONBLUR
-        }
-        $ShakeScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" }
-        if ($null -ne $ShakeScaleNode) {
-            $ShakeScaleNode.SetAttribute("value", $ShakeScaleTextBox.Text)  # SHAKESCALE
-        }
-        $CameraSpringMovementNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" }
-        if ($null -ne $CameraSpringMovementNode) {
-            $CameraSpringMovementNode.SetAttribute("value", $CameraSpringMovementTextBox.Text)  # CAMERASPRINGMOVEMENT
-        }
-        $FilmGrainNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" }
-        if ($null -ne $FilmGrainNode) {
-            #$FilmGrainNode.SetAttribute("value", $FilmGrainTextBox.Text)  # FILM GRAIN
-            if ($FilmGrainComboBox.SelectedItem -eq "Disabled") {
-                $FilmGrainComboBox.SelectedIndex = 0
-            } elseif ($FilmGrainComboBox.SelectedItem -eq "Enabled") {
-                $FilmGrainComboBox.SelectedIndex = 1
-            }
-            $FilmGrainNode.SetAttribute("value", $FilmGrainComboBox.SelectedIndex.ToString())  # FILM GRAIN
-        }
-        $GForceBoostZoomScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" }
-        if ($null -ne $GForceBoostZoomScaleNode) {
-            $GForceBoostZoomScaleNode.SetAttribute("value", $GForceBoostZoomScaleTextBox.Text)  # GFORCEBOOSTZOOMSCALE
-        }
-        $GForceHeadBobScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" }
-        if ($null -ne $GForceHeadBobScaleNode) {
-            $GForceHeadBobScaleNode.SetAttribute("value", $GForceHeadBobScaleTextBox.Text)  # GFORCEHEADBOBSCALE
-        }
-        $HeadtrackingEnableRollFPSNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" }
-        if ($null -ne $HeadtrackingEnableRollFPSNode) {
-            if ($HeadtrackingEnableRollFPSComboBox.SelectedItem -eq "Disabled") {
-                $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
-            } elseif ($HeadtrackingEnableRollFPSComboBox.SelectedItem -eq "Enabled") {
-                $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 1
-            }
-            $HeadtrackingEnableRollFPSNode.SetAttribute("value", $HeadtrackingEnableRollFPSComboBox.SelectedIndex.ToString())  # HEADTRACKINGENABLEROLLFPS
-        }
-        $HeadtrackingDisableDuringWalkingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" }
-        if ($null -ne $HeadtrackingDisableDuringWalkingNode) {
-            if ($HeadtrackingDisableDuringWalkingComboBox.SelectedItem -eq "On") {
-                $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
-            } elseif ($HeadtrackingDisableDuringWalkingComboBox.SelectedItem -eq "Off") {
-                $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 1
-            }
-            $HeadtrackingDisableDuringWalkingNode.SetAttribute("value", $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex.ToString())  # HEADTRACKINGDISABLEDURINGWALKING
-        }
-        $HeadtrackingThirdPersonCameraToggleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" }
-        if ($null -ne $HeadtrackingThirdPersonCameraToggleNode) {
-            if ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedItem -eq "Off") {
-                $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
-            } elseif ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedItem -eq "On") {
-                $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 1
-            }
-            $HeadtrackingThirdPersonCameraToggleNode.SetAttribute("value", $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex.ToString())  # HEADTRACKINGTHIRDPERSONCAMERATOGGLE
-        }
-        # Save the XML content to the specified path
-        # Check if VorpX task is running
-
-        $vorpxRunning = Get-Process -Name "vorpControl" -ErrorAction SilentlyContinue
-        if ($vorpxRunning) {
-            #$statusBar.Text = "VorpX is running."
-            $vorpxindicatorText = "VorpX is running."
-        } else {
-            #$statusBar.Text = "VorpX is NOT running."
-            $vorpxindicatorText = "VorpX is NOT running."
-        }
-
-        try {
-            $script:xmlContent.Save($script:xmlPath)
-            #[System.Windows.Forms.MessageBox]::Show("Settings have been saved.")
-            $statusBar.Text = "Settings have been saved."
-            ### $saveAcknowledgeLabel.Visible = $true
-            ### Start-Sleep -Seconds 5
-            ### $saveAcknowledgeLabel.Visible = $false
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $script:xmlPath: $_")
-        }
-            #$script:xmlContent.Save($script:xmlPath)
-
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
-    }
-
-    # Refresh and update the dataTable with the new data
-    $script:dataTable.Clear()
-    if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-    #if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
-        #$script:xmlContent.DocumentElement.ChildNodes[0].Attributes | ForEach-Object {
-        #$script:xmlContent.Attributes | ForEach-Object {
-            #if ($debug) {Write-Host "debug: $_.Name" -BackgroundColor White -ForegroundColor Black}
-        #    $script:dataTable.Columns.Add($_) | Out-Null                              #investigate why this says column already exists
-        #}
-        foreach ($node in $script:xmlContent.SelectNodes("//*")) {
-            foreach ($attribute in $node.Attributes) {
-                if (-not $script:dataTable.Columns.Contains($attribute.Name)) {
-                    $script:dataTable.Columns.Add($attribute.Name) | Out-Null
-                    #Write-Host "func:XMLViewer .Columns.Add : " + "$($attribute.Name): $($attribute.Value)"
-                    $script:xmlArray += $($attribute.Name) + " : " + "$($attribute.Value)"
-                }
-            }
-        }
-
-        # Add rows to the DataTable
-        foreach ($node in $script:xmlContent.SelectNodes("//*")) {
-            $row = $script:dataTable.NewRow()
-            foreach ($attribute in $node.Attributes) {
-                if ($script:dataTable.Columns.Contains($attribute.Name)) {
-                    $row[$attribute.Name] = $attribute.Value
-                }
-            }
-            $script:dataTable.Rows.Add($row) | Out-Null
-            #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
-        }
-
-        # Bind the DataTable to the DataGridView
-        #$script:dataGridView.DataSource = $script:dataTable
-
-        #$gridGroup.Controls.Add($script:dataGridView)
-
-        # Show the dataTableGroupBox and set its text to the XML path
-        #dataTableGroupBox.Text = $xmlPath
-        #$dataTableGroupBox.Visible = $true
-        #$fileTextBox.Text = $xmlPath
-        #$fileTextBox.Visible = $true
-        Update-ButtonState
-
-        # Populate the input boxes with the first row values
-        $script:xmlContent = [xml](Get-Content $script:xmlPath)
-        #if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
-        if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
-
-
-            $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
-            $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
-            $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
-            $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
-            $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
-
-                if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
-
-            Set-ProfileArray
-
-        }
-
-        # Show the edit group box
-        $editGroupBox.Visible = $true
-
-        # Update button state
-        Update-ButtonState
-    } else {
-        [System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")
-    }
+    Save-SettingsToGame
 
 })
 # Initially disable the import and save buttons
