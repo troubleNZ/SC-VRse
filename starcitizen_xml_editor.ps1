@@ -100,7 +100,7 @@ $form.Add_Shown({
 $form.Icon = $scriptIcon
 
 # Update the taskbar icon to match the form icon
-if ($scriptIcon -ne $null) {
+if ($null -ne $scriptIcon) {
     $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
     $notifyIcon.Icon = $scriptIcon
     $notifyIcon.Visible = $true
@@ -2138,6 +2138,166 @@ $toggleVRButton.Add_Click({
     }
 })
 $ActionsGroupBox.Controls.Add($toggleVRButton)
+
+# Add "View KeyBindings" menu item under Actions
+$viewKeyBindingsMenuItem = New-Object System.Windows.Forms.MenuItem
+$viewKeyBindingsMenuItem.Text = "View KeyBindings"
+$actionsMenuItem.MenuItems.Add($viewKeyBindingsMenuItem)
+
+# Create the KeyBinds Viewer form/panel
+$keyBindsForm = New-Object System.Windows.Forms.Form
+$keyBindsForm.Text = "KeyBinds Viewer"
+$keyBindsForm.Width = 650
+$keyBindsForm.Height = 580
+$keyBindsForm.StartPosition = 'CenterScreen'
+$keyBindsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$keyBindsForm.MaximizeBox = $false
+$keyBindsForm.MinimizeBox = $false
+
+# Add a button to close KeyBinds Viewer and return to main form
+$closeKeyBindsButton = New-Object System.Windows.Forms.Button
+$closeKeyBindsButton.Text = "Back"
+$closeKeyBindsButton.Width = 100
+$closeKeyBindsButton.Height = 30
+#$closeKeyBindsButton.Top = $keyBindsForm.ClientSize.Height - 50
+$closeKeyBindsButton.Top = 10
+$closeKeyBindsButton.Left = ($keyBindsForm.ClientSize.Width - $closeKeyBindsButton.Width) / 2
+$closeKeyBindsButton.Anchor = "Top, Left"
+$closeKeyBindsButton.Add_Click({
+    $keyBindsForm.Hide()
+    $form.Show()
+})
+$keyBindsForm.Controls.Add($closeKeyBindsButton)
+
+# Show KeyBinds Viewer and hide main form when menu item is clicked
+$viewKeyBindingsMenuItem.Add_Click({
+    $form.Hide()
+    $keyBindsForm.ShowDialog()
+})
+
+$ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
+if (-not (Test-Path $ActionMapsxmlPath)) {
+    Write-Host "XML file not found at $ActionMapsxmlPath"
+    exit
+}
+$BindsXML = [xml](Get-Content $ActionMapsxmlPath)
+
+# Create Form
+
+# TreeView for structure
+$keyBindsTreeView = New-Object Windows.Forms.TreeView
+$keyBindsTreeView.Location = '10,50'
+$keyBindsTreeView.Size = New-Object Drawing.Size(350,480)
+$keyBindsTreeView.HideSelection = $false
+
+# ListView for details
+$keyBindsList = New-Object Windows.Forms.ListView
+$keyBindsList.Location = '370,50'
+$keyBindsList.Size = New-Object Drawing.Size(260,480)
+$keyBindsList.View = 'Details'
+$keyBindsList.FullRowSelect = $true
+$keyBindsList.GridLines = $true
+
+# Helper: Add column
+function Add-Column($columns) {
+    $keyBindsList.Columns.Clear()
+    foreach ($col in $columns) {
+        $keyBindsList.Columns.Add($col,120)
+    }
+}
+
+# Populate TreeView
+$keyBindsProfiles = $BindsXML.ActionMaps.ActionProfiles
+$keyBindsProfileNode = $keyBindsTreeView.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+
+foreach ($actionmap in $keyBindsProfiles.actionmap) {
+    $amNode = $keyBindsProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
+    foreach ($action in $actionmap.action) {
+        $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+        foreach ($rebind in $action.rebind) {
+            $aNode.Nodes.Add("Rebind: $($rebind.input)")
+        }
+    }
+}
+
+# Device options
+foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+    $devNode = $keyBindsProfileNode.Nodes.Add("Device: $($devopt.name)")
+    foreach ($opt in $devopt.option) {
+        $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+    }
+}
+
+# Options (joystick, keyboard, etc.)
+foreach ($opt in $keyBindsProfiles.options) {
+    $optNode = $keyBindsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+    foreach ($child in $opt.ChildNodes) {
+        $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)")
+    }
+}
+
+# TreeView selection event
+$keyBindsTreeView.Add_AfterSelect({
+    $keyBindsList.Items.Clear()
+    $node = $keyBindsTreeView.SelectedNode
+    if ($node -eq $null) { return }
+
+    # Action node
+    if ($node.Text -like "Action: *") {
+        $actionName = $node.Text.Substring(8)
+        $action = $keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
+        if ($action) {
+            Add-Column @("Rebind Input", "MultiTap")
+            foreach ($rebind in $action.rebind) {
+                if ($rebind.input) {
+                    $item = $keyBindsList.Items.Add($rebind.input)
+                    if ($item -ne $null) {
+                        $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
+                        $item.SubItems.Add($multiTapValue)
+                    }
+                }
+            }
+        }
+    }
+    # Device node
+    elseif ($node.Text -like "Device: *") {
+        $devName = $node.Text.Substring(8)
+        $dev = $keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
+        if ($dev) {
+            Add-Column @("Input", "Saturation", "Deadzone")
+            foreach ($opt in $dev.option) {
+                $item = $keyBindsList.Items.Add($opt.input)
+                $item.SubItems.Add($opt.saturation)
+                $item.SubItems.Add($opt.deadzone)
+            }
+        }
+    }
+    # Options node
+    elseif ($node.Text -like "Options: *") {
+        $optType = $node.Text.Split(" ")[1]
+        $opt = $keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
+        if ($opt) {
+            Add-Column @("Property", "Value")
+            foreach ($attr in $opt.Attributes) {
+                $item = $keyBindsList.Items.Add($attr.Name)
+                $item.SubItems.Add($attr.Value)
+            }
+            foreach ($child in $opt.ChildNodes) {
+                $item = $keyBindsList.Items.Add($child.Name)
+                $item.SubItems.Add($child.OuterXml)
+            }
+        }
+    }
+})
+
+$keyBindsForm.Controls.Add($keyBindsTreeView)
+$keyBindsForm.Controls.Add($keyBindsList)
+
+
+
+
+
+
 
 
 $form.ShowDialog()
