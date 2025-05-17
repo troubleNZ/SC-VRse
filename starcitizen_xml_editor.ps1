@@ -1578,23 +1578,23 @@ $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
 $chromaticAberrationLabel.Text = "Chromatic Aberration"
-$chromaticAberrationLabel.Top = 140
+$chromaticAberrationLabel.Top = 260
 $chromaticAberrationLabel.Left = 30
 $chromaticAberrationLabel.Width = 120
 $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
-$chromaticAberrationTextBox.Top = 140
+$chromaticAberrationTextBox.Top = 260
 $chromaticAberrationTextBox.Left = 190
 $chromaticAberrationTextBox.Width = 50
 $chromaticAberrationTextBox.TextAlign = 'Left'
-$chromaticAberrationTextBox.TabIndex = 11
+$chromaticAberrationTextBox.TabIndex = 19
 $editGroupBox.Controls.Add($chromaticAberrationTextBox)
 
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
-$AutoZoomLabel.Top = 140
+$AutoZoomLabel.Top = 260
 $AutoZoomLabel.Left = 300
 $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
@@ -1610,19 +1610,19 @@ $editGroupBox.Controls.Add($AutoZoomTextBox)#>
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
-$AutoZoomComboBox.Top = 140
+$AutoZoomComboBox.Top = 260
 $AutoZoomComboBox.Left = 410
 $AutoZoomComboBox.Width = 75
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $AutoZoomComboBox.Items.Add("Disabled")
 $AutoZoomComboBox.Items.Add("Enabled")
-$AutoZoomComboBox.TabIndex = 12
+$AutoZoomComboBox.TabIndex = 20
 $AutoZoomComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($AutoZoomComboBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
-$MotionBlurLabel.Top = 170
+$MotionBlurLabel.Top = 290
 $MotionBlurLabel.Left = 70
 $MotionBlurLabel.Width = 100
 $editGroupBox.Controls.Add($MotionBlurLabel)
@@ -1638,7 +1638,7 @@ $editGroupBox.Controls.Add($MotionBlurLabel)
 
 $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
-$MotionBlurComboBox.Top = 170
+$MotionBlurComboBox.Top = 290
 $MotionBlurComboBox.Left = 190
 $MotionBlurComboBox.Width = 75
 $MotionBlurComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
@@ -1646,7 +1646,7 @@ $MotionBlurComboBox.Items.Add("Disabled")
 $MotionBlurComboBox.Items.Add("Enabled")
 $MotionBlurComboBox.Items.Add("Ship Only")
 $MotionBlurComboBox.Items.Add("Debug Mode")
-$MotionBlurComboBox.TabIndex = 13
+$MotionBlurComboBox.TabIndex = 21
 $MotionBlurComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($MotionBlurComboBox)
 
@@ -1743,58 +1743,58 @@ $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
 
 $HeadtrackingEnableRollFPSLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
-$HeadtrackingEnableRollFPSLabel.Top = 260
+$HeadtrackingEnableRollFPSLabel.Top = 140
 $HeadtrackingEnableRollFPSLabel.Left = 30
 $HeadtrackingEnableRollFPSLabel.Width = 150
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSLabel)
 
 $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
-$HeadtrackingEnableRollFPSComboBox.Top = 260
+$HeadtrackingEnableRollFPSComboBox.Top = 140
 $HeadtrackingEnableRollFPSComboBox.Left = 190
 $HeadtrackingEnableRollFPSComboBox.Width = 75
 $HeadtrackingEnableRollFPSComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
-$HeadtrackingEnableRollFPSComboBox.TabIndex = 19
+$HeadtrackingEnableRollFPSComboBox.TabIndex = 11
 $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
-$HeadtrackingDisableDuringWalkingLabel.Top = 260
+$HeadtrackingDisableDuringWalkingLabel.Top = 140
 $HeadtrackingDisableDuringWalkingLabel.Left = 270
 $HeadtrackingDisableDuringWalkingLabel.Width = 120
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
-$HeadtrackingDisableDuringWalkingComboBox.Top = 260
+$HeadtrackingDisableDuringWalkingComboBox.Top = 140
 $HeadtrackingDisableDuringWalkingComboBox.Left = 410
 $HeadtrackingDisableDuringWalkingComboBox.Width = 75
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
-$HeadtrackingDisableDuringWalkingComboBox.TabIndex = 20
+$HeadtrackingDisableDuringWalkingComboBox.TabIndex = 12
 $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
 
 $HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
-$HeadtrackingThirdPersonCameraToggleLabel.Top = 290
+$HeadtrackingThirdPersonCameraToggleLabel.Top = 170
 $HeadtrackingThirdPersonCameraToggleLabel.Left = 30
 $HeadtrackingThirdPersonCameraToggleLabel.Width = 160
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
-$HeadtrackingThirdPersonCameraToggleComboBox.Top = 290
+$HeadtrackingThirdPersonCameraToggleComboBox.Top = 170
 $HeadtrackingThirdPersonCameraToggleComboBox.Left = 190
 $HeadtrackingThirdPersonCameraToggleComboBox.Width = 75
 $HeadtrackingThirdPersonCameraToggleComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
-$HeadtrackingThirdPersonCameraToggleComboBox.TabIndex = 21
+$HeadtrackingThirdPersonCameraToggleComboBox.TabIndex = 13
 $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleComboBox)
 
@@ -2350,12 +2350,12 @@ $treeDevice.Add_AfterSelect({
                         try {
                             $item.SubItems.Add($opt.saturation) | Out-Null
                         } catch {
-                            Write-Host "Error adding Saturation: $($_.Exception.Message)" -ForegroundColor Red
+                            if ($debug) {Write-Host "Error adding Saturation: $($_.Exception.Message)" -ForegroundColor Red}
                         }
                         try {
                             $item.SubItems.Add($opt.deadzone) | Out-Null
                         } catch {
-                            Write-Host "Error adding Deadzone: $($_.Exception.Message)" -ForegroundColor Red
+                            if ($debug) {Write-Host "Error adding Deadzone: $($_.Exception.Message)" -ForegroundColor Red}
                         }
                     }
                 }
