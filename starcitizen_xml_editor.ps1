@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.2"                        # keybinds panel split into tabs ActionMaps, Devices and Options
+$scriptVersion = "0.3.2.1"                        # cleanup of apply and save buttons, unnecesary icon code removed
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -98,28 +98,6 @@ $form.Add_Shown({
     $form.TopMost = $false
 })
 $form.Icon = $scriptIcon
-
-# Update the taskbar icon to match the form icon
-if ($null -ne $scriptIcon) {
-    $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
-    $notifyIcon.Icon = $scriptIcon
-    $notifyIcon.Visible = $true
-    $notifyIcon.Add_Click({
-        if ($form.WindowState -eq 'Minimized') {
-            $form.WindowState = 'Normal'
-        }
-        $form.Show()
-        $form.Activate()
-        $form.TopMost = $true
-        $form.TopMost = $false
-    })
-    $form.Add_FormClosed({
-        $notifyIcon.Dispose()
-    })
-    $keyBindsForm.Add_FormClosed({
-        $notifyIcon.Dispose()
-    })
-}
 
 $ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
 $ActionsGroupBox.Text = "Actions"
@@ -1377,7 +1355,7 @@ $form.Controls.Add($fileTextBox)    #>
 $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "VR Centric Settings"
 $editGroupBox.Width = 550
-$editGroupBox.Height = 350
+$editGroupBox.Height = 330
 $editGroupBox.Top = 150         ## Adjusted the Top property to move the group box up
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $true
@@ -1600,23 +1578,23 @@ $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
 $chromaticAberrationLabel.Text = "Chromatic Aberration"
-$chromaticAberrationLabel.Top = 140
+$chromaticAberrationLabel.Top = 260
 $chromaticAberrationLabel.Left = 30
 $chromaticAberrationLabel.Width = 120
 $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
-$chromaticAberrationTextBox.Top = 140
+$chromaticAberrationTextBox.Top = 260
 $chromaticAberrationTextBox.Left = 190
 $chromaticAberrationTextBox.Width = 50
 $chromaticAberrationTextBox.TextAlign = 'Left'
-$chromaticAberrationTextBox.TabIndex = 11
+$chromaticAberrationTextBox.TabIndex = 19
 $editGroupBox.Controls.Add($chromaticAberrationTextBox)
 
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
-$AutoZoomLabel.Top = 140
+$AutoZoomLabel.Top = 260
 $AutoZoomLabel.Left = 300
 $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
@@ -1632,19 +1610,19 @@ $editGroupBox.Controls.Add($AutoZoomTextBox)#>
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
-$AutoZoomComboBox.Top = 140
+$AutoZoomComboBox.Top = 260
 $AutoZoomComboBox.Left = 410
 $AutoZoomComboBox.Width = 75
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $AutoZoomComboBox.Items.Add("Disabled")
 $AutoZoomComboBox.Items.Add("Enabled")
-$AutoZoomComboBox.TabIndex = 12
+$AutoZoomComboBox.TabIndex = 20
 $AutoZoomComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($AutoZoomComboBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
-$MotionBlurLabel.Top = 170
+$MotionBlurLabel.Top = 290
 $MotionBlurLabel.Left = 70
 $MotionBlurLabel.Width = 100
 $editGroupBox.Controls.Add($MotionBlurLabel)
@@ -1660,7 +1638,7 @@ $editGroupBox.Controls.Add($MotionBlurLabel)
 
 $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
-$MotionBlurComboBox.Top = 170
+$MotionBlurComboBox.Top = 290
 $MotionBlurComboBox.Left = 190
 $MotionBlurComboBox.Width = 75
 $MotionBlurComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
@@ -1668,7 +1646,7 @@ $MotionBlurComboBox.Items.Add("Disabled")
 $MotionBlurComboBox.Items.Add("Enabled")
 $MotionBlurComboBox.Items.Add("Ship Only")
 $MotionBlurComboBox.Items.Add("Debug Mode")
-$MotionBlurComboBox.TabIndex = 13
+$MotionBlurComboBox.TabIndex = 21
 $MotionBlurComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($MotionBlurComboBox)
 
@@ -1765,58 +1743,58 @@ $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
 
 $HeadtrackingEnableRollFPSLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
-$HeadtrackingEnableRollFPSLabel.Top = 260
+$HeadtrackingEnableRollFPSLabel.Top = 140
 $HeadtrackingEnableRollFPSLabel.Left = 30
 $HeadtrackingEnableRollFPSLabel.Width = 150
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSLabel)
 
 $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
-$HeadtrackingEnableRollFPSComboBox.Top = 260
+$HeadtrackingEnableRollFPSComboBox.Top = 140
 $HeadtrackingEnableRollFPSComboBox.Left = 190
 $HeadtrackingEnableRollFPSComboBox.Width = 75
 $HeadtrackingEnableRollFPSComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
-$HeadtrackingEnableRollFPSComboBox.TabIndex = 19
+$HeadtrackingEnableRollFPSComboBox.TabIndex = 11
 $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
-$HeadtrackingDisableDuringWalkingLabel.Top = 260
+$HeadtrackingDisableDuringWalkingLabel.Top = 140
 $HeadtrackingDisableDuringWalkingLabel.Left = 270
 $HeadtrackingDisableDuringWalkingLabel.Width = 120
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
-$HeadtrackingDisableDuringWalkingComboBox.Top = 260
+$HeadtrackingDisableDuringWalkingComboBox.Top = 140
 $HeadtrackingDisableDuringWalkingComboBox.Left = 410
 $HeadtrackingDisableDuringWalkingComboBox.Width = 75
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
-$HeadtrackingDisableDuringWalkingComboBox.TabIndex = 20
+$HeadtrackingDisableDuringWalkingComboBox.TabIndex = 12
 $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
 
 $HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
-$HeadtrackingThirdPersonCameraToggleLabel.Top = 290
+$HeadtrackingThirdPersonCameraToggleLabel.Top = 170
 $HeadtrackingThirdPersonCameraToggleLabel.Left = 30
 $HeadtrackingThirdPersonCameraToggleLabel.Width = 160
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
-$HeadtrackingThirdPersonCameraToggleComboBox.Top = 290
+$HeadtrackingThirdPersonCameraToggleComboBox.Top = 170
 $HeadtrackingThirdPersonCameraToggleComboBox.Left = 190
 $HeadtrackingThirdPersonCameraToggleComboBox.Width = 75
 $HeadtrackingThirdPersonCameraToggleComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
-$HeadtrackingThirdPersonCameraToggleComboBox.TabIndex = 21
+$HeadtrackingThirdPersonCameraToggleComboBox.TabIndex = 13
 $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleComboBox)
 
@@ -1827,22 +1805,23 @@ $saveProfileButton.Name = "SaveProfileButton"
 $saveProfileButton.Text = "Save Profile"
 $saveProfileButton.Width = 120
 $saveProfileButton.Height = 30
-$saveProfileButton.Top = 315
-$saveProfileButton.Left = 30
+$saveProfileButton.Top = 485
+$saveProfileButton.Left = 20
 $saveProfileButton.TabIndex = 21
 $saveProfileButton.Enabled = $false  # Initially disabled
 $saveProfileButton.Add_Click({
     Save-Profile
 })
-$editGroupBox.Controls.Add($saveProfileButton)
+#$editGroupBox.Controls.Add($saveProfileButton)
+$form.Controls.Add($saveProfileButton)
 
 $applySaveButton = New-Object System.Windows.Forms.Button
 $applySaveButton.Name = "ApplySaveButton"
 $applySaveButton.Text = "Apply Changes"
 $applySaveButton.Width = 120
 $applySaveButton.Height = 30
-$applySaveButton.Top = 315
-$applySaveButton.Left = 230
+$applySaveButton.Top = 485
+$applySaveButton.Left = 280
 $applySaveButton.TabIndex = 22
 $applySaveButton.Enabled = $false  # Initially disabled
 $applySaveButton.Add_Click({
@@ -1851,22 +1830,24 @@ $applySaveButton.Add_Click({
 })
 # Initially disable the import and save buttons
 $applySaveButton.Enabled = $false
-$editGroupBox.Controls.Add($applySaveButton)
+#$editGroupBox.Controls.Add($applySaveButton)
+$form.Controls.Add($applySaveButton)
 
 $saveAndCloseButton = New-Object System.Windows.Forms.Button
 $saveAndCloseButton.Name = "SaveAndCloseButton"
 $saveAndCloseButton.Text = "Save and Close"
 $saveAndCloseButton.Width = 120
 $saveAndCloseButton.Height = 30
-$saveAndCloseButton.Top = 315
-$saveAndCloseButton.Left = 400
+$saveAndCloseButton.Top = 485
+$saveAndCloseButton.Left = 450
 $saveAndCloseButton.TabIndex = 23
 $saveAndCloseButton.Enabled = $false  # Initially disabled
 $saveAndCloseButton.Add_Click({
     Save-SettingsToGame
     $form.Close()
 })
-$editGroupBox.Controls.Add($saveAndCloseButton)
+#$editGroupBox.Controls.Add($saveAndCloseButton)
+$form.Controls.Add($saveAndCloseButton)
 
 
 
@@ -2365,9 +2346,17 @@ $treeDevice.Add_AfterSelect({
             foreach ($opt in $dev.option) {
                 if ($opt.input) {
                     $item = $listDevice.Items.Add($opt.input)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($opt.saturation)| Out-Null
-                        $item.SubItems.Add($opt.deadzone)| Out-Null
+                    if ($null -ne $item -or $item -eq 0) {
+                        try {
+                            $item.SubItems.Add($opt.saturation) | Out-Null
+                        } catch {
+                            if ($debug) {Write-Host "Error adding Saturation: $($_.Exception.Message)" -ForegroundColor Red}
+                        }
+                        try {
+                            $item.SubItems.Add($opt.deadzone) | Out-Null
+                        } catch {
+                            if ($debug) {Write-Host "Error adding Deadzone: $($_.Exception.Message)" -ForegroundColor Red}
+                        }
                     }
                 }
             }
