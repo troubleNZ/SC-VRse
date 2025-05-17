@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.2.1"                        # cleanup of apply and save buttons, unnecesary icon code removed
+$scriptVersion = "0.3.3"                        # moved head tracking related items together
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
