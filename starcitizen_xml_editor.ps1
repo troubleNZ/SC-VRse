@@ -91,7 +91,7 @@ $form.StartPosition = 'CenterScreen'
 $form.Size = New-Object System.Drawing.Size(600,655)
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
-$form.MinimizeBox = $false
+$form.MinimizeBox = $true
 $form.Add_Shown({
     $form.Activate()
     $form.TopMost = $true
@@ -104,7 +104,19 @@ if ($null -ne $scriptIcon) {
     $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
     $notifyIcon.Icon = $scriptIcon
     $notifyIcon.Visible = $true
+    $notifyIcon.Add_Click({
+        if ($form.WindowState -eq 'Minimized') {
+            $form.WindowState = 'Normal'
+        }
+        $form.Show()
+        $form.Activate()
+        $form.TopMost = $true
+        $form.TopMost = $false
+    })
     $form.Add_FormClosed({
+        $notifyIcon.Dispose()
+    })
+    $keyBindsForm.Add_FormClosed({
         $notifyIcon.Dispose()
     })
 }
@@ -130,7 +142,7 @@ function Update-ButtonState {                           # used to grey out butto
     if ($PSCmdlet.ShouldProcess("Button State Update", "Update the state of import and save buttons")) {
         if ($null -ne $script:xmlContent) {
             $importButton.Enabled = $true
-            $saveButton.Enabled = $true
+            $applySaveButton.Enabled = $true
             $saveProfileButton.Enabled = $true
             if ($loadedProfile -eq $true) {
                 $loadFromProfileButton.Enabled = $true
@@ -139,7 +151,7 @@ function Update-ButtonState {                           # used to grey out butto
             }
         } else {
             $importButton.Enabled = $false
-            $saveButton.Enabled = $false
+            $applySaveButton.Enabled = $false
             $loadFromProfileButton.Enabled = $false
             $saveProfileButton.Enabled = $false
         }
@@ -1816,7 +1828,7 @@ $saveProfileButton.Text = "Save Profile"
 $saveProfileButton.Width = 120
 $saveProfileButton.Height = 30
 $saveProfileButton.Top = 315
-$saveProfileButton.Left = 130
+$saveProfileButton.Left = 30
 $saveProfileButton.TabIndex = 21
 $saveProfileButton.Enabled = $false  # Initially disabled
 $saveProfileButton.Add_Click({
@@ -1824,21 +1836,39 @@ $saveProfileButton.Add_Click({
 })
 $editGroupBox.Controls.Add($saveProfileButton)
 
-$saveButton = New-Object System.Windows.Forms.Button
-$saveButton.Name = "SaveButton"
-$saveButton.Text = "Save to Game"
-$saveButton.Width = 120
-$saveButton.Height = 30
-$saveButton.Top = 315
-$saveButton.Left = 330
-$saveButton.TabIndex = 22
-$saveButton.Add_Click({
+$applySaveButton = New-Object System.Windows.Forms.Button
+$applySaveButton.Name = "ApplySaveButton"
+$applySaveButton.Text = "Apply Changes"
+$applySaveButton.Width = 120
+$applySaveButton.Height = 30
+$applySaveButton.Top = 315
+$applySaveButton.Left = 230
+$applySaveButton.TabIndex = 22
+$applySaveButton.Enabled = $false  # Initially disabled
+$applySaveButton.Add_Click({
     Save-SettingsToGame
 
 })
 # Initially disable the import and save buttons
-$saveButton.Enabled = $false
-$editGroupBox.Controls.Add($saveButton)
+$applySaveButton.Enabled = $false
+$editGroupBox.Controls.Add($applySaveButton)
+
+$saveAndCloseButton = New-Object System.Windows.Forms.Button
+$saveAndCloseButton.Name = "SaveAndCloseButton"
+$saveAndCloseButton.Text = "Save and Close"
+$saveAndCloseButton.Width = 120
+$saveAndCloseButton.Height = 30
+$saveAndCloseButton.Top = 315
+$saveAndCloseButton.Left = 400
+$saveAndCloseButton.TabIndex = 23
+$saveAndCloseButton.Enabled = $false  # Initially disabled
+$saveAndCloseButton.Add_Click({
+    Save-SettingsToGame
+    $form.Close()
+})
+$editGroupBox.Controls.Add($saveAndCloseButton)
+
+
 
 $closeButton = New-Object System.Windows.Forms.Button
 $closeButton.Text = "Close"
@@ -1851,6 +1881,32 @@ $closeButton.TabIndex = 23
 $closeButton.Add_Click({
     $form.Close()
 })
+
+# Function to enable Apply/Save buttons when any field changes
+function Enable-SaveButtons {
+    $applySaveButton.Enabled = $true
+    $saveAndCloseButton.Enabled = $true
+    $saveProfileButton.Enabled = $true
+}
+
+# Attach event handlers to all relevant controls
+$fovTextBox.Add_TextChanged({ Enable-SaveButtons })
+$widthTextBox.Add_TextChanged({ Enable-SaveButtons })
+$heightTextBox.Add_TextChanged({ Enable-SaveButtons })
+$chromaticAberrationTextBox.Add_TextChanged({ Enable-SaveButtons })
+$ShakeScaleTextBox.Add_TextChanged({ Enable-SaveButtons })
+$CameraSpringMovementTextBox.Add_TextChanged({ Enable-SaveButtons })
+$GForceBoostZoomScaleTextBox.Add_TextChanged({ Enable-SaveButtons })
+$GForceHeadBobScaleTextBox.Add_TextChanged({ Enable-SaveButtons })
+
+$headtrackerEnabledComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$HeadtrackingSourceComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$AutoZoomComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$MotionBlurComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$FilmGrainComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$HeadtrackingEnableRollFPSComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$HeadtrackingDisableDuringWalkingComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$HeadtrackingThirdPersonCameraToggleComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
 
 <#$saveAcknowledgeLabel = New-Object System.Windows.Forms.Label
 $saveAcknowledgeLabel.Text = "Saved. You may now close this window. Remember to start VorpX Control Panel and the Watcher before launching Star Citizen!" + "`n`n" + $vorpxindicatorText
@@ -1883,7 +1939,7 @@ $GForceHeadBobScaleTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $HeadtrackingEnableRollFPSComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $HeadtrackingDisableDuringWalkingComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $HeadtrackingThirdPersonCameraToggleComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
-$saveButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+$applySaveButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $saveProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -2114,7 +2170,7 @@ $toggleVRButton.Add_Click({
 
         #if ($confirmation -eq [System.Windows.Forms.DialogResult]::OK) {
             # Save settings to the game
-            $saveButton.PerformClick()
+            $applySaveButton.PerformClick()
             $statusBar.Text = "Saved. You may now close this window. Remember to start VorpX and the listener before launching Star Citizen!"
             $toggleVRButton.Text = "Toggle VR Off"
         #}
@@ -2135,7 +2191,7 @@ $toggleVRButton.Add_Click({
         $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0  # Enable head tracking in third person
         # [System.Windows.Forms.MessageBox]::Show("VR settings have been disabled.")
         $statusBar.Text = "Settings have been Saved. Remember to stop VorpX or Pause the Watcher before launching Star Citizen!"
-        $saveButton.PerformClick()
+        $applySaveButton.PerformClick()
         $toggleVRButton.Text = "Toggle VR On"
     }
 })
@@ -2173,10 +2229,10 @@ $keyBindsForm.Controls.Add($closeKeyBindsButton)
 
 $keybindSearchField = New-Object System.Windows.Forms.TextBox
 $keybindSearchField.Name = "KeybindSearchField"
-$keybindSearchField.Top = 10
-$keybindSearchField.Left = 150
-$keybindSearchField.Width = 200
-$keybindSearchField.Height = 30
+$keybindSearchField.Top = 20
+$keybindSearchField.Left = 370
+#$keybindSearchField.Width = 100
+#$keybindSearchField.Height = 30
 $keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, $keybindSearchField.Font.Size, [System.Drawing.FontStyle]::Regular)
 $keybindSearchField.ForeColor = [System.Drawing.Color]::Black
 $keybindSearchField.BackColor = [System.Drawing.Color]::White
@@ -2200,8 +2256,8 @@ $keybindSearchField.Add_Leave({
     }
 })
 
-$keybindSearchField.Location = '10,($closeKeyBindsButton.Width)'
-$keybindSearchField.Size = New-Object Drawing.Size(350,30)
+#$keybindSearchField.Location = '10,($closeKeyBindsButton.Width)'
+$keybindSearchField.Size = New-Object Drawing.Size(260,30)
 $keybindSearchField.Anchor = "Top, Right"
 $keybindSearchField.Add_TextChanged({
     $searchText = $keybindSearchField.Text
