@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.2"                        # keybinds panel split into tabs ActionMaps, Devices and Options
+$scriptVersion = "0.3.2.1"                        # cleanup of apply and save buttons, unnecesary icon code removed
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -98,28 +98,6 @@ $form.Add_Shown({
     $form.TopMost = $false
 })
 $form.Icon = $scriptIcon
-
-# Update the taskbar icon to match the form icon
-if ($null -ne $scriptIcon) {
-    $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
-    $notifyIcon.Icon = $scriptIcon
-    $notifyIcon.Visible = $true
-    $notifyIcon.Add_Click({
-        if ($form.WindowState -eq 'Minimized') {
-            $form.WindowState = 'Normal'
-        }
-        $form.Show()
-        $form.Activate()
-        $form.TopMost = $true
-        $form.TopMost = $false
-    })
-    $form.Add_FormClosed({
-        $notifyIcon.Dispose()
-    })
-    $keyBindsForm.Add_FormClosed({
-        $notifyIcon.Dispose()
-    })
-}
 
 $ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
 $ActionsGroupBox.Text = "Actions"
@@ -1377,7 +1355,7 @@ $form.Controls.Add($fileTextBox)    #>
 $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "VR Centric Settings"
 $editGroupBox.Width = 550
-$editGroupBox.Height = 350
+$editGroupBox.Height = 330
 $editGroupBox.Top = 150         ## Adjusted the Top property to move the group box up
 $editGroupBox.Left = 20
 $editGroupBox.Visible = $true
@@ -1827,22 +1805,23 @@ $saveProfileButton.Name = "SaveProfileButton"
 $saveProfileButton.Text = "Save Profile"
 $saveProfileButton.Width = 120
 $saveProfileButton.Height = 30
-$saveProfileButton.Top = 315
-$saveProfileButton.Left = 30
+$saveProfileButton.Top = 485
+$saveProfileButton.Left = 20
 $saveProfileButton.TabIndex = 21
 $saveProfileButton.Enabled = $false  # Initially disabled
 $saveProfileButton.Add_Click({
     Save-Profile
 })
-$editGroupBox.Controls.Add($saveProfileButton)
+#$editGroupBox.Controls.Add($saveProfileButton)
+$form.Controls.Add($saveProfileButton)
 
 $applySaveButton = New-Object System.Windows.Forms.Button
 $applySaveButton.Name = "ApplySaveButton"
 $applySaveButton.Text = "Apply Changes"
 $applySaveButton.Width = 120
 $applySaveButton.Height = 30
-$applySaveButton.Top = 315
-$applySaveButton.Left = 230
+$applySaveButton.Top = 485
+$applySaveButton.Left = 280
 $applySaveButton.TabIndex = 22
 $applySaveButton.Enabled = $false  # Initially disabled
 $applySaveButton.Add_Click({
@@ -1851,22 +1830,24 @@ $applySaveButton.Add_Click({
 })
 # Initially disable the import and save buttons
 $applySaveButton.Enabled = $false
-$editGroupBox.Controls.Add($applySaveButton)
+#$editGroupBox.Controls.Add($applySaveButton)
+$form.Controls.Add($applySaveButton)
 
 $saveAndCloseButton = New-Object System.Windows.Forms.Button
 $saveAndCloseButton.Name = "SaveAndCloseButton"
 $saveAndCloseButton.Text = "Save and Close"
 $saveAndCloseButton.Width = 120
 $saveAndCloseButton.Height = 30
-$saveAndCloseButton.Top = 315
-$saveAndCloseButton.Left = 400
+$saveAndCloseButton.Top = 485
+$saveAndCloseButton.Left = 450
 $saveAndCloseButton.TabIndex = 23
 $saveAndCloseButton.Enabled = $false  # Initially disabled
 $saveAndCloseButton.Add_Click({
     Save-SettingsToGame
     $form.Close()
 })
-$editGroupBox.Controls.Add($saveAndCloseButton)
+#$editGroupBox.Controls.Add($saveAndCloseButton)
+$form.Controls.Add($saveAndCloseButton)
 
 
 
@@ -2365,9 +2346,17 @@ $treeDevice.Add_AfterSelect({
             foreach ($opt in $dev.option) {
                 if ($opt.input) {
                     $item = $listDevice.Items.Add($opt.input)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($opt.saturation)| Out-Null
-                        $item.SubItems.Add($opt.deadzone)| Out-Null
+                    if ($null -ne $item -or $item -eq 0) {
+                        try {
+                            $item.SubItems.Add($opt.saturation) | Out-Null
+                        } catch {
+                            Write-Host "Error adding Saturation: $($_.Exception.Message)" -ForegroundColor Red
+                        }
+                        try {
+                            $item.SubItems.Add($opt.deadzone) | Out-Null
+                        } catch {
+                            Write-Host "Error adding Deadzone: $($_.Exception.Message)" -ForegroundColor Red
+                        }
                     }
                 }
             }
