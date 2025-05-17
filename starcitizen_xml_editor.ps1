@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.1"                        # minimize button and apply/save button changes
+$scriptVersion = "0.3.2"                        # keybinds panel split into tabs ActionMaps, Devices and Options
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -2217,7 +2217,6 @@ $closeKeyBindsButton = New-Object System.Windows.Forms.Button
 $closeKeyBindsButton.Text = "Back"
 $closeKeyBindsButton.Width = 100
 $closeKeyBindsButton.Height = 30
-#$closeKeyBindsButton.Top = $keyBindsForm.ClientSize.Height - 50
 $closeKeyBindsButton.Top = 10
 $closeKeyBindsButton.Left = 20
 $closeKeyBindsButton.Anchor = "Top, Left"
@@ -2231,18 +2230,15 @@ $keybindSearchField = New-Object System.Windows.Forms.TextBox
 $keybindSearchField.Name = "KeybindSearchField"
 $keybindSearchField.Top = 20
 $keybindSearchField.Left = 370
-#$keybindSearchField.Width = 100
-#$keybindSearchField.Height = 30
 $keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, $keybindSearchField.Font.Size, [System.Drawing.FontStyle]::Regular)
-$keybindSearchField.ForeColor = [System.Drawing.Color]::Black
+$keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
 $keybindSearchField.BackColor = [System.Drawing.Color]::White
 $keybindSearchField.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D
 $keybindSearchField.TextAlign = 'Left'
 $keybindSearchField.TabIndex = 26
 $keybindSearchField.Text = "Search Keybinds"
-$keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
-
-# Remove placeholder on first focus, restore if empty on leave
+$keybindSearchField.Size = New-Object Drawing.Size(260,30)
+$keybindSearchField.Anchor = "Top, Right"
 $keybindSearchField.Add_Enter({
     if ($keybindSearchField.Text -eq "Search Keybinds" -and $keybindSearchField.ForeColor -eq [System.Drawing.Color]::Gray) {
         $keybindSearchField.Text = ""
@@ -2255,29 +2251,269 @@ $keybindSearchField.Add_Leave({
         $keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
     }
 })
+$keyBindsForm.Controls.Add($keybindSearchField)
 
-#$keybindSearchField.Location = '10,($closeKeyBindsButton.Width)'
-$keybindSearchField.Size = New-Object Drawing.Size(260,30)
-$keybindSearchField.Anchor = "Top, Right"
+# Load XML
+$ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
+if (-not (Test-Path $ActionMapsxmlPath)) {
+    Write-Host "XML file not found at $ActionMapsxmlPath"
+    exit
+}
+$BindsXML = [xml](Get-Content $ActionMapsxmlPath)
+$keyBindsProfiles = $BindsXML.ActionMaps.ActionProfiles
+
+# Helper: Add column
+function Add-Column($listView, $columns) {
+    $listView.Columns.Clear()
+    foreach ($col in $columns) {
+        $listView.Columns.Add($col,120)
+    }
+}
+
+# Create TabControl
+$tabControl = New-Object System.Windows.Forms.TabControl
+$tabControl.Location = '10,60'
+$tabControl.Size = New-Object Drawing.Size(620,470)
+$tabControl.Anchor = "Top, Left, Right, Bottom"
+
+# --- Tab 1: ActionMaps ---
+$tabActionMaps = New-Object System.Windows.Forms.TabPage
+$tabActionMaps.Text = "ActionMaps"
+
+$treeActionMaps = New-Object Windows.Forms.TreeView
+$treeActionMaps.Location = '10,10'
+$treeActionMaps.Size = New-Object Drawing.Size(350,400)
+$treeActionMaps.HideSelection = $false
+
+$listActionMaps = New-Object Windows.Forms.ListView
+$listActionMaps.Location = '370,10'
+$listActionMaps.Size = New-Object Drawing.Size(220,400)
+$listActionMaps.View = 'Details'
+$listActionMaps.FullRowSelect = $true
+$listActionMaps.GridLines = $true
+
+# Populate ActionMaps TreeView
+$actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+foreach ($actionmap in $keyBindsProfiles.actionmap) {
+    $amNode = $actionProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
+    foreach ($action in $actionmap.action) {
+        $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+        foreach ($rebind in $action.rebind) {
+            $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+        }
+    }
+}
+# TreeView selection event for ActionMaps
+$treeActionMaps.Add_AfterSelect({
+    $listActionMaps.Items.Clear()
+    $node = $treeActionMaps.SelectedNode
+    if ($node -eq $null) { return }
+    if ($node.Text -like "Action: *") {
+        $actionName = $node.Text.Substring(8)
+        $action = $keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
+        if ($action) {
+            Add-Column $listActionMaps @("Rebind Input", "MultiTap")
+            foreach ($rebind in $action.rebind) {
+                if ($rebind.input) {
+                    $item = $listActionMaps.Items.Add($rebind.input)
+                    if ($null -ne $item) {
+                        $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
+                        $item.SubItems.Add($multiTapValue)| Out-Null
+                    }
+                }
+            }
+        }
+    }
+})
+$tabActionMaps.Controls.Add($treeActionMaps)
+$tabActionMaps.Controls.Add($listActionMaps)
+
+# --- Tab 2: Device ---
+$tabDevice = New-Object System.Windows.Forms.TabPage
+$tabDevice.Text = "Device"
+
+$treeDevice = New-Object Windows.Forms.TreeView
+$treeDevice.Location = '10,10'
+$treeDevice.Size = New-Object Drawing.Size(350,400)
+$treeDevice.HideSelection = $false
+
+$listDevice = New-Object Windows.Forms.ListView
+$listDevice.Location = '370,10'
+$listDevice.Size = New-Object Drawing.Size(220,400)
+$listDevice.View = 'Details'
+$listDevice.FullRowSelect = $true
+$listDevice.GridLines = $true
+
+# Populate Device TreeView
+$deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+    $devNode = $deviceProfileNode.Nodes.Add("Device: $($devopt.name)")
+    foreach ($opt in $devopt.option) {
+        $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+    }
+}
+# TreeView selection event for Device
+$treeDevice.Add_AfterSelect({
+    $listDevice.Items.Clear()
+    $node = $treeDevice.SelectedNode
+    if ($node -eq $null) { return }
+    if ($node.Text -like "Device: *") {
+        $devName = $node.Text.Substring(8)
+        $dev = $keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
+        if ($dev) {
+            Add-Column $listDevice @("Input", "Saturation", "Deadzone")
+            foreach ($opt in $dev.option) {
+                if ($opt.input) {
+                    $item = $listDevice.Items.Add($opt.input)
+                    if ($null -ne $item) {
+                        $item.SubItems.Add($opt.saturation)| Out-Null
+                        $item.SubItems.Add($opt.deadzone)| Out-Null
+                    }
+                }
+            }
+        }
+    }
+})
+$tabDevice.Controls.Add($treeDevice)
+$tabDevice.Controls.Add($listDevice)
+
+# --- Tab 3: Options ---
+$tabOptions = New-Object System.Windows.Forms.TabPage
+$tabOptions.Text = "Options"
+
+$treeOptions = New-Object Windows.Forms.TreeView
+$treeOptions.Location = '10,10'
+$treeOptions.Size = New-Object Drawing.Size(350,400)
+$treeOptions.HideSelection = $false
+
+$listOptions = New-Object Windows.Forms.ListView
+$listOptions.Location = '370,10'
+$listOptions.Size = New-Object Drawing.Size(220,400)
+$listOptions.View = 'Details'
+$listOptions.FullRowSelect = $true
+$listOptions.GridLines = $true
+
+# Populate Options TreeView
+$optionsProfileNode = $treeOptions.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+foreach ($opt in $keyBindsProfiles.options) {
+    $optNode = $optionsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+    foreach ($child in $opt.ChildNodes) {
+        $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
+    }
+}
+# TreeView selection event for Options
+$treeOptions.Add_AfterSelect({
+    $listOptions.Items.Clear()
+    $node = $treeOptions.SelectedNode
+    if ($node -eq $null) { return }
+    if ($node.Text -like "Options: *") {
+        $optType = $node.Text.Split(" ")[1]
+        $opt = $keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
+        if ($opt) {
+            Add-Column $listOptions @("Property", "Value")
+            foreach ($attr in $opt.Attributes) {
+                if ($attr.Name) {
+                    $item = $listOptions.Items.Add($attr.Name)
+                    if ($null -ne $item) {
+                        $item.SubItems.Add($attr.Value)| Out-Null
+                    }
+                }
+            }
+            foreach ($child in $opt.ChildNodes) {
+                if ($child.Name) {
+                    $item = $listOptions.Items.Add($child.Name)
+                    if ($null -ne $item) {
+                        $item.SubItems.Add($child.OuterXml)| Out-Null
+                    }
+                }
+            }
+        }
+    }
+})
+$tabOptions.Controls.Add($treeOptions)
+$tabOptions.Controls.Add($listOptions)
+
+# Add tabs to TabControl
+$tabControl.TabPages.Add($tabActionMaps)
+$tabControl.TabPages.Add($tabDevice)
+$tabControl.TabPages.Add($tabOptions)
+$keyBindsForm.Controls.Add($tabControl)
+
+# Search logic: filter all tabs' treeviews
 $keybindSearchField.Add_TextChanged({
     $searchText = $keybindSearchField.Text
-    # Only filter if the search text is not empty and not the placeholder
+    foreach ($tree in @($treeActionMaps, $treeDevice, $treeOptions)) {
+        $tree.BeginUpdate()
+        $tree.Nodes.Clear()
+    }
     if (![string]::IsNullOrWhiteSpace($searchText) -and $searchText -ne "Search Keybinds") {
-        $keyBindsTreeView.Nodes.Clear()
-        $keyBindsList.Items.Clear()
-        foreach ($node in $keyBindsProfileNode.Nodes) {
-            if ($node.Text -like "*$searchText*") {
-                $keyBindsTreeView.Nodes.Add($node.Clone())
+        # ActionMaps
+        $node = $treeActionMaps.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+        foreach ($actionmap in $keyBindsProfiles.actionmap) {
+            $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
+            foreach ($action in $actionmap.action) {
+                if ($action.name -like "*$searchText*") {
+                    $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                    foreach ($rebind in $action.rebind) {
+                        $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+                    }
+                }
+            }
+        }
+        # Device
+        $dnode = $treeDevice.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+        foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+            if ($devopt.name -like "*$searchText*") {
+                $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
+                foreach ($opt in $devopt.option) {
+                    $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+                }
+            }
+        }
+        # Options
+        $onode = $treeOptions.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+        foreach ($opt in $keyBindsProfiles.options) {
+            if ($opt.type -like "*$searchText*" -or $opt.Product -like "*$searchText*") {
+                $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+                foreach ($child in $opt.ChildNodes) {
+                    $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
+                }
             }
         }
     } else {
-        # If search text is empty or placeholder, show all nodes
-        $keyBindsTreeView.Nodes.Clear()
-        $keyBindsTreeView.Nodes.Add($keyBindsProfileNode.Clone())
+        # Show all
+        # ActionMaps
+        $node = $treeActionMaps.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+        foreach ($actionmap in $keyBindsProfiles.actionmap) {
+            $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
+            foreach ($action in $actionmap.action) {
+                $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                foreach ($rebind in $action.rebind) {
+                    $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+                }
+            }
+        }
+        # Device
+        $dnode = $treeDevice.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+        foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+            $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
+            foreach ($opt in $devopt.option) {
+                $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+            }
+        }
+        # Options
+        $onode = $treeOptions.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
+        foreach ($opt in $keyBindsProfiles.options) {
+            $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+            foreach ($child in $opt.ChildNodes) {
+                $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
+            }
+        }
+    }
+    foreach ($tree in @($treeActionMaps, $treeDevice, $treeOptions)) {
+        $tree.EndUpdate()
     }
 })
-$keyBindsForm.Controls.Add($keybindSearchField)
-
 
 # Show KeyBinds Viewer and hide main form when menu item is clicked
 $viewKeyBindingsMenuItem.Add_Click({
@@ -2285,135 +2521,8 @@ $viewKeyBindingsMenuItem.Add_Click({
     $keyBindsForm.ShowDialog()
 })
 
-$ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
-if (-not (Test-Path $ActionMapsxmlPath)) {
-    Write-Host "XML file not found at $ActionMapsxmlPath"
-    exit
-}
-$BindsXML = [xml](Get-Content $ActionMapsxmlPath)
-
-# Create Form
-
-# TreeView for structure
-$keyBindsTreeView = New-Object Windows.Forms.TreeView
-$keyBindsTreeView.Location = '10,50'
-$keyBindsTreeView.Size = New-Object Drawing.Size(350,480)
-$keyBindsTreeView.HideSelection = $false
-
-# ListView for details
-$keyBindsList = New-Object Windows.Forms.ListView
-$keyBindsList.Location = '370,50'
-$keyBindsList.Size = New-Object Drawing.Size(260,480)
-$keyBindsList.View = 'Details'
-$keyBindsList.FullRowSelect = $true
-$keyBindsList.GridLines = $true
-
-# Helper: Add column
-function Add-Column($columns) {
-    $keyBindsList.Columns.Clear()
-    foreach ($col in $columns) {
-        $keyBindsList.Columns.Add($col,120)
-    }
-}
-
-# Populate TreeView
-$keyBindsProfiles = $BindsXML.ActionMaps.ActionProfiles
-$keyBindsProfileNode = $keyBindsTreeView.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-
-foreach ($actionmap in $keyBindsProfiles.actionmap) {
-    $amNode = $keyBindsProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
-    foreach ($action in $actionmap.action) {
-        $aNode = $amNode.Nodes.Add("Action: $($action.name)")
-        foreach ($rebind in $action.rebind) {
-            $aNode.Nodes.Add("Rebind: $($rebind.input)")
-        }
-    }
-}
-
-# Device options
-foreach ($devopt in $keyBindsProfiles.deviceoptions) {
-    $devNode = $keyBindsProfileNode.Nodes.Add("Device: $($devopt.name)")
-    foreach ($opt in $devopt.option) {
-        $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
-    }
-}
-
-# Options (joystick, keyboard, etc.)
-foreach ($opt in $keyBindsProfiles.options) {
-    $optNode = $keyBindsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
-    foreach ($child in $opt.ChildNodes) {
-        $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)")
-    }
-}
-
-# TreeView selection event
-$keyBindsTreeView.Add_AfterSelect({
-    $keyBindsList.Items.Clear()
-    $node = $keyBindsTreeView.SelectedNode
-    if ($node -eq $null) { return }
-
-    # Action node
-    if ($node.Text -like "Action: *") {
-        $actionName = $node.Text.Substring(8)
-        $action = $keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
-        if ($action) {
-            Add-Column @("Rebind Input", "MultiTap")
-            foreach ($rebind in $action.rebind) {
-                if ($rebind.input) {
-                    $item = $keyBindsList.Items.Add($rebind.input)
-                    if ($null -ne $item) {
-                        $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
-                        $item.SubItems.Add($multiTapValue)
-                    }
-                }
-            }
-        }
-    }
-    # Device node
-    elseif ($node.Text -like "Device: *") {
-        $devName = $node.Text.Substring(8)
-        $dev = $keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
-        if ($dev) {
-            Add-Column @("Input", "Saturation", "Deadzone")
-            foreach ($opt in $dev.option) {
-                if ($opt.input) {
-                    $item = $keyBindsList.Items.Add($opt.input)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($opt.saturation)
-                        $item.SubItems.Add($opt.deadzone)
-                    }
-                }
-            }
-        }
-    }
-    # Options node
-    elseif ($node.Text -like "Options: *") {
-        $optType = $node.Text.Split(" ")[1]
-        $opt = $keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
-        if ($opt) {
-            Add-Column @("Property", "Value")
-            foreach ($attr in $opt.Attributes) {
-                if ($attr.Name) {
-                    $item = $keyBindsList.Items.Add($attr.Name)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($attr.Value)
-                    }
-                }
-            }
-            foreach ($child in $opt.ChildNodes) {
-                if ($child.Name) {
-                    $item = $keyBindsList.Items.Add($child.Name)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($child.OuterXml)
-                    }
-                }
-            }
-        }
-    }
-})
-
-$keyBindsForm.Controls.Add($keyBindsTreeView)
-$keyBindsForm.Controls.Add($keyBindsList)
+#$keyBindsForm.Controls.Add($keyBindsTreeView)
+#$keyBindsForm.Controls.Add($keyBindsList)
 
 
 
