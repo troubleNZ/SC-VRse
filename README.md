@@ -1,22 +1,14 @@
 <p align="center">
-  <a href="https://github.com/troubleNZ/SC-VRse/issues">
-    <img src="https://img.shields.io/github/issues/troubleNZ/SC-VRse"/> 
-  </a>
-  <a href="https://github.com/troubleNZ/SC-VRse/network/members">
-    <img src="https://img.shields.io/github/forks/troubleNZ/SC-VRse"/> 
-  </a>  
-  <a href="https://github.com/troubleNZ/SC-VRse/stargazers">
-    <img src="https://img.shields.io/github/stars/troubleNZ/SC-VRse?color=white"/> 
-  </a>
-  <a href="https://github.com/troubleNZ/SC-VRse/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/troubleNZ/SC-VRse?color=black"/> 
-  </a>      
+  <a href="https://github.com/troubleNZ/SC-VRse/issues"><img src="https://img.shields.io/github/issues/troubleNZ/SC-VRse"/></a>
+  <a href="https://github.com/troubleNZ/SC-VRse/network/members"><img src="https://img.shields.io/github/forks/troubleNZ/SC-VRse"/></a>
+  <a href="https://github.com/troubleNZ/SC-VRse/stargazers"><img src="https://img.shields.io/github/stars/troubleNZ/SC-VRse?color=white"/></a>
+  <a href="https://github.com/troubleNZ/SC-VRse/blob/main/LICENSE"><img src="https://img.shields.io/github/license/troubleNZ/SC-VRse?color=black"/></a>
 </p>
 
 # SC-VRse
 ## VRse-AE (Attribute Editor)
 
-### Easy Virtual Reality configuration manager for Star Citizen Live.
+### Easy Virtual Reality configuration manager for Star Citizen (Live PU).
 
 Get help with VR in Star Citizen at  
 Chachi_Sanchez's VRse  
@@ -36,6 +28,7 @@ Configure the Screen Size for VR use, configure your FOV, Height x Width, whethe
 
 Save some time and preload your VR configuration, or switch back to pancake mode at the push of a button.
 
+new feature: Keybinds search and view
 
 ### Screenshot
 ![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot-0.2.3.jpg)
