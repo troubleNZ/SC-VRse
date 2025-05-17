@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.2.4"                        # menu updates
+$scriptVersion = "0.3.0"                        # Add feature KeyBinds Viewer
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -180,6 +180,7 @@ Set-LightMode -control $form
 function Switch-DarkMode {
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) {
         Set-LightMode -control $form
+        Set-LightMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Enable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
         # Set light mode for the dataTable
@@ -190,6 +191,7 @@ function Switch-DarkMode {
         #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
     } else {
         Set-DarkMode -control $form
+        Set-DarkMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Disable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
         # Set dark mode for the dataTable
@@ -2161,13 +2163,65 @@ $closeKeyBindsButton.Width = 100
 $closeKeyBindsButton.Height = 30
 #$closeKeyBindsButton.Top = $keyBindsForm.ClientSize.Height - 50
 $closeKeyBindsButton.Top = 10
-$closeKeyBindsButton.Left = ($keyBindsForm.ClientSize.Width - $closeKeyBindsButton.Width) / 2
+$closeKeyBindsButton.Left = 20
 $closeKeyBindsButton.Anchor = "Top, Left"
 $closeKeyBindsButton.Add_Click({
     $keyBindsForm.Hide()
     $form.Show()
 })
 $keyBindsForm.Controls.Add($closeKeyBindsButton)
+
+$keybindSearchField = New-Object System.Windows.Forms.TextBox
+$keybindSearchField.Name = "KeybindSearchField"
+$keybindSearchField.Top = 10
+$keybindSearchField.Left = 150
+$keybindSearchField.Width = 200
+$keybindSearchField.Height = 30
+$keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, $keybindSearchField.Font.Size, [System.Drawing.FontStyle]::Regular)
+$keybindSearchField.ForeColor = [System.Drawing.Color]::Black
+$keybindSearchField.BackColor = [System.Drawing.Color]::White
+$keybindSearchField.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D
+$keybindSearchField.TextAlign = 'Left'
+$keybindSearchField.TabIndex = 26
+$keybindSearchField.Text = "Search Keybinds"
+$keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
+
+# Remove placeholder on first focus, restore if empty on leave
+$keybindSearchField.Add_Enter({
+    if ($keybindSearchField.Text -eq "Search Keybinds" -and $keybindSearchField.ForeColor -eq [System.Drawing.Color]::Gray) {
+        $keybindSearchField.Text = ""
+        $keybindSearchField.ForeColor = [System.Drawing.Color]::Black
+    }
+})
+$keybindSearchField.Add_Leave({
+    if ([string]::IsNullOrWhiteSpace($keybindSearchField.Text)) {
+        $keybindSearchField.Text = "Search Keybinds"
+        $keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
+    }
+})
+
+$keybindSearchField.Location = '10,($closeKeyBindsButton.Width)'
+$keybindSearchField.Size = New-Object Drawing.Size(350,30)
+$keybindSearchField.Anchor = "Top, Right"
+$keybindSearchField.Add_TextChanged({
+    $searchText = $keybindSearchField.Text
+    # Only filter if the search text is not empty and not the placeholder
+    if (![string]::IsNullOrWhiteSpace($searchText) -and $searchText -ne "Search Keybinds") {
+        $keyBindsTreeView.Nodes.Clear()
+        $keyBindsList.Items.Clear()
+        foreach ($node in $keyBindsProfileNode.Nodes) {
+            if ($node.Text -like "*$searchText*") {
+                $keyBindsTreeView.Nodes.Add($node.Clone())
+            }
+        }
+    } else {
+        # If search text is empty or placeholder, show all nodes
+        $keyBindsTreeView.Nodes.Clear()
+        $keyBindsTreeView.Nodes.Add($keyBindsProfileNode.Clone())
+    }
+})
+$keyBindsForm.Controls.Add($keybindSearchField)
+
 
 # Show KeyBinds Viewer and hide main form when menu item is clicked
 $viewKeyBindingsMenuItem.Add_Click({
@@ -2251,7 +2305,7 @@ $keyBindsTreeView.Add_AfterSelect({
             foreach ($rebind in $action.rebind) {
                 if ($rebind.input) {
                     $item = $keyBindsList.Items.Add($rebind.input)
-                    if ($item -ne $null) {
+                    if ($null -ne $item) {
                         $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
                         $item.SubItems.Add($multiTapValue)
                     }
@@ -2266,9 +2320,13 @@ $keyBindsTreeView.Add_AfterSelect({
         if ($dev) {
             Add-Column @("Input", "Saturation", "Deadzone")
             foreach ($opt in $dev.option) {
-                $item = $keyBindsList.Items.Add($opt.input)
-                $item.SubItems.Add($opt.saturation)
-                $item.SubItems.Add($opt.deadzone)
+                if ($opt.input) {
+                    $item = $keyBindsList.Items.Add($opt.input)
+                    if ($null -ne $item) {
+                        $item.SubItems.Add($opt.saturation)
+                        $item.SubItems.Add($opt.deadzone)
+                    }
+                }
             }
         }
     }
@@ -2279,12 +2337,20 @@ $keyBindsTreeView.Add_AfterSelect({
         if ($opt) {
             Add-Column @("Property", "Value")
             foreach ($attr in $opt.Attributes) {
-                $item = $keyBindsList.Items.Add($attr.Name)
-                $item.SubItems.Add($attr.Value)
+                if ($attr.Name) {
+                    $item = $keyBindsList.Items.Add($attr.Name)
+                    if ($null -ne $item) {
+                        $item.SubItems.Add($attr.Value)
+                    }
+                }
             }
             foreach ($child in $opt.ChildNodes) {
-                $item = $keyBindsList.Items.Add($child.Name)
-                $item.SubItems.Add($child.OuterXml)
+                if ($child.Name) {
+                    $item = $keyBindsList.Items.Add($child.Name)
+                    if ($null -ne $item) {
+                        $item.SubItems.Add($child.OuterXml)
+                    }
+                }
             }
         }
     }
