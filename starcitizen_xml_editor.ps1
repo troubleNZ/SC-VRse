@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.3"                        # moved head tracking related items together
+$scriptVersion = "0.3.4"                        # moved keybind viewer initialisation into onclick function
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -2126,12 +2126,12 @@ $toggleVRButton.Add_Click({
         #$heightTextBox.Text = "1080"  # Example height for VR
         $headtrackerEnabledComboBox.SelectedIndex = 1  # Enable head tracking
         $HeadtrackingSourceComboBox.SelectedIndex = 1  # Set to TrackIR
-        $chromaticAberrationTextBox.Text = "0.00"  # Recommended value for VR
-        $AutoZoomComboBox.SelectedIndex = 0  # Disable auto zoom
-        $MotionBlurComboBox.SelectedIndex = 0  # Disable motion blur
+        #$chromaticAberrationTextBox.Text = "0.00"  # Recommended value for VR
+        $AutoZoomComboBox.SelectedIndex = 1  # Disable auto zoom
+        #$MotionBlurComboBox.SelectedIndex = 0  # Disable motion blur
         $ShakeScaleTextBox.Text = "0"  # Disable shake scale
         $CameraSpringMovementTextBox.Text = "0"  # Disable camera spring movement
-        $FilmGrainComboBox.SelectedIndex = 0  # Disable film grain
+        #$FilmGrainComboBox.SelectedIndex = 0  # Disable film grain
         $GForceBoostZoomScaleTextBox.Text = "0.0"  # Recommended value for VR
         $GForceHeadBobScaleTextBox.Text = "0.0"  # Recommended value for VR
         $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 1  # Enable head roll in FPS
@@ -2160,7 +2160,7 @@ $toggleVRButton.Add_Click({
         $headtrackerEnabledComboBox.SelectedIndex = 0  # Enable head tracking
         $HeadtrackingSourceComboBox.SelectedIndex = 0  # Set to TrackIR
         #$chromaticAberrationTextBox.Text = "0.00"  # Recommended value for VR
-        $AutoZoomComboBox.SelectedIndex = 1  # Disable auto zoom
+        $AutoZoomComboBox.SelectedIndex = 0  # Disable auto zoom
         #$MotionBlurComboBox.SelectedIndex = 0  # Disable motion blur
         $ShakeScaleTextBox.Text = "0"  # Disable shake scale
         $CameraSpringMovementTextBox.Text = "1"  # camera spring movement
@@ -2235,13 +2235,10 @@ $keybindSearchField.Add_Leave({
 $keyBindsForm.Controls.Add($keybindSearchField)
 
 # Load XML
-$ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
-if (-not (Test-Path $ActionMapsxmlPath)) {
-    Write-Host "XML file not found at $ActionMapsxmlPath"
-    exit
-}
-$BindsXML = [xml](Get-Content $ActionMapsxmlPath)
-$keyBindsProfiles = $BindsXML.ActionMaps.ActionProfiles
+$script:ActionMapsxmlPath = $null
+
+$script:BindsXML = $null
+#$script:keyBindsProfiles = $null
 
 # Helper: Add column
 function Add-Column($listView, $columns) {
@@ -2274,8 +2271,8 @@ $listActionMaps.FullRowSelect = $true
 $listActionMaps.GridLines = $true
 
 # Populate ActionMaps TreeView
-$actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-foreach ($actionmap in $keyBindsProfiles.actionmap) {
+$actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
     $amNode = $actionProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
     foreach ($action in $actionmap.action) {
         $aNode = $amNode.Nodes.Add("Action: $($action.name)")
@@ -2291,7 +2288,7 @@ $treeActionMaps.Add_AfterSelect({
     if ($node -eq $null) { return }
     if ($node.Text -like "Action: *") {
         $actionName = $node.Text.Substring(8)
-        $action = $keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
+        $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
         if ($action) {
             Add-Column $listActionMaps @("Rebind Input", "MultiTap")
             foreach ($rebind in $action.rebind) {
@@ -2326,8 +2323,8 @@ $listDevice.FullRowSelect = $true
 $listDevice.GridLines = $true
 
 # Populate Device TreeView
-$deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+$deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
     $devNode = $deviceProfileNode.Nodes.Add("Device: $($devopt.name)")
     foreach ($opt in $devopt.option) {
         $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
@@ -2340,7 +2337,7 @@ $treeDevice.Add_AfterSelect({
     if ($node -eq $null) { return }
     if ($node.Text -like "Device: *") {
         $devName = $node.Text.Substring(8)
-        $dev = $keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
+        $dev = $script:keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
         if ($dev) {
             Add-Column $listDevice @("Input", "Saturation", "Deadzone")
             foreach ($opt in $dev.option) {
@@ -2383,8 +2380,8 @@ $listOptions.FullRowSelect = $true
 $listOptions.GridLines = $true
 
 # Populate Options TreeView
-$optionsProfileNode = $treeOptions.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-foreach ($opt in $keyBindsProfiles.options) {
+$optionsProfileNode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+foreach ($opt in $script:keyBindsProfiles.options) {
     $optNode = $optionsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
     foreach ($child in $opt.ChildNodes) {
         $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
@@ -2397,7 +2394,7 @@ $treeOptions.Add_AfterSelect({
     if ($node -eq $null) { return }
     if ($node.Text -like "Options: *") {
         $optType = $node.Text.Split(" ")[1]
-        $opt = $keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
+        $opt = $script:keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
         if ($opt) {
             Add-Column $listOptions @("Property", "Value")
             foreach ($attr in $opt.Attributes) {
@@ -2437,8 +2434,8 @@ $keybindSearchField.Add_TextChanged({
     }
     if (![string]::IsNullOrWhiteSpace($searchText) -and $searchText -ne "Search Keybinds") {
         # ActionMaps
-        $node = $treeActionMaps.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-        foreach ($actionmap in $keyBindsProfiles.actionmap) {
+        $node = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
             $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
             foreach ($action in $actionmap.action) {
                 if ($action.name -like "*$searchText*") {
@@ -2450,8 +2447,8 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Device
-        $dnode = $treeDevice.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-        foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+        $dnode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             if ($devopt.name -like "*$searchText*") {
                 $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
                 foreach ($opt in $devopt.option) {
@@ -2460,8 +2457,8 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Options
-        $onode = $treeOptions.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-        foreach ($opt in $keyBindsProfiles.options) {
+        $onode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        foreach ($opt in $script:keyBindsProfiles.options) {
             if ($opt.type -like "*$searchText*" -or $opt.Product -like "*$searchText*") {
                 $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
                 foreach ($child in $opt.ChildNodes) {
@@ -2472,8 +2469,8 @@ $keybindSearchField.Add_TextChanged({
     } else {
         # Show all
         # ActionMaps
-        $node = $treeActionMaps.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-        foreach ($actionmap in $keyBindsProfiles.actionmap) {
+        $node = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
             $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
             foreach ($action in $actionmap.action) {
                 $aNode = $amNode.Nodes.Add("Action: $($action.name)")
@@ -2483,16 +2480,16 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Device
-        $dnode = $treeDevice.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-        foreach ($devopt in $keyBindsProfiles.deviceoptions) {
+        $dnode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
             foreach ($opt in $devopt.option) {
                 $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
             }
         }
         # Options
-        $onode = $treeOptions.Nodes.Add("Profile: $($keyBindsProfiles.profileName)")
-        foreach ($opt in $keyBindsProfiles.options) {
+        $onode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        foreach ($opt in $script:keyBindsProfiles.options) {
             $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
             foreach ($child in $opt.ChildNodes) {
                 $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
@@ -2507,6 +2504,14 @@ $keybindSearchField.Add_TextChanged({
 # Show KeyBinds Viewer and hide main form when menu item is clicked
 $viewKeyBindingsMenuItem.Add_Click({
     $form.Hide()
+    $script:ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
+    if (-not (Test-Path $script:ActionMapsxmlPath)) {
+        Write-Host "XML file not found at $script:ActionMapsxmlPath"
+        exit
+    }
+    $script:BindsXML = [xml](Get-Content $script:ActionMapsxmlPath)
+    $script:keyBindsProfiles = $script:BindsXML.ActionMaps.ActionProfiles
+
     $keyBindsForm.ShowDialog()
 })
 
