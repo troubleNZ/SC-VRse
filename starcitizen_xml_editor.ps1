@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.5"                        # invictus blue and yellow dark mode
+$scriptVersion = "0.3.6"                        # DPI scaling, invictus default dark mode
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -36,10 +36,6 @@ $dataTableGroupBox = $null
 $editGroupBox = $null
 $darkModeMenuItem = $null
 
-# Set default font for all controls on the form
-#$defaultFont = New-Object System.Drawing.Font("segoia", 12) #segoia UI, 12pt, style=Regular
-#$defaultFontBold = New-Object System.Drawing.Font("segoia", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=Bold
-
 
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
@@ -52,7 +48,8 @@ public class DPIAware
 '
 
 [System.Windows.Forms.Application]::EnableVisualStyles()
-# [void] [DPIAware]::SetProcessDPIAware()                    # this seems to scale everything badly, so commented out for now until i get more time to test it
+[void] [DPIAware]::SetProcessDPIAware()                    # this seems to scale everything badly, so commented out for now until i get more time to test it
+$defaultFont = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Regular) #segoia UI, 12pt, style=Regular
 
 function Set-DefaultFont {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -65,7 +62,8 @@ function Set-DefaultFont {
             Set-DefaultFont -control $child
         }
     }
-}#>
+}
+
 $scriptIcon = $null
 
 $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
@@ -1256,10 +1254,11 @@ $eacGroupBox.Visible = $false
 $hostsFileAddButton = New-Object System.Windows.Forms.Button
 $hostsFileAddButton.Name = "hostsFileAddButton"
 $hostsFileAddButton.Text = "Add Bypass to Hosts File"
-$hostsFileAddButton.Width = 160
+#$hostsFileAddButton.Font = $defaultFont
+$hostsFileAddButton.Width = 180
 $hostsFileAddButton.Height = 30
 $hostsFileAddButton.Top = 20
-$hostsFileAddButton.Left = 20
+$hostsFileAddButton.Left = 10
 $hostsFileAddButton.TabIndex = 2
 $hostsFileAddButton.Add_Click({
     $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
@@ -1304,10 +1303,10 @@ function RemoveFromHostsFile {
 $hostsFileRemoveButton = New-Object System.Windows.Forms.Button
 $hostsFileRemoveButton.Name = "hostsFileAddButton"
 $hostsFileRemoveButton.Text = "Remove Hosts File entry"
-$hostsFileRemoveButton.Width = 160
+$hostsFileRemoveButton.Width = 180
 $hostsFileRemoveButton.Height = 30
 $hostsFileRemoveButton.Top = 60
-$hostsFileRemoveButton.Left = 20
+$hostsFileRemoveButton.Left = 10
 $hostsFileRemoveButton.TabIndex = 2
 $hostsFileRemoveButton.Add_Click({
     $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
@@ -1619,15 +1618,15 @@ $editGroupBox.Controls.Add($heightTextBox)
 $HeadtrackingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingLabel.Text = "Headtracking Toggle"
 $HeadtrackingLabel.Top = 110
-$HeadtrackingLabel.Left = 30
-$HeadtrackingLabel.Width = 110
+$HeadtrackingLabel.Left = 10
+$HeadtrackingLabel.Width = 150
 $editGroupBox.Controls.Add($HeadtrackingLabel)
 
 $headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
 $headtrackerEnabledComboBox.Name = "headtrackerEnabledComboBox"
 $headtrackerEnabledComboBox.Top = 110
 $headtrackerEnabledComboBox.Left = 190
-$headtrackerEnabledComboBox.Width = 75  # Adjusted width to fit the combo box
+$headtrackerEnabledComboBox.Width = 90  # Adjusted width to fit the combo box
 $headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
 $headtrackerEnabledComboBox.items.Add("Disabled")
@@ -1639,15 +1638,15 @@ $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
 $HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingSourceLabel.Text = "Headtracking Source"
 $HeadtrackingSourceLabel.Top = 110
-$HeadtrackingSourceLabel.Left = 300
-$HeadtrackingSourceLabel.Width = 120
+$HeadtrackingSourceLabel.Left = 290
+$HeadtrackingSourceLabel.Width = 150
 $editGroupBox.Controls.Add($HeadtrackingSourceLabel)
 
 $HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingSourceComboBox.Name = "HeadtrackingSourceComboBox"
 $HeadtrackingSourceComboBox.Top = 110
 $HeadtrackingSourceComboBox.Left = 440
-$HeadtrackingSourceComboBox.Width = 75  # Adjusted width to fit the combo box
+$HeadtrackingSourceComboBox.Width = 90  # Adjusted width to fit the combo box
 $HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingSourceComboBox.Items.Add("None")
 $HeadtrackingSourceComboBox.Items.Add("TrackIR")
@@ -1660,14 +1659,14 @@ $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
 $chromaticAberrationLabel.Text = "Chromatic Aberration"
 $chromaticAberrationLabel.Top = 260
-$chromaticAberrationLabel.Left = 30
-$chromaticAberrationLabel.Width = 120
+$chromaticAberrationLabel.Left = 10
+$chromaticAberrationLabel.Width = 150
 $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
 $chromaticAberrationTextBox.Top = 260
-$chromaticAberrationTextBox.Left = 190
+$chromaticAberrationTextBox.Left = 230
 $chromaticAberrationTextBox.Width = 50
 $chromaticAberrationTextBox.TextAlign = 'Left'
 $chromaticAberrationTextBox.TabIndex = 19
@@ -1676,7 +1675,7 @@ $editGroupBox.Controls.Add($chromaticAberrationTextBox)
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
 $AutoZoomLabel.Top = 260
-$AutoZoomLabel.Left = 300
+$AutoZoomLabel.Left = 290
 $AutoZoomLabel.Width = 100
 $editGroupBox.Controls.Add($AutoZoomLabel)
 
@@ -1693,7 +1692,7 @@ $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
 $AutoZoomComboBox.Top = 260
 $AutoZoomComboBox.Left = 440
-$AutoZoomComboBox.Width = 75
+$AutoZoomComboBox.Width = 90
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $AutoZoomComboBox.Items.Add("Disabled")
 $AutoZoomComboBox.Items.Add("Enabled")
@@ -1721,7 +1720,7 @@ $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
 $MotionBlurComboBox.Top = 290
 $MotionBlurComboBox.Left = 190
-$MotionBlurComboBox.Width = 75
+$MotionBlurComboBox.Width = 90
 $MotionBlurComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $MotionBlurComboBox.Items.Add("Disabled")
 $MotionBlurComboBox.Items.Add("Enabled")
@@ -1734,14 +1733,14 @@ $editGroupBox.Controls.Add($MotionBlurComboBox)
 $ShakeScaleLabel = New-Object System.Windows.Forms.Label
 $ShakeScaleLabel.Text = "Shake Scale"
 $ShakeScaleLabel.Top = 170
-$ShakeScaleLabel.Left = 300
+$ShakeScaleLabel.Left = 290
 $ShakeScaleLabel.Width = 100
 $editGroupBox.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Name = "ShakeScaleTextBox"
 $ShakeScaleTextBox.Top = 170
-$ShakeScaleTextBox.Left = 440
+$ShakeScaleTextBox.Left = 480
 $ShakeScaleTextBox.Width = 50
 $ShakeScaleTextBox.TextAlign = 'Left'
 $ShakeScaleTextBox.TabIndex = 14
@@ -1750,14 +1749,14 @@ $editGroupBox.Controls.Add($ShakeScaleTextBox)
 $CameraSpringMovementLabel = New-Object System.Windows.Forms.Label
 $CameraSpringMovementLabel.Text = "Camera Spring Movement"
 $CameraSpringMovementLabel.Top = 200
-$CameraSpringMovementLabel.Left = 30
-$CameraSpringMovementLabel.Width = 150
+$CameraSpringMovementLabel.Left = 10
+$CameraSpringMovementLabel.Width = 180
 $editGroupBox.Controls.Add($CameraSpringMovementLabel)
 
 $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
 $CameraSpringMovementTextBox.Name = "CameraSpringMovementTextBox"
 $CameraSpringMovementTextBox.Top = 200
-$CameraSpringMovementTextBox.Left = 190
+$CameraSpringMovementTextBox.Left = 230
 $CameraSpringMovementTextBox.Width = 50
 $CameraSpringMovementTextBox.TextAlign = 'Left'
 $CameraSpringMovementTextBox.TabIndex = 15
@@ -1766,7 +1765,7 @@ $editGroupBox.Controls.Add($CameraSpringMovementTextBox)
 $FilmGrainLabel = New-Object System.Windows.Forms.Label
 $FilmGrainLabel.Text = "Film Grain"
 $FilmGrainLabel.Top = 200
-$FilmGrainLabel.Left = 300
+$FilmGrainLabel.Left = 290
 $FilmGrainLabel.Width = 100
 $editGroupBox.Controls.Add($FilmGrainLabel)
 
@@ -1782,7 +1781,7 @@ $FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
 $FilmGrainComboBox.Name = "FilmGrainComboBox"
 $FilmGrainComboBox.Top = 200
 $FilmGrainComboBox.Left = 440
-$FilmGrainComboBox.Width = 75
+$FilmGrainComboBox.Width = 90
 $FilmGrainComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $FilmGrainComboBox.Items.Add("Disabled")
 $FilmGrainComboBox.Items.Add("Enabled")
@@ -1793,14 +1792,14 @@ $editGroupBox.Controls.Add($FilmGrainComboBox)
 $GForceBoostZoomScaleLabel = New-Object System.Windows.Forms.Label
 $GForceBoostZoomScaleLabel.Text = "G-Force Boost Zoom Scale"
 $GForceBoostZoomScaleLabel.Top = 230
-$GForceBoostZoomScaleLabel.Left = 30
-$GForceBoostZoomScaleLabel.Width = 150
+$GForceBoostZoomScaleLabel.Left = 10
+$GForceBoostZoomScaleLabel.Width = 180
 $editGroupBox.Controls.Add($GForceBoostZoomScaleLabel)
 
 $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceBoostZoomScaleTextBox.Name = "GForceBoostZoomScaleTextBox"
 $GForceBoostZoomScaleTextBox.Top = 230
-$GForceBoostZoomScaleTextBox.Left = 190
+$GForceBoostZoomScaleTextBox.Left = 230
 $GForceBoostZoomScaleTextBox.Width = 50
 $GForceBoostZoomScaleTextBox.TextAlign = 'Left'
 $GForceBoostZoomScaleTextBox.TabIndex = 17
@@ -1809,14 +1808,14 @@ $editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
 $GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
 $GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
 $GForceHeadBobScaleLabel.Top = 230
-$GForceHeadBobScaleLabel.Left = 300
-$GForceHeadBobScaleLabel.Width = 140
+$GForceHeadBobScaleLabel.Left = 290
+$GForceHeadBobScaleLabel.Width = 170
 $editGroupBox.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
 $GForceHeadBobScaleTextBox.Top = 230
-$GForceHeadBobScaleTextBox.Left = 440
+$GForceHeadBobScaleTextBox.Left = 480
 $GForceHeadBobScaleTextBox.Width = 50
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
 $GForceHeadBobScaleTextBox.TabIndex = 18
@@ -1825,15 +1824,15 @@ $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
 $HeadtrackingEnableRollFPSLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
 $HeadtrackingEnableRollFPSLabel.Top = 140
-$HeadtrackingEnableRollFPSLabel.Left = 30
-$HeadtrackingEnableRollFPSLabel.Width = 150
+$HeadtrackingEnableRollFPSLabel.Left = 10
+$HeadtrackingEnableRollFPSLabel.Width = 180
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSLabel)
 
 $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
 $HeadtrackingEnableRollFPSComboBox.Top = 140
 $HeadtrackingEnableRollFPSComboBox.Left = 190
-$HeadtrackingEnableRollFPSComboBox.Width = 75
+$HeadtrackingEnableRollFPSComboBox.Width = 90
 $HeadtrackingEnableRollFPSComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
@@ -1844,15 +1843,15 @@ $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
 $HeadtrackingDisableDuringWalkingLabel.Top = 140
-$HeadtrackingDisableDuringWalkingLabel.Left = 300
-$HeadtrackingDisableDuringWalkingLabel.Width = 120
+$HeadtrackingDisableDuringWalkingLabel.Left = 290
+$HeadtrackingDisableDuringWalkingLabel.Width = 150
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
 $HeadtrackingDisableDuringWalkingComboBox.Top = 140
 $HeadtrackingDisableDuringWalkingComboBox.Left = 440
-$HeadtrackingDisableDuringWalkingComboBox.Width = 75
+$HeadtrackingDisableDuringWalkingComboBox.Width = 90
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
@@ -1863,15 +1862,15 @@ $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
 $HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
 $HeadtrackingThirdPersonCameraToggleLabel.Top = 170
-$HeadtrackingThirdPersonCameraToggleLabel.Left = 30
-$HeadtrackingThirdPersonCameraToggleLabel.Width = 160
+$HeadtrackingThirdPersonCameraToggleLabel.Left = 10
+$HeadtrackingThirdPersonCameraToggleLabel.Width = 180
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
 $HeadtrackingThirdPersonCameraToggleComboBox.Top = 170
 $HeadtrackingThirdPersonCameraToggleComboBox.Left = 190
-$HeadtrackingThirdPersonCameraToggleComboBox.Width = 75
+$HeadtrackingThirdPersonCameraToggleComboBox.Width = 90
 $HeadtrackingThirdPersonCameraToggleComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
@@ -2166,7 +2165,7 @@ $chooseFovWizardButton = New-Object System.Windows.Forms.Button
 $chooseFovWizardButton.Name = "ChooseFovWizardButton"
 $chooseFovWizardButton.Text = "FOV Wizard"
 $chooseFovWizardButton.Font = New-Object System.Drawing.Font($chooseFovWizardButton.Font.FontFamily, $chooseFovWizardButton.Font.Size, [System.Drawing.FontStyle]::Bold)
-$chooseFovWizardButton.Width = 80
+$chooseFovWizardButton.Width = 100
 $chooseFovWizardButton.Height = 30
 $chooseFovWizardButton.Top = 65
 $chooseFovWizardButton.Left = 30
@@ -2619,7 +2618,11 @@ $viewKeyBindingsMenuItem.Add_Click({
 
 
 
-
+Set-DefaultFont -control $form
+Set-DefaultFont -control $ActionsGroupBox
+Set-DefaultFont -control $editGroupBox
+Set-DefaultFont -control $keyBindsForm
+Switch-DarkMode
 
 $form.ShowDialog()
 
