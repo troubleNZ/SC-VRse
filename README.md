@@ -31,7 +31,7 @@ Save some time and preload your VR configuration, or switch back to pancake mode
 new feature: Keybinds search and view
 
 ### Screenshot
-![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot-0.2.3.jpg)
+![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot.jpg)
 
 
 ### How to use this script
