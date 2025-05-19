@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.4"                        # moved keybind viewer initialisation into onclick function
+$scriptVersion = "0.3.5"                        # invictus blue and yellow dark mode
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -136,14 +136,94 @@ function Update-ButtonState {                           # used to grey out butto
     }
 }
 
-function Set-DarkMode {
+function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
     [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [System.Windows.Forms.Control]$control
     )
     if ($PSCmdlet.ShouldProcess("Control", "Set dark mode")) {
-        $control.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+        #$control.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)  
+        $control.BackColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
         $control.ForeColor = [System.Drawing.Color]::White
+        #$control.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $toggleVRButton.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+        $toggleVRButton.ForeColor = [System.Drawing.Color]::White
+        $toggleVRButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $toggleVRButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $hostsFileAddButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $hostsFileAddButton.ForeColor = [System.Drawing.Color]::White
+        $hostsFileAddButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $hostsFileAddButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $hostsFileRemoveButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $hostsFileRemoveButton.ForeColor = [System.Drawing.Color]::White
+        $hostsFileRemoveButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $hostsFileRemoveButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $deleteEACTempFilesButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $deleteEACTempFilesButton.ForeColor = [System.Drawing.Color]::White
+        $deleteEACTempFilesButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $deleteEACTempFilesButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $importButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $importButton.ForeColor = [System.Drawing.Color]::White
+        $importButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $importButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $applySaveButton.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+        $applySaveButton.ForeColor = [System.Drawing.Color]::White
+        $applySaveButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $applySaveButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $loadFromProfileButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $loadFromProfileButton.ForeColor = [System.Drawing.Color]::White
+        $loadFromProfileButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $loadFromProfileButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $saveProfileButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $saveProfileButton.ForeColor = [System.Drawing.Color]::White
+        $saveProfileButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $saveProfileButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        $saveAndCloseButton.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+        $saveAndCloseButton.ForeColor = [System.Drawing.Color]::White
+        $saveAndCloseButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $saveAndCloseButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        
+        $chooseFovWizardButton.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+        $chooseFovWizardButton.ForeColor = [System.Drawing.Color]::White
+        $chooseFovWizardButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $chooseFovWizardButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        
+        $fovTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $fovTextBox.ForeColor = [System.Drawing.Color]::White
+        $fovTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+        
+        
+        $widthTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $widthTextBox.ForeColor = [System.Drawing.Color]::White
+        $widthTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+        
+        
+        $heightTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $heightTextBox.ForeColor = [System.Drawing.Color]::White
+        $heightTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+        
+        $chromaticAberrationTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $ShakeScaleTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $CameraSpringMovementTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $GForceBoostZoomScaleTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $GForceHeadBobScaleTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $headtrackerEnabledComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $HeadtrackingSourceComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $AutoZoomComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $HeadtrackingEnableRollFPSComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$HeadtrackingDuringFPSComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $HeadtrackingThirdPersonCameraToggleComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $FilmGrainComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $MotionBlurComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$MotionBlurComboBox.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        
+        $closeKeyBindsButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $closeKeyBindsButton.ForeColor = [System.Drawing.Color]::White
+        $closeKeyBindsButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        $closeKeyBindsButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+
+
+        
         foreach ($child in $control.Controls) {
             Set-DarkMode -control $child
         }
@@ -168,7 +248,8 @@ function Set-LightMode {
 Set-LightMode -control $form
 
 function Switch-DarkMode {
-    if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) {
+    #if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) { #black
+    if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(11, 29, 41)) {
         Set-LightMode -control $form
         Set-LightMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Enable Dark Mode"
@@ -1495,7 +1576,7 @@ $fovTextBox = New-Object System.Windows.Forms.TextBox
 $fovTextBox.Name = "FOVTextBox"
 $fovTextBox.Top = 70
 $fovTextBox.Left = 185
-$fovTextBox.Width = 25
+$fovTextBox.Width = 40
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
 $fovTextBox.TabIndex = 6
@@ -1545,8 +1626,8 @@ $editGroupBox.Controls.Add($HeadtrackingLabel)
 $headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
 $headtrackerEnabledComboBox.Name = "headtrackerEnabledComboBox"
 $headtrackerEnabledComboBox.Top = 110
-$headtrackerEnabledComboBox.Left = 140
-$headtrackerEnabledComboBox.Width = 100  # Adjusted width to fit the combo box
+$headtrackerEnabledComboBox.Left = 190
+$headtrackerEnabledComboBox.Width = 75  # Adjusted width to fit the combo box
 $headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
 $headtrackerEnabledComboBox.items.Add("Disabled")
@@ -1558,15 +1639,15 @@ $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
 $HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingSourceLabel.Text = "Headtracking Source"
 $HeadtrackingSourceLabel.Top = 110
-$HeadtrackingSourceLabel.Left = 260
+$HeadtrackingSourceLabel.Left = 300
 $HeadtrackingSourceLabel.Width = 120
 $editGroupBox.Controls.Add($HeadtrackingSourceLabel)
 
 $HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingSourceComboBox.Name = "HeadtrackingSourceComboBox"
 $HeadtrackingSourceComboBox.Top = 110
-$HeadtrackingSourceComboBox.Left = 380
-$HeadtrackingSourceComboBox.Width = 100  # Adjusted width to fit the combo box
+$HeadtrackingSourceComboBox.Left = 440
+$HeadtrackingSourceComboBox.Width = 75  # Adjusted width to fit the combo box
 $HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingSourceComboBox.Items.Add("None")
 $HeadtrackingSourceComboBox.Items.Add("TrackIR")
@@ -1611,7 +1692,7 @@ $editGroupBox.Controls.Add($AutoZoomTextBox)#>
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
 $AutoZoomComboBox.Top = 260
-$AutoZoomComboBox.Left = 410
+$AutoZoomComboBox.Left = 440
 $AutoZoomComboBox.Width = 75
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $AutoZoomComboBox.Items.Add("Disabled")
@@ -1660,7 +1741,7 @@ $editGroupBox.Controls.Add($ShakeScaleLabel)
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Name = "ShakeScaleTextBox"
 $ShakeScaleTextBox.Top = 170
-$ShakeScaleTextBox.Left = 410
+$ShakeScaleTextBox.Left = 440
 $ShakeScaleTextBox.Width = 50
 $ShakeScaleTextBox.TextAlign = 'Left'
 $ShakeScaleTextBox.TabIndex = 14
@@ -1700,7 +1781,7 @@ $editGroupBox.Controls.Add($FilmGrainLabel)
 $FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
 $FilmGrainComboBox.Name = "FilmGrainComboBox"
 $FilmGrainComboBox.Top = 200
-$FilmGrainComboBox.Left = 410
+$FilmGrainComboBox.Left = 440
 $FilmGrainComboBox.Width = 75
 $FilmGrainComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $FilmGrainComboBox.Items.Add("Disabled")
@@ -1728,14 +1809,14 @@ $editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
 $GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
 $GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
 $GForceHeadBobScaleLabel.Top = 230
-$GForceHeadBobScaleLabel.Left = 260
-$GForceHeadBobScaleLabel.Width = 150
+$GForceHeadBobScaleLabel.Left = 300
+$GForceHeadBobScaleLabel.Width = 140
 $editGroupBox.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
 $GForceHeadBobScaleTextBox.Top = 230
-$GForceHeadBobScaleTextBox.Left = 410
+$GForceHeadBobScaleTextBox.Left = 440
 $GForceHeadBobScaleTextBox.Width = 50
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
 $GForceHeadBobScaleTextBox.TabIndex = 18
@@ -1763,14 +1844,14 @@ $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
 $HeadtrackingDisableDuringWalkingLabel.Top = 140
-$HeadtrackingDisableDuringWalkingLabel.Left = 270
+$HeadtrackingDisableDuringWalkingLabel.Left = 300
 $HeadtrackingDisableDuringWalkingLabel.Width = 120
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
 $HeadtrackingDisableDuringWalkingComboBox.Top = 140
-$HeadtrackingDisableDuringWalkingComboBox.Left = 410
+$HeadtrackingDisableDuringWalkingComboBox.Left = 440
 $HeadtrackingDisableDuringWalkingComboBox.Width = 75
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
@@ -1818,6 +1899,7 @@ $form.Controls.Add($saveProfileButton)
 $applySaveButton = New-Object System.Windows.Forms.Button
 $applySaveButton.Name = "ApplySaveButton"
 $applySaveButton.Text = "Apply Changes"
+$applySaveButton.Font = New-Object System.Drawing.Font($applySaveButton.Font.FontFamily, $applySaveButton.Font.Size, [System.Drawing.FontStyle]::Bold)
 $applySaveButton.Width = 120
 $applySaveButton.Height = 30
 $applySaveButton.Top = 485
@@ -1837,6 +1919,7 @@ $saveAndCloseButton = New-Object System.Windows.Forms.Button
 $saveAndCloseButton.Name = "SaveAndCloseButton"
 $saveAndCloseButton.Text = "Save and Close"
 $saveAndCloseButton.Width = 120
+$saveAndCloseButton.Font = New-Object System.Drawing.Font($saveAndCloseButton.Font.FontFamily, $saveAndCloseButton.Font.Size, [System.Drawing.FontStyle]::Bold)
 $saveAndCloseButton.Height = 30
 $saveAndCloseButton.Top = 485
 $saveAndCloseButton.Left = 450
@@ -2113,6 +2196,7 @@ elseif ($headtrackerEnabledComboBox.SelectedIndex -gt 0) {
 $toggleVRButton.Width = 160
 $toggleVRButton.Height = 60  # Twice as tall as nearby buttons
 $toggleVRButton.Top = 20
+$toggleVRButton.Font = New-Object System.Drawing.Font($toggleVRButton.Font.FontFamily, $toggleVRButton.Font.Size, [System.Drawing.FontStyle]::Bold)
 #$toggleVRButton.Left = $ActionsGroupBox.Width - $toggleVRButton.Width - 20  # Align to the right-hand side
 $toggleVRButton.Left = 360  # Position it to the right of the Hosts File Update button
 $toggleVRButton.TabIndex = 25
@@ -2192,6 +2276,7 @@ $keyBindsForm.StartPosition = 'CenterScreen'
 $keyBindsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $keyBindsForm.MaximizeBox = $false
 $keyBindsForm.MinimizeBox = $false
+# --- KeyBinds Viewer Initialization ---
 
 # Add a button to close KeyBinds Viewer and return to main form
 $closeKeyBindsButton = New-Object System.Windows.Forms.Button
@@ -2201,6 +2286,8 @@ $closeKeyBindsButton.Height = 30
 $closeKeyBindsButton.Top = 10
 $closeKeyBindsButton.Left = 20
 $closeKeyBindsButton.Anchor = "Top, Left"
+$closeKeyBindsButton.Font = New-Object System.Drawing.Font($closeKeyBindsButton.Font.FontFamily, $closeKeyBindsButton.Font.Size, [System.Drawing.FontStyle]::Bold)
+
 $closeKeyBindsButton.Add_Click({
     $keyBindsForm.Hide()
     $form.Show()
@@ -2234,12 +2321,6 @@ $keybindSearchField.Add_Leave({
 })
 $keyBindsForm.Controls.Add($keybindSearchField)
 
-# Load XML
-$script:ActionMapsxmlPath = $null
-
-$script:BindsXML = $null
-#$script:keyBindsProfiles = $null
-
 # Helper: Add column
 function Add-Column($listView, $columns) {
     $listView.Columns.Clear()
@@ -2270,42 +2351,6 @@ $listActionMaps.View = 'Details'
 $listActionMaps.FullRowSelect = $true
 $listActionMaps.GridLines = $true
 
-# Populate ActionMaps TreeView
-$actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
-foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-    $amNode = $actionProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
-    foreach ($action in $actionmap.action) {
-        $aNode = $amNode.Nodes.Add("Action: $($action.name)")
-        foreach ($rebind in $action.rebind) {
-            $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
-        }
-    }
-}
-# TreeView selection event for ActionMaps
-$treeActionMaps.Add_AfterSelect({
-    $listActionMaps.Items.Clear()
-    $node = $treeActionMaps.SelectedNode
-    if ($node -eq $null) { return }
-    if ($node.Text -like "Action: *") {
-        $actionName = $node.Text.Substring(8)
-        $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
-        if ($action) {
-            Add-Column $listActionMaps @("Rebind Input", "MultiTap")
-            foreach ($rebind in $action.rebind) {
-                if ($rebind.input) {
-                    $item = $listActionMaps.Items.Add($rebind.input)
-                    if ($null -ne $item) {
-                        $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
-                        $item.SubItems.Add($multiTapValue)| Out-Null
-                    }
-                }
-            }
-        }
-    }
-})
-$tabActionMaps.Controls.Add($treeActionMaps)
-$tabActionMaps.Controls.Add($listActionMaps)
-
 # --- Tab 2: Device ---
 $tabDevice = New-Object System.Windows.Forms.TabPage
 $tabDevice.Text = "Device"
@@ -2321,47 +2366,6 @@ $listDevice.Size = New-Object Drawing.Size(220,400)
 $listDevice.View = 'Details'
 $listDevice.FullRowSelect = $true
 $listDevice.GridLines = $true
-
-# Populate Device TreeView
-$deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
-foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
-    $devNode = $deviceProfileNode.Nodes.Add("Device: $($devopt.name)")
-    foreach ($opt in $devopt.option) {
-        $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
-    }
-}
-# TreeView selection event for Device
-$treeDevice.Add_AfterSelect({
-    $listDevice.Items.Clear()
-    $node = $treeDevice.SelectedNode
-    if ($node -eq $null) { return }
-    if ($node.Text -like "Device: *") {
-        $devName = $node.Text.Substring(8)
-        $dev = $script:keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
-        if ($dev) {
-            Add-Column $listDevice @("Input", "Saturation", "Deadzone")
-            foreach ($opt in $dev.option) {
-                if ($opt.input) {
-                    $item = $listDevice.Items.Add($opt.input)
-                    if ($null -ne $item -or $item -eq 0) {
-                        try {
-                            $item.SubItems.Add($opt.saturation) | Out-Null
-                        } catch {
-                            if ($debug) {Write-Host "Error adding Saturation: $($_.Exception.Message)" -ForegroundColor Red}
-                        }
-                        try {
-                            $item.SubItems.Add($opt.deadzone) | Out-Null
-                        } catch {
-                            if ($debug) {Write-Host "Error adding Deadzone: $($_.Exception.Message)" -ForegroundColor Red}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
-$tabDevice.Controls.Add($treeDevice)
-$tabDevice.Controls.Add($listDevice)
 
 # --- Tab 3: Options ---
 $tabOptions = New-Object System.Windows.Forms.TabPage
@@ -2379,51 +2383,141 @@ $listOptions.View = 'Details'
 $listOptions.FullRowSelect = $true
 $listOptions.GridLines = $true
 
-# Populate Options TreeView
-$optionsProfileNode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
-foreach ($opt in $script:keyBindsProfiles.options) {
-    $optNode = $optionsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
-    foreach ($child in $opt.ChildNodes) {
-        $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
-    }
-}
-# TreeView selection event for Options
-$treeOptions.Add_AfterSelect({
-    $listOptions.Items.Clear()
-    $node = $treeOptions.SelectedNode
-    if ($node -eq $null) { return }
-    if ($node.Text -like "Options: *") {
-        $optType = $node.Text.Split(" ")[1]
-        $opt = $script:keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
-        if ($opt) {
-            Add-Column $listOptions @("Property", "Value")
-            foreach ($attr in $opt.Attributes) {
-                if ($attr.Name) {
-                    $item = $listOptions.Items.Add($attr.Name)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($attr.Value)| Out-Null
-                    }
-                }
-            }
-            foreach ($child in $opt.ChildNodes) {
-                if ($child.Name) {
-                    $item = $listOptions.Items.Add($child.Name)
-                    if ($null -ne $item) {
-                        $item.SubItems.Add($child.OuterXml)| Out-Null
-                    }
-                }
-            }
-        }
-    }
-})
-$tabOptions.Controls.Add($treeOptions)
-$tabOptions.Controls.Add($listOptions)
-
 # Add tabs to TabControl
 $tabControl.TabPages.Add($tabActionMaps)
 $tabControl.TabPages.Add($tabDevice)
 $tabControl.TabPages.Add($tabOptions)
 $keyBindsForm.Controls.Add($tabControl)
+
+# Populate and wire up controls only after XML is loaded
+function Populate-KeyBindsViewer {
+    # Clear all nodes and items
+    $treeActionMaps.Nodes.Clear()
+    $listActionMaps.Items.Clear()
+    $treeDevice.Nodes.Clear()
+    $listDevice.Items.Clear()
+    $treeOptions.Nodes.Clear()
+    $listOptions.Items.Clear()
+
+    if (-not $script:keyBindsProfiles) { return }
+
+    # --- ActionMaps ---
+    $actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
+        $amNode = $actionProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
+        foreach ($action in $actionmap.action) {
+            $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+            foreach ($rebind in $action.rebind) {
+                $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+            }
+        }
+    }
+    $treeActionMaps.Add_AfterSelect({
+        $listActionMaps.Items.Clear()
+        $node = $treeActionMaps.SelectedNode
+        if ($node -eq $null) { return }
+        if ($node.Text -like "Action: *") {
+            $actionName = $node.Text.Substring(8)
+            $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
+            if ($action) {
+                Add-Column $listActionMaps @("Rebind Input", "MultiTap")
+                foreach ($rebind in $action.rebind) {
+                    if ($rebind.input) {
+                        $item = $listActionMaps.Items.Add($rebind.input)
+                        if ($null -ne $item) {
+                            $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
+                            $item.SubItems.Add($multiTapValue)| Out-Null
+                        }
+                    }
+                }
+            }
+        }
+    })
+    $tabActionMaps.Controls.Clear()
+    $tabActionMaps.Controls.Add($treeActionMaps)
+    $tabActionMaps.Controls.Add($listActionMaps)
+
+    # --- Device ---
+    $deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
+        $devNode = $deviceProfileNode.Nodes.Add("Device: $($devopt.name)")
+        foreach ($opt in $devopt.option) {
+            $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+        }
+    }
+    $treeDevice.Add_AfterSelect({
+        $listDevice.Items.Clear()
+        $node = $treeDevice.SelectedNode
+        if ($node -eq $null) { return }
+        if ($node.Text -like "Device: *") {
+            $devName = $node.Text.Substring(8)
+            $dev = $script:keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
+            if ($dev) {
+                Add-Column $listDevice @("Input", "Saturation", "Deadzone")
+                foreach ($opt in $dev.option) {
+                    if ($opt.input) {
+                        $item = $listDevice.Items.Add($opt.input)
+                        if ($null -ne $item -or $item -eq 0) {
+                            try {
+                                $item.SubItems.Add($opt.saturation) | Out-Null
+                            } catch {
+                                if ($debug) {Write-Host "Error adding Saturation: $($_.Exception.Message)" -ForegroundColor Red}
+                            }
+                            try {
+                                $item.SubItems.Add($opt.deadzone) | Out-Null
+                            } catch {
+                                if ($debug) {Write-Host "Error adding Deadzone: $($_.Exception.Message)" -ForegroundColor Red}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+    $tabDevice.Controls.Clear()
+    $tabDevice.Controls.Add($treeDevice)
+    $tabDevice.Controls.Add($listDevice)
+
+    # --- Options ---
+    $optionsProfileNode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    foreach ($opt in $script:keyBindsProfiles.options) {
+        $optNode = $optionsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+        foreach ($child in $opt.ChildNodes) {
+            $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
+        }
+    }
+    $treeOptions.Add_AfterSelect({
+        $listOptions.Items.Clear()
+        $node = $treeOptions.SelectedNode
+        if ($node -eq $null) { return }
+        if ($node.Text -like "Options: *") {
+            $optType = $node.Text.Split(" ")[1]
+            $opt = $script:keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
+            if ($opt) {
+                Add-Column $listOptions @("Property", "Value")
+                foreach ($attr in $opt.Attributes) {
+                    if ($attr.Name) {
+                        $item = $listOptions.Items.Add($attr.Name)
+                        if ($null -ne $item) {
+                            $item.SubItems.Add($attr.Value)| Out-Null
+                        }
+                    }
+                }
+                foreach ($child in $opt.ChildNodes) {
+                    if ($child.Name) {
+                        $item = $listOptions.Items.Add($child.Name)
+                        if ($null -ne $item) {
+                            $item.SubItems.Add($child.OuterXml)| Out-Null
+                        }
+                    }
+                }
+            }
+        }
+    })
+    $tabOptions.Controls.Clear()
+    $tabOptions.Controls.Add($treeOptions)
+    $tabOptions.Controls.Add($listOptions)
+}
 
 # Search logic: filter all tabs' treeviews
 $keybindSearchField.Add_TextChanged({
@@ -2511,6 +2605,8 @@ $viewKeyBindingsMenuItem.Add_Click({
     }
     $script:BindsXML = [xml](Get-Content $script:ActionMapsxmlPath)
     $script:keyBindsProfiles = $script:BindsXML.ActionMaps.ActionProfiles
+
+    Populate-KeyBindsViewer
 
     $keyBindsForm.ShowDialog()
 })

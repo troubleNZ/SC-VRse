@@ -53,4 +53,5 @@
 **0.3.2** keybinds panel split into tabs ActionMaps, Devices and Options    
 **0.3.2.1** cleanup of apply and save buttons, unnecessary icon code removed    
 **0.3.3** moved head tracking related items together    
-**0.3.4** moved keybind viewer initialisation into onclick function & took a couple items out of the VR Toggle button routine unrelated to head tracking
+**0.3.4** moved keybind viewer initialisation into onclick function & took a couple items out of the VR Toggle button routine unrelated to head tracking    
+**0.3.5** invictus blue and yellow dark mode    
