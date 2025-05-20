@@ -73,6 +73,9 @@ You can easily restore the EAC Cached files by running Verify Files in the Star 
 * 0.3.2 keybinds panel split into tabs ActionMaps, Devices and Options by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/75
 * 0.3.3 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/76
 * 0.3.4 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/81
+* 0.3.5 Invictus Blue and Yellow dark mode by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/82
+* 0.3.6 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/84
+* 0.3.7 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/86
 
 
 **Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.3.4

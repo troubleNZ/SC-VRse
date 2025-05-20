@@ -2183,7 +2183,7 @@ function Open-FovWizard {
         $pythonProcess.WaitForExit()
 
         if ($pythonProcess.ExitCode -ne 0) {
-            [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script. Exit code: $($pythonProcess.ExitCode)")
+            [System.Windows.Forms.MessageBox]::Show("Error running FOV Wizard script. Exit code: $($pythonProcess.ExitCode). Make sure Python is installed.")
         } else {
             #[System.Windows.Forms.MessageBox]::Show("FOV Wizard completed. Clipboard content: $clipboardContent. Populating input boxes...")
             
