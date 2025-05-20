@@ -56,3 +56,4 @@
 **0.3.4** moved keybind viewer initialisation into onclick function & took a couple items out of the VR Toggle button routine unrelated to head tracking    
 **0.3.5** invictus blue and yellow dark mode    
 **0.3.6** DPI scaling, invictus default dark mode    
+**0.3.7** Can't locate Game Install error handling    
