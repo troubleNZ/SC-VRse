@@ -36,33 +36,43 @@ new feature: Keybinds search and view
 
 ### How to use this script
 
-download the release on the right hand side - >
-unzip to a folder.
-open a command prompt (cmd.exe aka terminal) as administrator (i.e. right click on the command prompt shortcut and select Run as Administrator)
-then navigate to the folder where you unzipped the files.
+Download the release on the right hand side - >
+Unzip to a folder.
 
-run the bat file StarCitizenVRSetUp.bat or run powershell as below
+Run the bat file StarCitizenVRSetUp.bat or run powershell as below
 
 ` powershell.exe -ExecutionPolicy Bypass -File "Path\To\starcitizen_xml_editor.ps1"`
 
 ### Then what?
-click the Open SC Folder button, and navigate to your main Star Citizen folder.
-This will automatically find the attributes.xml file located in "LIVE\user\client\0\Profiles\default"
+The tool should automatically detect your Star Citizen Live Install, and populate the fields with the current values from the game.
+You can enable and disable Easy Anticheat 'easily', and Toggle VR on with 1 button.
 
-then you can IMPORT the values from the dataset, edit the values as necessary (FOV etc), and then click Export to save these values back to the XML for the game to read on next launch.
+Many settings that a VR Citizen might want exposed are available to configure, from Filmgrain and Motion Blur, to Head Bob and Autozoom
 
-Once you have specified values in the input fields, you may want to save these as a profile configuration file which can be done by clicking on the File Menu and clicking Save Profile.
+Included is a Field of View (FOV) Wizard , to pick the optimal FOV for your chosen HMD resolution.
 
-once you have a saved profile, you can Open it from the same File Menu. having 2 profiles, 1 for flat screen, and 1 for VR seems to be the most efficient method.
-
+Also find the handy Keybinds viewer under the Actions Menu, where you can easily see all your controller buttons and any settings that have changed from the defaults.
 
 ### current issues
 
 - no major issues reported
 
 ### future plans
-- visualize and interact with the mbk/hotas binding xml
+- investigate the potential of editing the keybinds
+- extensibility and exposing more attributes
 
 
+### Reverting EAC changes?
+Just run the tool and click the Remove Bypass from Hosts file, you'll need administrator rights.
+You can easily restore the EAC Cached files by running Verify Files in the Star Citizen Launcher
+
+### What's Changed    
+
+* 0.3.0 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/73
+* 0.3.1 apply/save and minimize by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/74
+* 0.3.2 keybinds panel split into tabs ActionMaps, Devices and Options by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/75
+* 0.3.3 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/76
+* 0.3.4 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/81
 
 
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.3.4

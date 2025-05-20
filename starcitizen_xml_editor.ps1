@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.6"                        # DPI scaling, invictus default dark mode
+$scriptVersion = "0.3.7"                        # missing install error handling
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -633,6 +633,58 @@ function Get-GameRootDirFromRegistry {
     return $null
 }
 
+function Open-LiveFolder {
+    $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
+    if ($AutoDetectSCPath -ne $null -and (Test-Path -Path $AutoDetectSCPath)) {
+        $folderBrowserDialog.SelectedPath = $AutoDetectSCPath
+    }
+    $statusBar.Text = "Opening SC Folder..."
+    $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
+    if ($script:profileArray -and ($null -ne $script:profileArray.SCPath)) {
+        if ($folderBrowserDialog -ne $null) {
+            $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.SCPath)
+        } else {
+            Write-Error "Error: FolderBrowserDialog is not initialized." -ForegroundColor Red
+        }
+    }
+    if ($folderBrowserDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $selectedPath = $folderBrowserDialog.SelectedPath
+        $script:liveFolderPath = Join-Path -Path $selectedPath -ChildPath "Live"
+        if (Test-Path -Path $script:liveFolderPath -PathType Container) {
+            $statusBar.Text = "SC Folder found at: $script:liveFolderPath"
+            #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
+            $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
+            if (-not (Test-Path -Path $defaultProfilePath -PathType Container)) {
+                $statusBar.Text = "'default' folder not found."
+                [System.Windows.Forms.MessageBox]::Show("'default' folder not found.")
+                return
+            }
+            elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
+                $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
+                if (Test-Path -Path $script:attributesXmlPath) {
+                        $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
+                        if (-not (Test-Path -Path $backupDir)) {
+                            New-Item -ItemType Directory -Path $backupDir | Out-Null
+                        }
+                    $destinationPath = Join-Path -Path $backupDir -ChildPath "attributes_backup_$niceDate.xml"
+                    Copy-Item -Path $script:attributesXmlPath -Destination $destinationPath -Force
+                    $script:xmlPath = $script:attributesXmlPath
+                    Open-XMLViewer($script:xmlPath)
+                } else {
+                    $statusBar.Text = "attributes.xml file not found in the 'default' profile folder."
+                    [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
+
+                }
+            }
+        } else {
+            $statusBar.Text = "'Live' folder not found."
+            [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
+        }
+    }else {
+        $statusBar.Text = "Folder selection canceled."
+        #[System.Windows.Forms.MessageBox]::Show("Folder selection canceled.")
+    }
+}
 
 function Save-SettingsToGame {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -884,6 +936,13 @@ function Save-SettingsToGame {
 }
 
 $AutoDetectSCPath = Get-GameRootDirFromRegistry
+
+$openLiveFolderMenuItem = New-Object System.Windows.Forms.MenuItem
+$openLiveFolderMenuItem.Text = "&Open Live Folder"
+$openLiveFolderMenuItem.Add_Click({
+    Open-LiveFolder
+})
+$fileMenuItem.MenuItems.Add($openLiveFolderMenuItem)  # Add the Open Live Folder menu item to the File menu
 
 #add an item Open Profile, which will load the profile.json file
 $openProfileMenuItem = New-Object System.Windows.Forms.MenuItem
@@ -1208,7 +1267,7 @@ $openProfileButton.Width = 120
 $openProfileButton.Height = 30
 $openProfileButton.Top = 65
 $openProfileButton.Left = 20
-$openProfileButton.TabIndex = 1
+#$openProfileButton.TabIndex = 1
 
 $openProfileButton.Add_Click({
     Open-Profile
@@ -1450,6 +1509,7 @@ $loadFromProfileButton.Top = 30
 $loadFromProfileButton.Left = 20
 $loadFromProfileButton.TabIndex = 4
 $loadFromProfileButton.Enabled = $loadedProfile                 #$false  # Initially disabled
+$loadFromProfileButton.Visible = $loadedProfile
 $editGroupBox.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
@@ -2074,7 +2134,7 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     }
 } else {
     $statusBar.Text = "Star Citizen not found."
-    [System.Windows.Forms.MessageBox]::Show("Star Citizen not found.")
+    [System.Windows.Forms.MessageBox]::Show("Star Citizen not found. Please Open the Game Library folder through the Menu")
 }
 
 
@@ -2200,7 +2260,7 @@ $toggleVRButton.Font = New-Object System.Drawing.Font($toggleVRButton.Font.FontF
 $toggleVRButton.Left = 360  # Position it to the right of the Hosts File Update button
 $toggleVRButton.TabIndex = 25
 $toggleVRButton.Visible = $true
-$toggleVRButton.Enabled = $true
+$toggleVRButton.Enabled = if ($AutoDetectSCPath) {$true} else {$false}
 $toggleVRButton.Add_Click({
     if ($toggleVRButton.Text -eq "Toggle VR On") {
         # Set VR mode values
@@ -2300,17 +2360,18 @@ $keybindSearchField.Left = 370
 $keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, $keybindSearchField.Font.Size, [System.Drawing.FontStyle]::Regular)
 $keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
 $keybindSearchField.BackColor = [System.Drawing.Color]::White
-$keybindSearchField.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D
+$keybindSearchField.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+$keybindSearchField.Multiline = $false
+$keybindSearchField.ScrollBars = [System.Windows.Forms.ScrollBars]::None
+
 $keybindSearchField.TextAlign = 'Left'
 $keybindSearchField.TabIndex = 26
 $keybindSearchField.Text = "Search Keybinds"
 $keybindSearchField.Size = New-Object Drawing.Size(260,30)
 $keybindSearchField.Anchor = "Top, Right"
 $keybindSearchField.Add_Enter({
-    if ($keybindSearchField.Text -eq "Search Keybinds" -and $keybindSearchField.ForeColor -eq [System.Drawing.Color]::Gray) {
-        $keybindSearchField.Text = ""
-        $keybindSearchField.ForeColor = [System.Drawing.Color]::Black
-    }
+    $keybindSearchField.Text = ""
+    $keybindSearchField.ForeColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 })
 $keybindSearchField.Add_Leave({
     if ([string]::IsNullOrWhiteSpace($keybindSearchField.Text)) {
@@ -2333,10 +2394,13 @@ $tabControl = New-Object System.Windows.Forms.TabControl
 $tabControl.Location = '10,60'
 $tabControl.Size = New-Object Drawing.Size(620,470)
 $tabControl.Anchor = "Top, Left, Right, Bottom"
+$tabControl.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 
 # --- Tab 1: ActionMaps ---
 $tabActionMaps = New-Object System.Windows.Forms.TabPage
 $tabActionMaps.Text = "ActionMaps"
+$tabActionMaps.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
 
 $treeActionMaps = New-Object Windows.Forms.TreeView
 $treeActionMaps.Location = '10,10'
