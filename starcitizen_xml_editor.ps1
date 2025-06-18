@@ -68,10 +68,9 @@ function Set-DefaultFont {
         }
     }
 }
-
+if ($debug) {Write-Host "PSscriptRoot:`n" $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
 $scriptIcon = $null
-
-if ($null -ne $PSScriptRoot) {
+if (![string]::IsNullOrEmpty($PSScriptRoot)) { # if the script is run from a path, not from the console
     $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
     if (Test-Path $iconPath) {
         $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
@@ -110,7 +109,7 @@ function Get-DesktopResolutionScale {
         2 { $script:ScaleMultiplier = 2.0; return "200%" }
         default { $script:ScaleMultiplier = [math]::Round($scaleFactor * 100) / 100; return "$([math]::Round($scaleFactor * 100))%" }
     }
-}Get-DesktopResolutionScale
+}Get-DesktopResolutionScale | Out-Null
 if ($debug) {
     write-host "Resolution Scale: " (Get-DesktopResolutionScale)
     Write-Host "Scale Multiplier: " $script:ScaleMultiplier -BackgroundColor White -ForegroundColor Black
@@ -679,7 +678,7 @@ function Open-LiveFolder {
             elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
                 $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
                 if (Test-Path -Path $script:attributesXmlPath) {
-                    if ($null -ne $PSScriptRoot) {
+                    if (![string]::IsNullOrEmpty($PSScriptRoot)) {
                         $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
                         if (-not (Test-Path -Path $backupDir)) {
                             New-Item -ItemType Directory -Path $backupDir | Out-Null
@@ -2158,8 +2157,12 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
 function Open-FovWizard {
     # Open the FOV wizard form
     # Define the path to the Python script
-    $pythonScriptPath = Join-Path -Path $PSScriptRoot -ChildPath "fovwizard.py"
 
+    if (![string]::IsNullOrEmpty($PSScriptRoot)) {
+        $pythonScriptPath = Join-Path -Path $PSScriptRoot -ChildPath "fovwizard.py"
+    } else {
+        $pythonScriptPath = "fovwizard.py"
+    }
     # Check if the Python script exists
     if (-not (Test-Path -Path $pythonScriptPath)) {
         [System.Windows.Forms.MessageBox]::Show("FOV Wizard script not found at: $pythonScriptPath")
@@ -2504,7 +2507,12 @@ $keyBindsForm.Controls.Add($tabControl)
 
 # Load default action maps XML
 $ActionMapDefaults = "actionmaps-4.1.1.xml"
-$defaultActionMapsXml = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
+if (![string]::IsNullOrEmpty($PSScriptRoot)) {
+    $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
+} else {
+    $ActionMapDefaults = "actionmaps-4.1.1.xml"
+}
+#$defaultActionMapsXml = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
 #$defaultsXml = $null
 
 # Populate and wire up controls only after XML is loaded
