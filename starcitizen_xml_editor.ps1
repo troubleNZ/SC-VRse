@@ -9,11 +9,16 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.3.7"                        # missing install error handling
+$scriptVersion = "0.4.1"                        # added HOTAS Hardware ID Reassignment utility, and Dynamic scaling finally applied to all controls
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
 $loadedProfile = $false
+
+[Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
+[Reflection.Assembly]::LoadWithPartialName('System.Data')          | Out-Null
+[Reflection.Assembly]::LoadWithPartialName('System.Drawing')       | Out-Null
+[System.Windows.Forms.Application]::EnableVisualStyles()
 
 $debug = $false
 
@@ -21,7 +26,7 @@ $script:xmlPath = $null
 $script:xmlContent = @()
 $script:dataTable = New-Object System.Data.DataTable
 $script:xmlArray = @()
-$script:dataGridView = @()
+#$script:dataGridView = @()
 
 
 
@@ -80,13 +85,43 @@ if (Test-Path $iconPath) {
     }
 }
 
+$script:ScaleMultiplier = 1.0
+<#       We'll use the screen dimensions below for suggesting a max window size                   #>
+function Get-MaxScreenResolution {
+    Add-Type -AssemblyName System.Windows.Forms
+    $screenWidth = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
+    $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
+    return "$screenWidth x $screenHeight"
+}
+#if ($debug) {Get-MaxScreenResolution}
+function Get-DesktopResolutionScale {
+    Add-Type -AssemblyName System.Windows.Forms
+    $graphics = [System.Drawing.Graphics]::FromHwnd([System.IntPtr]::Zero)
+    $desktopDpiX = $graphics.DpiX
+    $scaleFactor = $desktopDpiX / 96  # 96 DPI is the default scale (100%)
+    switch ($scaleFactor) {
+        1 { $script:ScaleMultiplier = 1.0; return "100%" }
+        1.25 { $script:ScaleMultiplier = 1.25; return "125%" }
+        1.5 { $script:ScaleMultiplier = 1.5; return "150%" }
+        1.75 { $script:ScaleMultiplier = 1.75; return "175%" }
+        2 { $script:ScaleMultiplier = 2.0; return "200%" }
+        default { $script:ScaleMultiplier = [math]::Round($scaleFactor * 100) / 100; return "$([math]::Round($scaleFactor * 100))%" }
+    }
+}Get-DesktopResolutionScale
+if ($debug) {
+    write-host "Resolution Scale: " (Get-DesktopResolutionScale)
+    Write-Host "Scale Multiplier: " $script:ScaleMultiplier -BackgroundColor White -ForegroundColor Black
+    Write-Host "Max Screen Resolution: " (Get-MaxScreenResolution) -BackgroundColor White -ForegroundColor Black
+}
+
+
 $form = New-Object System.Windows.Forms.Form
 
 $form.Text = "VRse-AE (Attribute Editor "+$scriptVersion+")"
-$form.Width = 620
-$form.Height = 655
+$form.Width = (620 * $script:ScaleMultiplier)
+$form.Height = (655 * $script:ScaleMultiplier)
 $form.StartPosition = 'CenterScreen'
-$form.Size = New-Object System.Drawing.Size(600,655)
+$form.Size = New-Object System.Drawing.Size($form.Width,$form.Height)
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $true
@@ -99,10 +134,10 @@ $form.Icon = $scriptIcon
 
 $ActionsGroupBox = New-Object System.Windows.Forms.GroupBox
 $ActionsGroupBox.Text = "Actions"
-$ActionsGroupBox.Width = 550
-$ActionsGroupBox.Height = 100
-$ActionsGroupBox.Top = 20
-$ActionsGroupBox.Left = 20
+$ActionsGroupBox.Width = (550 * $script:ScaleMultiplier)
+$ActionsGroupBox.Height = (100 * $script:ScaleMultiplier)
+$ActionsGroupBox.Top = (20 * $script:ScaleMultiplier)
+$ActionsGroupBox.Left = (20 * $script:ScaleMultiplier)
 
 # add a menu toolbar with one option called "File"
 $mainMenu = New-Object System.Windows.Forms.MainMenu
@@ -249,6 +284,7 @@ function Switch-DarkMode {
     #if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) { #black
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(11, 29, 41)) {
         Set-LightMode -control $form
+        Set-LightMode -control $formHIDLookup
         Set-LightMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Enable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
@@ -260,6 +296,7 @@ function Switch-DarkMode {
         #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
     } else {
         Set-DarkMode -control $form
+        Set-DarkMode -control $formHIDLookup
         Set-DarkMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Disable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
@@ -318,11 +355,11 @@ function Open-XMLViewer {
             $script:xmlContent = [xml](Get-Content $Path)
             $gridGroup.Controls.Clear()
 
-            $script:dataGridView = New-Object System.Windows.Forms.DataGridView
-            $script:dataGridView.Width = 550
-            $script:dataGridView.Height = 200
-            $script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
-            $script:dataGridView.Visible = $false       # grid hidden now. maybe put on another panel later
+            #$script:dataGridView = New-Object System.Windows.Forms.DataGridView
+            #$script:dataGridView.Width = 550
+            #$script:dataGridView.Height = 200
+            #$script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+            #$script:dataGridView.Visible = $false       # grid hidden now. maybe put on another panel later
 
             $script:dataTable = New-Object System.Data.DataTable
 
@@ -351,7 +388,7 @@ function Open-XMLViewer {
                 }
 
                 # Bind the DataTable to the DataGridView
-                $script:dataGridView.DataSource = $script:dataTable
+                #$script:dataGridView.DataSource = $script:dataTable
 
                 #$gridGroup.Controls.Add($script:dataGridView)
 
@@ -574,29 +611,6 @@ function Open-Profile {
     }
 }
 
-<#       We'll use the screen dimensions below for suggesting a max window size                   #>
-function Get-MaxScreenResolution {
-    Add-Type -AssemblyName System.Windows.Forms
-    $screenWidth = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
-    $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
-    return "$screenWidth x $screenHeight"
-}
-if ($debug) {Get-MaxScreenResolution}
-function Get-DesktopResolutionScale {
-    Add-Type -AssemblyName System.Windows.Forms
-    $graphics = [System.Drawing.Graphics]::FromHwnd([System.IntPtr]::Zero)
-    $desktopDpiX = $graphics.DpiX
-    $scaleFactor = $desktopDpiX / 96  # 96 DPI is the default scale (100%)
-    switch ($scaleFactor) {
-        1 { return "100%" }
-        1.25 { return "125%" }
-        1.5 { return "150%" }
-        1.75 { return "175%" }
-        2 { return "200%" }
-        default { return "$([math]::Round($scaleFactor * 100))%" }
-    }
-}
-if ($debug) {Get-DesktopResolutionScale}
 
 
 #converted from csharp to powershell
@@ -965,6 +979,10 @@ $actionsMenuItem = New-Object System.Windows.Forms.MenuItem
 $actionsMenuItem.Text = "&Actions"
 $mainMenu.MenuItems.Add($actionsMenuItem)
 
+$toolsMenuItem = New-Object System.Windows.Forms.MenuItem
+$toolsMenuItem.Text = "&Tools"
+$mainMenu.MenuItems.Add($toolsMenuItem)
+
 $helpMenuItem = New-Object System.Windows.Forms.MenuItem
 $helpMenuItem.Text = "&Help"
 $mainMenu.MenuItems.Add($helpMenuItem)
@@ -1013,10 +1031,10 @@ $openXmlMenuItem.Add_Click({
                 $script:xmlContent = [xml](Get-Content $script:xmlPath)
                 $gridGroup.Controls.Clear()
 
-                $script:dataGridView = New-Object System.Windows.Forms.DataGridView
-                $script:dataGridView.Width = 550
-                $script:dataGridView.Height = 200
-                $script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+                #$script:dataGridView = New-Object System.Windows.Forms.DataGridView
+                #$script:dataGridView.Width = 550
+                #$script:dataGridView.Height = 200
+                #$script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
 
                 $script:dataTable = New-Object System.Data.DataTable
 
@@ -1036,9 +1054,9 @@ $openXmlMenuItem.Add_Click({
                     }
 
                     # Bind the DataTable to the DataGridView
-                    $script:dataGridView.DataSource = $script:dataTable
+                    #$script:dataGridView.DataSource = $script:dataTable
 
-                    $gridGroup.Controls.Add($script:dataGridView)
+                    #$gridGroup.Controls.Add($script:dataGridView)
 
                     # Show the dataTableGroupBox and set its text to the XML path
                     $dataTableGroupBox.Text = $xmlPath
@@ -1130,7 +1148,7 @@ $helpMenuItem.MenuItems.Add($CheckForUpdatesMenuItem)  # Add the GitHub menu ite
 
 
 $GithubMenuItem = New-Object System.Windows.Forms.MenuItem
-$GithubMenuItem.Text = "Open &GitHub in your Browser"
+$GithubMenuItem.Text = "Open &GitHub Repo"
 $GithubMenuItem.Add_Click({
     Start-Process "https://github.com/troubleNZ/SC-VRse"
 })
@@ -1141,8 +1159,8 @@ $creditsMenuItem.Text = "&Credits"
 $creditsMenuItem.Add_Click({
     $creditsForm = New-Object System.Windows.Forms.Form
     $creditsForm.Text = "Credits"
-    $creditsForm.Width = 400
-    $creditsForm.Height = 300
+    $creditsForm.Width = (400 * $script:ScaleMultiplier)
+    $creditsForm.Height = (300 * $script:ScaleMultiplier)
     $creditsForm.StartPosition = 'CenterScreen'
     $creditsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $creditsForm.MaximizeBox = $false
@@ -1165,13 +1183,13 @@ $creditsMenuItem.Add_Click({
         "https://github.com/star-citizen-vr/scvr-patcher"
 
     $creditsLabel.AutoSize = $false
-    $creditsLabel.Top = 10
-    $creditsLabel.Left = 10
-    $creditsLabel.Width = 380
-    $creditsLabel.Height = 250
+    $creditsLabel.Top = (10 * $script:ScaleMultiplier)
+    $creditsLabel.Left = (10 * $script:ScaleMultiplier)
+    $creditsLabel.Width = (380 * $script:ScaleMultiplier)
+    $creditsLabel.Height = (250 * $script:ScaleMultiplier)
     $creditsLabel.TextAlign = 'MiddleCenter'
     $creditsLabel.BackColor = [System.Drawing.Color]::Transparent
-    $creditsLabel.Font = New-Object System.Drawing.Font("Arial", 10)
+    $creditsLabel.Font = New-Object System.Drawing.Font("Arial", [math]::Round(10 * $script:ScaleMultiplier))
     $creditsLabel.ForeColor = [System.Drawing.Color]::Black
     $creditsLabel.BorderStyle = [System.Windows.Forms.BorderStyle]::None
     $creditsLabel.Dock = [System.Windows.Forms.DockStyle]::Fill
@@ -1263,10 +1281,10 @@ $ActionsGroupBox.Controls.Add($findLiveFolderButton)
 $openProfileButton = New-Object System.Windows.Forms.Button
 $openProfileButton.Name = "OpenProfileButton"
 $openProfileButton.Text = "Open Profile"
-$openProfileButton.Width = 120
-$openProfileButton.Height = 30
-$openProfileButton.Top = 65
-$openProfileButton.Left = 20
+$openProfileButton.Width = (120 * $script:ScaleMultiplier)
+$openProfileButton.Height = (30 * $script:ScaleMultiplier)
+$openProfileButton.Top = (65 * $script:ScaleMultiplier)
+$openProfileButton.Left = (20 * $script:ScaleMultiplier)
 #$openProfileButton.TabIndex = 1
 
 $openProfileButton.Add_Click({
@@ -1279,33 +1297,34 @@ $openProfileButton.TabStop = $false
 
 
 <# unused
-$navigateButton = New-Object System.Windows.Forms.Button
-$navigateButton.Text = "Navigate to File"
-$navigateButton.Width = 120
-$navigateButton.Height = 30
-$navigateButton.Top = 90
-$navigateButton.Left = 20
-$navigateButton.TabIndex = 0
-$navigateButton.Visible = $false
+    $navigateButton = New-Object System.Windows.Forms.Button
+    $navigateButton.Text = "Navigate to File"
+    $navigateButton.Width = 120
+    $navigateButton.Height = 30
+    $navigateButton.Top = 90
+    $navigateButton.Left = 20
+    $navigateButton.TabIndex = 0
+    $navigateButton.Visible = $false
 
-$navigateButton.Add_Click({
-    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $openFileDialog.Filter = "XML Files (attributes.xml)|attributes.xml"
-    $openFileDialog.Title = "Select the attributes.xml file"
-    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $script:xmlPath = $openFileDialog.FileName
-        Open-XMLViewer($script:xmlPath)
-    }
-})
-$ActionsGroupBox.Controls.Add($navigateButton)#>
+    $navigateButton.Add_Click({
+        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $openFileDialog.Filter = "XML Files (attributes.xml)|attributes.xml"
+        $openFileDialog.Title = "Select the attributes.xml file"
+        if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $script:xmlPath = $openFileDialog.FileName
+            Open-XMLViewer($script:xmlPath)
+        }
+    })
+    $ActionsGroupBox.Controls.Add($navigateButton)
+#>
 
 # Create the EAC Bypass group box
 $eacGroupBox = New-Object System.Windows.Forms.GroupBox
 $eacGroupBox.Text = "EAC Bypass"
-$eacGroupBox.Width = 380
-$eacGroupBox.Height = 100
-$eacGroupBox.Top = 20
-$eacGroupBox.Left = 160  # Position it to the right of the actions group box
+$eacGroupBox.Width = (380 * $script:ScaleMultiplier)
+$eacGroupBox.Height = (100 * $script:ScaleMultiplier)
+$eacGroupBox.Top = (20 * $script:ScaleMultiplier)
+$eacGroupBox.Left = (160 * $script:ScaleMultiplier)  # Position it to the right of the actions group box
 $eacGroupBox.Visible = $false
 
 
@@ -1314,10 +1333,10 @@ $hostsFileAddButton = New-Object System.Windows.Forms.Button
 $hostsFileAddButton.Name = "hostsFileAddButton"
 $hostsFileAddButton.Text = "Add Bypass to Hosts File"
 #$hostsFileAddButton.Font = $defaultFont
-$hostsFileAddButton.Width = 180
-$hostsFileAddButton.Height = 30
-$hostsFileAddButton.Top = 20
-$hostsFileAddButton.Left = 10
+$hostsFileAddButton.Width = (180 * $script:ScaleMultiplier)
+$hostsFileAddButton.Height = (30 * $script:ScaleMultiplier)
+$hostsFileAddButton.Top = (20 * $script:ScaleMultiplier)
+$hostsFileAddButton.Left = (10 * $script:ScaleMultiplier)
 $hostsFileAddButton.TabIndex = 2
 $hostsFileAddButton.Add_Click({
     $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
@@ -1362,10 +1381,10 @@ function RemoveFromHostsFile {
 $hostsFileRemoveButton = New-Object System.Windows.Forms.Button
 $hostsFileRemoveButton.Name = "hostsFileAddButton"
 $hostsFileRemoveButton.Text = "Remove Hosts File entry"
-$hostsFileRemoveButton.Width = 180
-$hostsFileRemoveButton.Height = 30
-$hostsFileRemoveButton.Top = 60
-$hostsFileRemoveButton.Left = 10
+$hostsFileRemoveButton.Width = (180 * $script:ScaleMultiplier)
+$hostsFileRemoveButton.Height = (30 * $script:ScaleMultiplier)
+$hostsFileRemoveButton.Top = (60 * $script:ScaleMultiplier)
+$hostsFileRemoveButton.Left = (10 * $script:ScaleMultiplier)
 $hostsFileRemoveButton.TabIndex = 2
 $hostsFileRemoveButton.Add_Click({
     $hostsFilePath = Join-Path -Path $env:SystemRoot -ChildPath "System32\drivers\etc\hosts"
@@ -1392,10 +1411,10 @@ $ActionsGroupBox.Controls.Add($hostsFileRemoveButton)
 $deleteEACTempFilesButton = New-Object System.Windows.Forms.Button
 $deleteEACTempFilesButton.Name = "DeleteEACTempFilesButton"
 $deleteEACTempFilesButton.Text = "Delete EAC TempFiles"
-$deleteEACTempFilesButton.Width = 160
-$deleteEACTempFilesButton.Height = 30
-$deleteEACTempFilesButton.Top = 20
-$deleteEACTempFilesButton.Left = 190  # Position it to the right of the Hosts File Update button
+$deleteEACTempFilesButton.Width = (160 * $script:ScaleMultiplier)
+$deleteEACTempFilesButton.Height = (30 * $script:ScaleMultiplier)
+$deleteEACTempFilesButton.Top = (20 * $script:ScaleMultiplier)
+$deleteEACTempFilesButton.Left = (190 * $script:ScaleMultiplier)  # Position it to the right of the Hosts File Update button
 $deleteEACTempFilesButton.TabIndex = 3
 $deleteEACTempFilesButton.Add_Click({
     $eacTempPath = Join-Path -Path $env:USERPROFILE -ChildPath "AppData\Roaming\EasyAntiCheat"
@@ -1445,31 +1464,23 @@ $ActionsGroupBox.Controls.Add($deleteEACTempFilesButton)
 
 $ActionsGroupBox.Controls.Add($eacGroupBox)
 
-$xmlPathLabel = New-Object System.Windows.Forms.Label
-$xmlPathLabel.Text = "XML found at: $xmlPath"
-$xmlPathLabel.Top = $eacGroupBox.Top + $eacGroupBox.Height + 10
-$xmlPathLabel.Left = $eacGroupBox.Left
-$xmlPathLabel.Width = 400
-$xmlPathLabel.Visible = $false
-$form.Controls.Add($xmlPathLabel)
-
 $form.Controls.Add($ActionsGroupBox)
 
 $gridGroup = New-Object System.Windows.Forms.Panel
-$gridGroup.Width = 550
-$gridGroup.Height = 300
-$gridGroup.Top = 200  # Adjusted the Top property to move the panel up
-$gridGroup.Left = 20
+$gridGroup.Width = (550 * $script:ScaleMultiplier)
+$gridGroup.Height = (300 * $script:ScaleMultiplier)
+$gridGroup.Top = (200 * $script:ScaleMultiplier)  # Adjusted the Top property to move the panel up
+$gridGroup.Left = (20 * $script:ScaleMultiplier)
 #$gridGroup.Visible = $false
 
 #$form.Controls.Add($gridGroup)
 
 # Add a group box for the DataTable
 $dataTableGroupBox = New-Object System.Windows.Forms.GroupBox
-$dataTableGroupBox.Top = 180  # Position it above the DataTable
-$dataTableGroupBox.Left = 20
-$dataTableGroupBox.Width = 550
-$dataTableGroupBox.Height = 220  # Adjust height to fit the DataTable
+$dataTableGroupBox.Top = (180 * $script:ScaleMultiplier)  # Position it above the DataTable
+$dataTableGroupBox.Left = (20 * $script:ScaleMultiplier)
+$dataTableGroupBox.Width = (550 * $script:ScaleMultiplier)
+$dataTableGroupBox.Height = (220 * $script:ScaleMultiplier)  # Adjust height to fit the DataTable
 $dataTableGroupBox.Visible = $false  # Initially hide the group box
 
 #$form.Controls.Add($dataTableGroupBox)
@@ -1493,20 +1504,20 @@ $form.Controls.Add($fileTextBox)    #>
 
 $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "VR Centric Settings"
-$editGroupBox.Width = 550
-$editGroupBox.Height = 330
-$editGroupBox.Top = 150         ## Adjusted the Top property to move the group box up
-$editGroupBox.Left = 20
+$editGroupBox.Width = (550 * $script:ScaleMultiplier)
+$editGroupBox.Height = (330 * $script:ScaleMultiplier)
+$editGroupBox.Top = (150 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
+$editGroupBox.Left = (20 * $script:ScaleMultiplier)
 $editGroupBox.Visible = $true
 
 
 $loadFromProfileButton = New-Object System.Windows.Forms.Button
 $loadFromProfileButton.Name = "LoadFromProfileButton"
 $loadFromProfileButton.Text = "Import settings from profile"
-$loadFromProfileButton.Width = 200
-$loadFromProfileButton.Height = 30
-$loadFromProfileButton.Top = 30
-$loadFromProfileButton.Left = 20
+$loadFromProfileButton.Width = (200 * $script:ScaleMultiplier)
+$loadFromProfileButton.Height = (30 * $script:ScaleMultiplier)
+$loadFromProfileButton.Top = (30 * $script:ScaleMultiplier)
+$loadFromProfileButton.Left = (20 * $script:ScaleMultiplier)
 $loadFromProfileButton.TabIndex = 4
 $loadFromProfileButton.Enabled = $loadedProfile                 #$false  # Initially disabled
 $loadFromProfileButton.Visible = $loadedProfile
@@ -1606,10 +1617,10 @@ function Import-SettingsFromGame {
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import settings from Game"
 $importButton.Name = "ImportButton"
-$importButton.Width = 200
-$importButton.Height = 30
-$importButton.Top = 30
-$importButton.Left = 260
+$importButton.Width = (200 * $script:ScaleMultiplier)
+$importButton.Height = (30 * $script:ScaleMultiplier)
+$importButton.Top = (30 * $script:ScaleMultiplier)
+$importButton.Left = (260 * $script:ScaleMultiplier)
 $importButton.TabIndex = 5
 $importButton.TabStop = $false
 $importButton.Visible = $false  # Initially hidden
@@ -1626,16 +1637,16 @@ $editGroupBox.Controls.Add($importButton)
 
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
-$fovLabel.Top = 70
-$fovLabel.Left = 150
-$fovLabel.Width = 30
+$fovLabel.Top = (70 * $script:ScaleMultiplier)
+$fovLabel.Left = (150 * $script:ScaleMultiplier)
+$fovLabel.Width = (30 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($fovLabel)
 
 $fovTextBox = New-Object System.Windows.Forms.TextBox
 $fovTextBox.Name = "FOVTextBox"
-$fovTextBox.Top = 70
-$fovTextBox.Left = 185
-$fovTextBox.Width = 40
+$fovTextBox.Top = (70 * $script:ScaleMultiplier)
+$fovTextBox.Left = (185 * $script:ScaleMultiplier)
+$fovTextBox.Width = (40 * $script:ScaleMultiplier)
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
 $fovTextBox.TabIndex = 6
@@ -1643,50 +1654,50 @@ $editGroupBox.Controls.Add($fovTextBox)
 
 $widthLabel = New-Object System.Windows.Forms.Label
 $widthLabel.Text = "Width"
-$widthLabel.Top = 70
-$widthLabel.Left = 215
-$widthLabel.Width = 50
+$widthLabel.Top = (70 * $script:ScaleMultiplier)
+$widthLabel.Left = (215 * $script:ScaleMultiplier)
+$widthLabel.Width = (50 * $script:ScaleMultiplier)
 $widthLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($widthLabel)
 
 $widthTextBox = New-Object System.Windows.Forms.TextBox
 $widthTextBox.Name = "WidthTextBox"
-$widthTextBox.Top = 70
-$widthTextBox.Left = 280
-$widthTextBox.Width = 40
+$widthTextBox.Top = (70 * $script:ScaleMultiplier)
+$widthTextBox.Left = (280 * $script:ScaleMultiplier)
+$widthTextBox.Width = (40 * $script:ScaleMultiplier)
 $widthTextBox.TextAlign = 'Left'
 $widthTextBox.TabIndex = 7
 $editGroupBox.Controls.Add($widthTextBox)
 
 $heightLabel = New-Object System.Windows.Forms.Label
 $heightLabel.Text = "Height"
-$heightLabel.Top = 70
-$heightLabel.Left = 330
-$heightLabel.Width = 50
+$heightLabel.Top = (70 * $script:ScaleMultiplier)
+$heightLabel.Left = (330 * $script:ScaleMultiplier)
+$heightLabel.Width = (50 * $script:ScaleMultiplier)
 $heightLabel.TextAlign = 'MiddleRight'
 $editGroupBox.Controls.Add($heightLabel)
 
 $heightTextBox = New-Object System.Windows.Forms.TextBox
 $heightTextBox.Name = "HeightTextBox"
-$heightTextBox.Top = 70
-$heightTextBox.Left = 390
-$heightTextBox.Width = 40
+$heightTextBox.Top = (70 * $script:ScaleMultiplier)
+$heightTextBox.Left = (390 * $script:ScaleMultiplier)
+$heightTextBox.Width = (40 * $script:ScaleMultiplier)
 $heightTextBox.TextAlign = 'Left'
 $heightTextBox.TabIndex = 8
 $editGroupBox.Controls.Add($heightTextBox)
 
 $HeadtrackingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingLabel.Text = "Headtracking Toggle"
-$HeadtrackingLabel.Top = 110
-$HeadtrackingLabel.Left = 10
-$HeadtrackingLabel.Width = 150
+$HeadtrackingLabel.Top = (110 * $script:ScaleMultiplier)
+$HeadtrackingLabel.Left = (10 * $script:ScaleMultiplier)
+$HeadtrackingLabel.Width = (150 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($HeadtrackingLabel)
 
 $headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
 $headtrackerEnabledComboBox.Name = "headtrackerEnabledComboBox"
-$headtrackerEnabledComboBox.Top = 110
-$headtrackerEnabledComboBox.Left = 190
-$headtrackerEnabledComboBox.Width = 90  # Adjusted width to fit the combo box
+$headtrackerEnabledComboBox.Top = (110 * $script:ScaleMultiplier)
+$headtrackerEnabledComboBox.Left = (190 * $script:ScaleMultiplier)
+$headtrackerEnabledComboBox.Width = (90 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $headtrackerEnabledComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$headtrackerEnabledComboBox.Items.AddRange(@(0, 1))
 $headtrackerEnabledComboBox.items.Add("Disabled")
@@ -1697,16 +1708,16 @@ $editGroupBox.Controls.Add($headtrackerEnabledComboBox)
 
 $HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingSourceLabel.Text = "Headtracking Source"
-$HeadtrackingSourceLabel.Top = 110
-$HeadtrackingSourceLabel.Left = 290
-$HeadtrackingSourceLabel.Width = 150
+$HeadtrackingSourceLabel.Top = (110 * $script:ScaleMultiplier)
+$HeadtrackingSourceLabel.Left = (290 * $script:ScaleMultiplier)
+$HeadtrackingSourceLabel.Width = (150 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($HeadtrackingSourceLabel)
 
 $HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingSourceComboBox.Name = "HeadtrackingSourceComboBox"
-$HeadtrackingSourceComboBox.Top = 110
-$HeadtrackingSourceComboBox.Left = 440
-$HeadtrackingSourceComboBox.Width = 90  # Adjusted width to fit the combo box
+$HeadtrackingSourceComboBox.Top = (110 * $script:ScaleMultiplier)
+$HeadtrackingSourceComboBox.Left = (440 * $script:ScaleMultiplier)
+$HeadtrackingSourceComboBox.Width = (90 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $HeadtrackingSourceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingSourceComboBox.Items.Add("None")
 $HeadtrackingSourceComboBox.Items.Add("TrackIR")
@@ -1718,25 +1729,25 @@ $editGroupBox.Controls.Add($HeadtrackingSourceComboBox)
 
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
 $chromaticAberrationLabel.Text = "Chromatic Aberration"
-$chromaticAberrationLabel.Top = 260
-$chromaticAberrationLabel.Left = 10
-$chromaticAberrationLabel.Width = 150
+$chromaticAberrationLabel.Top = (260 * $script:ScaleMultiplier)
+$chromaticAberrationLabel.Left = (10 * $script:ScaleMultiplier)
+$chromaticAberrationLabel.Width = (150 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
-$chromaticAberrationTextBox.Top = 260
-$chromaticAberrationTextBox.Left = 230
-$chromaticAberrationTextBox.Width = 50
+$chromaticAberrationTextBox.Top = (260 * $script:ScaleMultiplier)
+$chromaticAberrationTextBox.Left = (230 * $script:ScaleMultiplier)
+$chromaticAberrationTextBox.Width = (50 * $script:ScaleMultiplier)
 $chromaticAberrationTextBox.TextAlign = 'Left'
 $chromaticAberrationTextBox.TabIndex = 19
 $editGroupBox.Controls.Add($chromaticAberrationTextBox)
 
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
-$AutoZoomLabel.Top = 260
-$AutoZoomLabel.Left = 290
-$AutoZoomLabel.Width = 100
+$AutoZoomLabel.Top = (260 * $script:ScaleMultiplier)
+$AutoZoomLabel.Left = (290 * $script:ScaleMultiplier)
+$AutoZoomLabel.Width = (100 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($AutoZoomLabel)
 
 <#$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
@@ -1750,9 +1761,9 @@ $editGroupBox.Controls.Add($AutoZoomTextBox)#>
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
-$AutoZoomComboBox.Top = 260
-$AutoZoomComboBox.Left = 440
-$AutoZoomComboBox.Width = 90
+$AutoZoomComboBox.Top = (260 * $script:ScaleMultiplier)
+$AutoZoomComboBox.Left = (440 * $script:ScaleMultiplier)
+$AutoZoomComboBox.Width = (90 * $script:ScaleMultiplier)
 $AutoZoomComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $AutoZoomComboBox.Items.Add("Disabled")
 $AutoZoomComboBox.Items.Add("Enabled")
@@ -1762,9 +1773,9 @@ $editGroupBox.Controls.Add($AutoZoomComboBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
-$MotionBlurLabel.Top = 290
-$MotionBlurLabel.Left = 70
-$MotionBlurLabel.Width = 100
+$MotionBlurLabel.Top = (290 * $script:ScaleMultiplier)
+$MotionBlurLabel.Left = (70 * $script:ScaleMultiplier)
+$MotionBlurLabel.Width = (100 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($MotionBlurLabel)
 
 #$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
@@ -1778,9 +1789,9 @@ $editGroupBox.Controls.Add($MotionBlurLabel)
 
 $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
-$MotionBlurComboBox.Top = 290
-$MotionBlurComboBox.Left = 190
-$MotionBlurComboBox.Width = 90
+$MotionBlurComboBox.Top = (290 * $script:ScaleMultiplier)
+$MotionBlurComboBox.Left = (190 * $script:ScaleMultiplier)
+$MotionBlurComboBox.Width = (90 * $script:ScaleMultiplier)
 $MotionBlurComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $MotionBlurComboBox.Items.Add("Disabled")
 $MotionBlurComboBox.Items.Add("Enabled")
@@ -1792,41 +1803,41 @@ $editGroupBox.Controls.Add($MotionBlurComboBox)
 
 $ShakeScaleLabel = New-Object System.Windows.Forms.Label
 $ShakeScaleLabel.Text = "Shake Scale"
-$ShakeScaleLabel.Top = 170
-$ShakeScaleLabel.Left = 290
-$ShakeScaleLabel.Width = 100
+$ShakeScaleLabel.Top = (170 * $script:ScaleMultiplier)
+$ShakeScaleLabel.Left = (290 * $script:ScaleMultiplier)
+$ShakeScaleLabel.Width = (100 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Name = "ShakeScaleTextBox"
-$ShakeScaleTextBox.Top = 170
-$ShakeScaleTextBox.Left = 480
-$ShakeScaleTextBox.Width = 50
+$ShakeScaleTextBox.Top = (170 * $script:ScaleMultiplier)
+$ShakeScaleTextBox.Left = (480 * $script:ScaleMultiplier)
+$ShakeScaleTextBox.Width = (50 * $script:ScaleMultiplier)
 $ShakeScaleTextBox.TextAlign = 'Left'
 $ShakeScaleTextBox.TabIndex = 14
 $editGroupBox.Controls.Add($ShakeScaleTextBox)
 
 $CameraSpringMovementLabel = New-Object System.Windows.Forms.Label
 $CameraSpringMovementLabel.Text = "Camera Spring Movement"
-$CameraSpringMovementLabel.Top = 200
-$CameraSpringMovementLabel.Left = 10
-$CameraSpringMovementLabel.Width = 180
+$CameraSpringMovementLabel.Top = (200 * $script:ScaleMultiplier)
+$CameraSpringMovementLabel.Left = (10 * $script:ScaleMultiplier)
+$CameraSpringMovementLabel.Width = (180 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($CameraSpringMovementLabel)
 
 $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
 $CameraSpringMovementTextBox.Name = "CameraSpringMovementTextBox"
-$CameraSpringMovementTextBox.Top = 200
-$CameraSpringMovementTextBox.Left = 230
-$CameraSpringMovementTextBox.Width = 50
+$CameraSpringMovementTextBox.Top = (200 * $script:ScaleMultiplier)
+$CameraSpringMovementTextBox.Left = (230 * $script:ScaleMultiplier)
+$CameraSpringMovementTextBox.Width = (50 * $script:ScaleMultiplier)
 $CameraSpringMovementTextBox.TextAlign = 'Left'
 $CameraSpringMovementTextBox.TabIndex = 15
 $editGroupBox.Controls.Add($CameraSpringMovementTextBox)
 
 $FilmGrainLabel = New-Object System.Windows.Forms.Label
 $FilmGrainLabel.Text = "Film Grain"
-$FilmGrainLabel.Top = 200
-$FilmGrainLabel.Left = 290
-$FilmGrainLabel.Width = 100
+$FilmGrainLabel.Top = (200 * $script:ScaleMultiplier)
+$FilmGrainLabel.Left = (290 * $script:ScaleMultiplier)
+$FilmGrainLabel.Width = (100 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($FilmGrainLabel)
 
 #$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
@@ -1839,9 +1850,9 @@ $editGroupBox.Controls.Add($FilmGrainLabel)
 #$editGroupBox.Controls.Add($FilmGrainTextBox)
 $FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
 $FilmGrainComboBox.Name = "FilmGrainComboBox"
-$FilmGrainComboBox.Top = 200
-$FilmGrainComboBox.Left = 440
-$FilmGrainComboBox.Width = 90
+$FilmGrainComboBox.Top = (200 * $script:ScaleMultiplier)
+$FilmGrainComboBox.Left = (440 * $script:ScaleMultiplier)
+$FilmGrainComboBox.Width = (90 * $script:ScaleMultiplier)
 $FilmGrainComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $FilmGrainComboBox.Items.Add("Disabled")
 $FilmGrainComboBox.Items.Add("Enabled")
@@ -1851,48 +1862,48 @@ $editGroupBox.Controls.Add($FilmGrainComboBox)
 
 $GForceBoostZoomScaleLabel = New-Object System.Windows.Forms.Label
 $GForceBoostZoomScaleLabel.Text = "G-Force Boost Zoom Scale"
-$GForceBoostZoomScaleLabel.Top = 230
-$GForceBoostZoomScaleLabel.Left = 10
-$GForceBoostZoomScaleLabel.Width = 180
+$GForceBoostZoomScaleLabel.Top = (230 * $script:ScaleMultiplier)
+$GForceBoostZoomScaleLabel.Left = (10 * $script:ScaleMultiplier)
+$GForceBoostZoomScaleLabel.Width = (180 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($GForceBoostZoomScaleLabel)
 
 $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceBoostZoomScaleTextBox.Name = "GForceBoostZoomScaleTextBox"
-$GForceBoostZoomScaleTextBox.Top = 230
-$GForceBoostZoomScaleTextBox.Left = 230
-$GForceBoostZoomScaleTextBox.Width = 50
+$GForceBoostZoomScaleTextBox.Top = (230 * $script:ScaleMultiplier)
+$GForceBoostZoomScaleTextBox.Left = (230 * $script:ScaleMultiplier)
+$GForceBoostZoomScaleTextBox.Width = (50 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleTextBox.TextAlign = 'Left'
 $GForceBoostZoomScaleTextBox.TabIndex = 17
 $editGroupBox.Controls.Add($GForceBoostZoomScaleTextBox)
 
 $GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
 $GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
-$GForceHeadBobScaleLabel.Top = 230
-$GForceHeadBobScaleLabel.Left = 290
-$GForceHeadBobScaleLabel.Width = 170
+$GForceHeadBobScaleLabel.Top = (230 * $script:ScaleMultiplier)
+$GForceHeadBobScaleLabel.Left = (290 * $script:ScaleMultiplier)
+$GForceHeadBobScaleLabel.Width = (170 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
-$GForceHeadBobScaleTextBox.Top = 230
-$GForceHeadBobScaleTextBox.Left = 480
-$GForceHeadBobScaleTextBox.Width = 50
+$GForceHeadBobScaleTextBox.Top = (230 * $script:ScaleMultiplier)
+$GForceHeadBobScaleTextBox.Left = (480 * $script:ScaleMultiplier)
+$GForceHeadBobScaleTextBox.Width = (50 * $script:ScaleMultiplier)
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
 $GForceHeadBobScaleTextBox.TabIndex = 18
 $editGroupBox.Controls.Add($GForceHeadBobScaleTextBox)
 
 $HeadtrackingEnableRollFPSLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
-$HeadtrackingEnableRollFPSLabel.Top = 140
-$HeadtrackingEnableRollFPSLabel.Left = 10
-$HeadtrackingEnableRollFPSLabel.Width = 180
+$HeadtrackingEnableRollFPSLabel.Top = (140 * $script:ScaleMultiplier)
+$HeadtrackingEnableRollFPSLabel.Left = (10 * $script:ScaleMultiplier)
+$HeadtrackingEnableRollFPSLabel.Width = (180 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSLabel)
 
 $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
-$HeadtrackingEnableRollFPSComboBox.Top = 140
-$HeadtrackingEnableRollFPSComboBox.Left = 190
-$HeadtrackingEnableRollFPSComboBox.Width = 90
+$HeadtrackingEnableRollFPSComboBox.Top = (140 * $script:ScaleMultiplier)
+$HeadtrackingEnableRollFPSComboBox.Left = (190 * $script:ScaleMultiplier)
+$HeadtrackingEnableRollFPSComboBox.Width = (90 * $script:ScaleMultiplier)
 $HeadtrackingEnableRollFPSComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
@@ -1902,16 +1913,16 @@ $editGroupBox.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
-$HeadtrackingDisableDuringWalkingLabel.Top = 140
-$HeadtrackingDisableDuringWalkingLabel.Left = 290
-$HeadtrackingDisableDuringWalkingLabel.Width = 150
+$HeadtrackingDisableDuringWalkingLabel.Top = (140 * $script:ScaleMultiplier)
+$HeadtrackingDisableDuringWalkingLabel.Left = (290 * $script:ScaleMultiplier)
+$HeadtrackingDisableDuringWalkingLabel.Width = (150 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
-$HeadtrackingDisableDuringWalkingComboBox.Top = 140
-$HeadtrackingDisableDuringWalkingComboBox.Left = 440
-$HeadtrackingDisableDuringWalkingComboBox.Width = 90
+$HeadtrackingDisableDuringWalkingComboBox.Top = (140 * $script:ScaleMultiplier)
+$HeadtrackingDisableDuringWalkingComboBox.Left = (440 * $script:ScaleMultiplier)
+$HeadtrackingDisableDuringWalkingComboBox.Width = (90 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
@@ -1921,16 +1932,16 @@ $editGroupBox.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
 
 $HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
-$HeadtrackingThirdPersonCameraToggleLabel.Top = 170
-$HeadtrackingThirdPersonCameraToggleLabel.Left = 10
-$HeadtrackingThirdPersonCameraToggleLabel.Width = 180
+$HeadtrackingThirdPersonCameraToggleLabel.Top = (170 * $script:ScaleMultiplier)
+$HeadtrackingThirdPersonCameraToggleLabel.Left = (10 * $script:ScaleMultiplier)
+$HeadtrackingThirdPersonCameraToggleLabel.Width = (180 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
-$HeadtrackingThirdPersonCameraToggleComboBox.Top = 170
-$HeadtrackingThirdPersonCameraToggleComboBox.Left = 190
-$HeadtrackingThirdPersonCameraToggleComboBox.Width = 90
+$HeadtrackingThirdPersonCameraToggleComboBox.Top = (170 * $script:ScaleMultiplier)
+$HeadtrackingThirdPersonCameraToggleComboBox.Left = (190 * $script:ScaleMultiplier)
+$HeadtrackingThirdPersonCameraToggleComboBox.Width = (90 * $script:ScaleMultiplier)
 $HeadtrackingThirdPersonCameraToggleComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
@@ -1943,10 +1954,10 @@ $editGroupBox.Controls.Add($HeadtrackingThirdPersonCameraToggleComboBox)
 $saveProfileButton = New-Object System.Windows.Forms.Button
 $saveProfileButton.Name = "SaveProfileButton"
 $saveProfileButton.Text = "Save Profile"
-$saveProfileButton.Width = 120
-$saveProfileButton.Height = 30
-$saveProfileButton.Top = 485
-$saveProfileButton.Left = 20
+$saveProfileButton.Width = (120 * $script:ScaleMultiplier)
+$saveProfileButton.Height = (30 * $script:ScaleMultiplier)
+$saveProfileButton.Top = (485 * $script:ScaleMultiplier)
+$saveProfileButton.Left = (20 * $script:ScaleMultiplier)
 $saveProfileButton.TabIndex = 21
 $saveProfileButton.Enabled = $false  # Initially disabled
 $saveProfileButton.Add_Click({
@@ -1958,11 +1969,11 @@ $form.Controls.Add($saveProfileButton)
 $applySaveButton = New-Object System.Windows.Forms.Button
 $applySaveButton.Name = "ApplySaveButton"
 $applySaveButton.Text = "Apply Changes"
-$applySaveButton.Font = New-Object System.Drawing.Font($applySaveButton.Font.FontFamily, $applySaveButton.Font.Size, [System.Drawing.FontStyle]::Bold)
-$applySaveButton.Width = 120
-$applySaveButton.Height = 30
-$applySaveButton.Top = 485
-$applySaveButton.Left = 280
+$applySaveButton.Font = New-Object System.Drawing.Font($applySaveButton.Font.FontFamily, [math]::Round($applySaveButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$applySaveButton.Width = (120 * $script:ScaleMultiplier)
+$applySaveButton.Height = (30 * $script:ScaleMultiplier)
+$applySaveButton.Top = (485 * $script:ScaleMultiplier)
+$applySaveButton.Left = (280 * $script:ScaleMultiplier)
 $applySaveButton.TabIndex = 22
 $applySaveButton.Enabled = $false  # Initially disabled
 $applySaveButton.Add_Click({
@@ -1977,11 +1988,11 @@ $form.Controls.Add($applySaveButton)
 $saveAndCloseButton = New-Object System.Windows.Forms.Button
 $saveAndCloseButton.Name = "SaveAndCloseButton"
 $saveAndCloseButton.Text = "Save and Close"
-$saveAndCloseButton.Width = 120
-$saveAndCloseButton.Font = New-Object System.Drawing.Font($saveAndCloseButton.Font.FontFamily, $saveAndCloseButton.Font.Size, [System.Drawing.FontStyle]::Bold)
-$saveAndCloseButton.Height = 30
-$saveAndCloseButton.Top = 485
-$saveAndCloseButton.Left = 450
+$saveAndCloseButton.Width = (120 * $script:ScaleMultiplier)
+$saveAndCloseButton.Font = New-Object System.Drawing.Font($saveAndCloseButton.Font.FontFamily, [math]::Round($saveAndCloseButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$saveAndCloseButton.Height = (30 * $script:ScaleMultiplier)
+$saveAndCloseButton.Top = (485 * $script:ScaleMultiplier)
+$saveAndCloseButton.Left = (450 * $script:ScaleMultiplier)
 $saveAndCloseButton.TabIndex = 23
 $saveAndCloseButton.Enabled = $false  # Initially disabled
 $saveAndCloseButton.Add_Click({
@@ -1995,11 +2006,11 @@ $form.Controls.Add($saveAndCloseButton)
 
 $closeButton = New-Object System.Windows.Forms.Button
 $closeButton.Text = "Close"
-$closeButton.Width = 120
-$closeButton.Height = 30
-$closeButton.Top = 115
+$closeButton.Width = (120 * $script:ScaleMultiplier)
+$closeButton.Height = (30 * $script:ScaleMultiplier)
+$closeButton.Top = (115 * $script:ScaleMultiplier)
 
-$closeButton.Left = 300
+$closeButton.Left = (300 * $script:ScaleMultiplier)
 $closeButton.TabIndex = 23
 $closeButton.Add_Click({
     $form.Close()
@@ -2123,7 +2134,7 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     $script:xmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\attributes.xml"
     Set-ProfileArray
     #$script:profileArray.Add([PSCustomObject]@{ AttributesXmlPath = $script:xmlPath }) | Out-Null
-    if ($debug) {Write-Host "debug: $script:xmlPath" -BackgroundColor White -ForegroundColor Black}
+    if ($debug) {Write-Host "debug:xmlPath $script:xmlPath" -BackgroundColor White -ForegroundColor Black}
     if (Test-Path -Path $AutoDetectSCPath) {
         $importButton.Enabled = $true
         $statusBar.Text = "Star Citizen found at: $script:liveFolderPath"
@@ -2224,11 +2235,11 @@ function Open-FovWizard {
 $chooseFovWizardButton = New-Object System.Windows.Forms.Button
 $chooseFovWizardButton.Name = "ChooseFovWizardButton"
 $chooseFovWizardButton.Text = "FOV Wizard"
-$chooseFovWizardButton.Font = New-Object System.Drawing.Font($chooseFovWizardButton.Font.FontFamily, $chooseFovWizardButton.Font.Size, [System.Drawing.FontStyle]::Bold)
-$chooseFovWizardButton.Width = 100
-$chooseFovWizardButton.Height = 30
-$chooseFovWizardButton.Top = 65
-$chooseFovWizardButton.Left = 30
+$chooseFovWizardButton.Font = New-Object System.Drawing.Font($chooseFovWizardButton.Font.FontFamily, [math]::Round($chooseFovWizardButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$chooseFovWizardButton.Width = (100 * $script:ScaleMultiplier)
+$chooseFovWizardButton.Height = (30 * $script:ScaleMultiplier)
+$chooseFovWizardButton.Top = (65 * $script:ScaleMultiplier)
+$chooseFovWizardButton.Left = (30 * $script:ScaleMultiplier)
 $chooseFovWizardButton.TabIndex = 24
 $chooseFovWizardButton.Add_Click({
     # Call the function to open the FOV wizard
@@ -2252,12 +2263,12 @@ if ($headtrackerEnabledComboBox.SelectedIndex -eq 0) {
 elseif ($headtrackerEnabledComboBox.SelectedIndex -gt 0) {
     $toggleVRButton.Text = "Toggle VR Off"
 }
-$toggleVRButton.Width = 160
-$toggleVRButton.Height = 60  # Twice as tall as nearby buttons
-$toggleVRButton.Top = 20
-$toggleVRButton.Font = New-Object System.Drawing.Font($toggleVRButton.Font.FontFamily, $toggleVRButton.Font.Size, [System.Drawing.FontStyle]::Bold)
+$toggleVRButton.Width = (160 * $script:ScaleMultiplier)
+$toggleVRButton.Height = (60 * $script:ScaleMultiplier)  # Twice as tall as nearby buttons
+$toggleVRButton.Top = (20 * $script:ScaleMultiplier)
+$toggleVRButton.Font = New-Object System.Drawing.Font($toggleVRButton.Font.FontFamily, [math]::Round($toggleVRButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
 #$toggleVRButton.Left = $ActionsGroupBox.Width - $toggleVRButton.Width - 20  # Align to the right-hand side
-$toggleVRButton.Left = 360  # Position it to the right of the Hosts File Update button
+$toggleVRButton.Left = (360 * $script:ScaleMultiplier)  # Position it to the right of the Hosts File Update button
 $toggleVRButton.TabIndex = 25
 $toggleVRButton.Visible = $true
 $toggleVRButton.Enabled = if ($AutoDetectSCPath) {$true} else {$false}
@@ -2324,13 +2335,13 @@ $ActionsGroupBox.Controls.Add($toggleVRButton)
 # Add "View KeyBindings" menu item under Actions
 $viewKeyBindingsMenuItem = New-Object System.Windows.Forms.MenuItem
 $viewKeyBindingsMenuItem.Text = "View KeyBindings"
-$actionsMenuItem.MenuItems.Add($viewKeyBindingsMenuItem)
+$toolsMenuItem.MenuItems.Add($viewKeyBindingsMenuItem)
 
 # Create the KeyBinds Viewer form/panel
 $keyBindsForm = New-Object System.Windows.Forms.Form
 $keyBindsForm.Text = "KeyBinds Viewer"
-$keyBindsForm.Width = 650
-$keyBindsForm.Height = 580
+$keyBindsForm.Width = (650 * $script:ScaleMultiplier)
+$keyBindsForm.Height = (580 * $script:ScaleMultiplier)
 $keyBindsForm.StartPosition = 'CenterScreen'
 $keyBindsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $keyBindsForm.MaximizeBox = $false
@@ -2339,13 +2350,13 @@ $keyBindsForm.MinimizeBox = $false
 
 # Add a button to close KeyBinds Viewer and return to main form
 $closeKeyBindsButton = New-Object System.Windows.Forms.Button
-$closeKeyBindsButton.Text = "Back"
-$closeKeyBindsButton.Width = 100
-$closeKeyBindsButton.Height = 30
-$closeKeyBindsButton.Top = 10
-$closeKeyBindsButton.Left = 20
+$closeKeyBindsButton.Text = "< Back"
+$closeKeyBindsButton.Width = (100 * $script:ScaleMultiplier)
+$closeKeyBindsButton.Height = (30 * $script:ScaleMultiplier)
+$closeKeyBindsButton.Top = (10 * $script:ScaleMultiplier)
+$closeKeyBindsButton.Left = (20 * $script:ScaleMultiplier)
 $closeKeyBindsButton.Anchor = "Top, Left"
-$closeKeyBindsButton.Font = New-Object System.Drawing.Font($closeKeyBindsButton.Font.FontFamily, $closeKeyBindsButton.Font.Size, [System.Drawing.FontStyle]::Bold)
+$closeKeyBindsButton.Font = New-Object System.Drawing.Font($closeKeyBindsButton.Font.FontFamily, [math]::Round($closeKeyBindsButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
 
 $closeKeyBindsButton.Add_Click({
     $keyBindsForm.Hide()
@@ -2355,9 +2366,9 @@ $keyBindsForm.Controls.Add($closeKeyBindsButton)
 
 $keybindSearchField = New-Object System.Windows.Forms.TextBox
 $keybindSearchField.Name = "KeybindSearchField"
-$keybindSearchField.Top = 20
-$keybindSearchField.Left = 370
-$keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, $keybindSearchField.Font.Size, [System.Drawing.FontStyle]::Regular)
+$keybindSearchField.Top = (20 * $script:ScaleMultiplier)
+$keybindSearchField.Left = (370 * $script:ScaleMultiplier)
+$keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, [math]::Round($keybindSearchField.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
 $keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
 $keybindSearchField.BackColor = [System.Drawing.Color]::White
 $keybindSearchField.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
@@ -2367,7 +2378,7 @@ $keybindSearchField.ScrollBars = [System.Windows.Forms.ScrollBars]::None
 $keybindSearchField.TextAlign = 'Left'
 $keybindSearchField.TabIndex = 26
 $keybindSearchField.Text = "Search Keybinds"
-$keybindSearchField.Size = New-Object Drawing.Size(260,30)
+$keybindSearchField.Size = New-Object Drawing.Size((260 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
 $keybindSearchField.Anchor = "Top, Right"
 $keybindSearchField.Add_Enter({
     $keybindSearchField.Text = ""
@@ -2391,41 +2402,70 @@ function Add-Column($listView, $columns) {
 
 # Create TabControl
 $tabControl = New-Object System.Windows.Forms.TabControl
-$tabControl.Location = '10,60'
-$tabControl.Size = New-Object Drawing.Size(620,470)
+#$tabControl.Location = '10,60'
+$tabControl.Top = (60 * $script:ScaleMultiplier)
+$tabControl.Left = (10 * $script:ScaleMultiplier)
+$tabControl.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$tabControl.Size = New-Object Drawing.Size((620 * $script:ScaleMultiplier),(470 * $script:ScaleMultiplier))
 $tabControl.Anchor = "Top, Left, Right, Bottom"
 $tabControl.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 
+
+
 # --- Tab 1: ActionMaps ---
 $tabActionMaps = New-Object System.Windows.Forms.TabPage
-$tabActionMaps.Text = "ActionMaps"
+$tabActionMaps.Text = "KeyBinds"
 $tabActionMaps.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 $tabActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
 
 $treeActionMaps = New-Object Windows.Forms.TreeView
-$treeActionMaps.Location = '10,10'
-$treeActionMaps.Size = New-Object Drawing.Size(350,400)
+#$treeActionMaps.Location = (10 * $script:ScaleMultiplier),(10 * $script:ScaleMultiplier)
+#$treeActionMaps.Location = "10,10"
+$treeActionMaps.Top = (10 * $script:ScaleMultiplier)
+$treeActionMaps.Left = (10 * $script:ScaleMultiplier)
+#$treeActionMaps.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$treeActionMaps.BackColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+$treeActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(0, 0, 0)
+$treeActionMaps.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+$treeActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $treeActionMaps.HideSelection = $false
 
 $listActionMaps = New-Object Windows.Forms.ListView
-$listActionMaps.Location = '370,10'
-$listActionMaps.Size = New-Object Drawing.Size(220,400)
+#$listActionMaps.Location = "370,10"
+$listActionMaps.Top = (10 * $script:ScaleMultiplier)
+$listActionMaps.Left = (370 * $script:ScaleMultiplier)
+
+$listActionMaps.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(200 * $script:ScaleMultiplier))
 $listActionMaps.View = 'Details'
 $listActionMaps.FullRowSelect = $true
 $listActionMaps.GridLines = $true
+
+$listDefaults = New-Object Windows.Forms.ListView
+#$listDefaults.Location = "370,220"
+$listDefaults.Top = (220 * $script:ScaleMultiplier)
+$listDefaults.Left = (370 * $script:ScaleMultiplier)
+$listDefaults.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$listDefaults.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(180 * $script:ScaleMultiplier))
+$listDefaults.View = 'Details'
+$listDefaults.FullRowSelect = $true
+$listDefaults.GridLines = $true
 
 # --- Tab 2: Device ---
 $tabDevice = New-Object System.Windows.Forms.TabPage
 $tabDevice.Text = "Device"
 
 $treeDevice = New-Object Windows.Forms.TreeView
-$treeDevice.Location = '10,10'
-$treeDevice.Size = New-Object Drawing.Size(350,400)
+#$treeDevice.Location = "10,10"
+$treeDevice.Top = (10 * $script:ScaleMultiplier)
+$treeDevice.Left = (10 * $script:ScaleMultiplier)
+$treeDevice.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $treeDevice.HideSelection = $false
 
 $listDevice = New-Object Windows.Forms.ListView
-$listDevice.Location = '370,10'
-$listDevice.Size = New-Object Drawing.Size(220,400)
+#$listDevice.Location = "370,10"
+$listDevice.Top = (10 * $script:ScaleMultiplier)
+$listDevice.Left = (370 * $script:ScaleMultiplier)
+$listDevice.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $listDevice.View = 'Details'
 $listDevice.FullRowSelect = $true
 $listDevice.GridLines = $true
@@ -2435,24 +2475,36 @@ $tabOptions = New-Object System.Windows.Forms.TabPage
 $tabOptions.Text = "Options"
 
 $treeOptions = New-Object Windows.Forms.TreeView
-$treeOptions.Location = '10,10'
-$treeOptions.Size = New-Object Drawing.Size(350,400)
+#$treeOptions.Location = "10,10"
+$treeOptions.Top = (10 * $script:ScaleMultiplier)
+$treeOptions.Left = (10 * $script:ScaleMultiplier)
+$treeOptions.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $treeOptions.HideSelection = $false
 
 $listOptions = New-Object Windows.Forms.ListView
-$listOptions.Location = '370,10'
-$listOptions.Size = New-Object Drawing.Size(220,400)
+#$listOptions.Location = "370,10"
+$listOptions.Top = (10 * $script:ScaleMultiplier)
+$listOptions.Left = (370 * $script:ScaleMultiplier)
+$listOptions.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $listOptions.View = 'Details'
 $listOptions.FullRowSelect = $true
 $listOptions.GridLines = $true
 
 # Add tabs to TabControl
+#$tabControl.TabPages.Add($tabDefaults)
 $tabControl.TabPages.Add($tabActionMaps)
 $tabControl.TabPages.Add($tabDevice)
 $tabControl.TabPages.Add($tabOptions)
 $keyBindsForm.Controls.Add($tabControl)
 
+# Load default action maps XML
+$ActionMapDefaults = "actionmaps-4.1.1.xml"
+$defaultActionMapsXml = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
+#$defaultsXml = $null
+
 # Populate and wire up controls only after XML is loaded
+
+
 function Populate-KeyBindsViewer {
     # Clear all nodes and items
     $treeActionMaps.Nodes.Clear()
@@ -2463,7 +2515,7 @@ function Populate-KeyBindsViewer {
     $listOptions.Items.Clear()
 
     if (-not $script:keyBindsProfiles) { return }
-
+    $defaultsXml = [xml](Get-Content $defaultActionMapsXml)
     # --- ActionMaps ---
     $actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
@@ -2472,6 +2524,14 @@ function Populate-KeyBindsViewer {
             $aNode = $amNode.Nodes.Add("Action: $($action.name)")
             foreach ($rebind in $action.rebind) {
                 $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+            }
+        }
+        foreach ($action in $defaultsXml.actionmap) {
+            if ($actionmap.name -eq $actionmap.name) {
+                $aNode = $amNode.Nodes.Add("Default Action: $($action.name)")
+                foreach ($default in $action.default) {
+                    $aNode.Nodes.Add("Default: $($default.input)") | Out-Null
+                }
             }
         }
     }
@@ -2484,6 +2544,16 @@ function Populate-KeyBindsViewer {
             $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
             if ($action) {
                 Add-Column $listActionMaps @("Rebind Input", "MultiTap")
+                #defaults 
+                foreach ($default in $action.default) {
+                    if ($default.input) {
+                        $item = $listActionMaps.Items.Add($default.input)
+                        if ($null -ne $item) {
+                            $multiTapValue = if ($default.multiTap) { $default.multiTap } else { "" }
+                            $item.SubItems.Add($multiTapValue)| Out-Null
+                        }
+                    }
+                }
                 foreach ($rebind in $action.rebind) {
                     if ($rebind.input) {
                         $item = $listActionMaps.Items.Add($rebind.input)
@@ -2495,10 +2565,48 @@ function Populate-KeyBindsViewer {
                 }
             }
         }
+
+        # Populate $listDefaults with the relevant actionmap from defaultactionmaps.xml
+        if ($node.Text -like "Action: *") {
+            $actionName = $node.Text.Substring(8)
+            # Load defaultactionmaps.xml if not already loaded
+            if (-not $script:defaultActionMapsXml) {
+                #$defaultActionMapsPath = Join-Path $PSScriptRoot "defaultactionmaps.xml"
+                $defaultActionMapsPath = Join-Path $PSScriptRoot $ActionMapDefaults
+                
+                if (Test-Path $defaultActionMapsPath) {
+                    $script:defaultActionMapsXml = [xml](Get-Content $defaultActionMapsPath)
+                    if ($debug) {Write-Host "debug:defaultActionMapsPath: $defaultActionMapsPath" -BackgroundColor White -ForegroundColor Black}
+                }
+            }
+            if ($script:defaultActionMapsXml) {
+                $listDefaults.Items.Clear()
+                $listDefaults.Columns.Clear()
+                #$listDefaults.Columns.Add("Rebind Input",120)
+                #$listDefaults.Columns.Add("MultiTap",120)
+                Add-Column $listDefaults @("Default Input", "MultiTap")
+                # Find the action in defaultactionmaps.xml
+                foreach ($actionmap in $script:defaultActionMapsXml.actionmap) {
+                    foreach ($action in $actionmap.action) {
+                        if ($action.name -eq $actionName) {
+                            foreach ($rebind in $action.rebind) {
+                                $item = $listDefaults.Items.Add($rebind.input)
+                                $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
+                                $item.SubItems.Add($multiTapValue) | Out-Null
+                            }
+                        }
+                    }
+                }
+            }
+        }
     })
+
+
+
     $tabActionMaps.Controls.Clear()
     $tabActionMaps.Controls.Add($treeActionMaps)
     $tabActionMaps.Controls.Add($listActionMaps)
+    $tabActionMaps.Controls.Add($listDefaults)
 
     # --- Device ---
     $deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
@@ -2632,7 +2740,7 @@ $keybindSearchField.Add_TextChanged({
             foreach ($action in $actionmap.action) {
                 $aNode = $amNode.Nodes.Add("Action: $($action.name)")
                 foreach ($rebind in $action.rebind) {
-                    $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+                    $aNode.Nodes.Add("KeyBind: $($rebind.input)") | Out-Null
                 }
             }
         }
@@ -2668,6 +2776,7 @@ $viewKeyBindingsMenuItem.Add_Click({
     }
     $script:BindsXML = [xml](Get-Content $script:ActionMapsxmlPath)
     $script:keyBindsProfiles = $script:BindsXML.ActionMaps.ActionProfiles
+    
 
     Populate-KeyBindsViewer
 
@@ -2677,12 +2786,193 @@ $viewKeyBindingsMenuItem.Add_Click({
 #$keyBindsForm.Controls.Add($keyBindsTreeView)
 #$keyBindsForm.Controls.Add($keyBindsList)
 
+# add the HID Lookup button to the Main Menu
+$hidLookupMenuItem = New-Object System.Windows.Forms.MenuItem
+$hidLookupMenuItem.Text = "HOTAS Re-Order"
+$hidLookupMenuItem.Add_Click({
+    # Hide the main form and show the HID Lookup form
+    $form.Hide()
+    $formHIDLookup.ShowDialog()
+})
+# Add the HID Lookup menu item to the Actions menu
+$toolsMenuItem.MenuItems.Add($hidLookupMenuItem)
 
+# Create a form for HOTAS Re-Order
+$formHIDLookup = New-Object System.Windows.Forms.Form
+$formHIDLookup.Text = "HOTAS Re-Order"
+$formHIDLookup.Size = New-Object System.Drawing.Size((600 * $script:ScaleMultiplier), (500 * $script:ScaleMultiplier))
+$formHIDLookup.StartPosition = "CenterScreen"
 
+# Add a button to close HID Sorting and return to main form
+$HIDBackButton = New-Object System.Windows.Forms.Button
+$HIDBackButton.Text = "< Back"
+#$HIDBackButton.Location = "10,10"   # Top left corner
+$HIDBackButton.Top = (10 * $script:ScaleMultiplier)
+$HIDBackButton.Left = (10 * $script:ScaleMultiplier)
+$HIDBackButton.Width = (100 * $script:ScaleMultiplier)
+$HIDBackButton.Height = (30 * $script:ScaleMultiplier)
+$HIDBackButton.TabIndex = 1
+$HIDBackButton.Name = "HIDBackButton"
+$HIDBackButton.Anchor = "Top, Left"
+$HIDBackButton.Font = New-Object System.Drawing.Font($HIDBackButton.Font.FontFamily, [math]::Round($HIDBackButton.Font.Size * $script:ScaleMultiplier))
+$HIDBackButton.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier),(30 * $script:ScaleMultiplier))
+$HIDBackButton.Add_Click({
+    $formHIDLookup.Hide()
+    $form.Show()
+})
+$formHIDLookup.Controls.Add($HIDBackButton)
+
+# Add an informational label next to the HIDBackButton
+$infoLabel = New-Object System.Windows.Forms.Label
+$infoLabel.Text = "This utility will allow you to change your Device Assignments in Windows, to match your saved configuration in game. Alternatively, you can refer to the device list below to ascertain which device is assigned what ID."
+$infoLabel.Top = (10 * $script:ScaleMultiplier)
+$infoLabel.Left = (120 * $script:ScaleMultiplier)
+$infoLabel.Width = (450 * $script:ScaleMultiplier)
+$infoLabel.Height = (40 * $script:ScaleMultiplier)
+$infoLabel.Font = New-Object System.Drawing.Font($infoLabel.Font.FontFamily, [math]::Round($infoLabel.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$infoLabel.TextAlign = 'MiddleLeft'
+$infoLabel.AutoSize = $false
+$formHIDLookup.Controls.Add($infoLabel)
+
+# Devices label
+$labelDevices = New-Object System.Windows.Forms.Label
+$labelDevices.Text = "Detected active devices: If your device is not listed, please ensure it is connected and recognized by Windows, reinsert it, or restart your computer."
+#$labelDevices.Location = (10 * $script:ScaleMultiplier),(60 * $script:ScaleMultiplier)
+#$labelDevices.Location = "10,60"
+$labelDevices.Top = (60 * $script:ScaleMultiplier)
+$labelDevices.Left = (10 * $script:ScaleMultiplier)
+$labelDevices.Height = (50 * $script:ScaleMultiplier)
+$labelDevices.Font = New-Object System.Drawing.Font($labelDevices.Font.FontFamily, [math]::Round($labelDevices.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$labelDevices.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(40 * $script:ScaleMultiplier))
+$formHIDLookup.Controls.Add($labelDevices)
+
+# Devices listbox
+$listDevices = New-Object System.Windows.Forms.ListBox
+#$listDevices.Location = (10 * $script:ScaleMultiplier),(85 * $script:ScaleMultiplier)
+#$listDevices.Location = "10,85"
+$listDevices.Top = (105 * $script:ScaleMultiplier)
+$listDevices.Left = (10 * $script:ScaleMultiplier)
+$listDevices.Font = New-Object System.Drawing.Font($listDevices.Font.FontFamily, [math]::Round($listDevices.Font.Size * $script:ScaleMultiplier))
+$listDevices.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(100 * $script:ScaleMultiplier))
+$listDevices.TabIndex = 2
+$formHIDLookup.Controls.Add($listDevices)
+
+# Order label
+$labelOrder = New-Object System.Windows.Forms.Label
+$labelOrder.Text = "Re-Order (e.g., 3,1,2,4):"
+#$labelOrder.Location = (10 * $script:ScaleMultiplier),(200 * $script:ScaleMultiplier)
+#$labelOrder.Location = "10,200"
+$labelOrder.Top = (200 * $script:ScaleMultiplier)
+$labelOrder.Left = (10 * $script:ScaleMultiplier)
+$labelOrder.Font = New-Object System.Drawing.Font($labelOrder.Font.FontFamily, [math]::Round($labelOrder.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$labelOrder.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(20 * $script:ScaleMultiplier))
+$formHIDLookup.Controls.Add($labelOrder)
+
+# Order textbox
+$textOrder = New-Object System.Windows.Forms.TextBox
+#$textOrder.Location = (10 * $script:ScaleMultiplier),(225 * $script:ScaleMultiplier)
+#$textOrder.Location = "10,225"
+$textOrder.Top = (225 * $script:ScaleMultiplier)
+$textOrder.Left = (10 * $script:ScaleMultiplier)
+$textOrder.Font = New-Object System.Drawing.Font($textOrder.Font.FontFamily, [math]::Round($textOrder.Font.Size * $script:ScaleMultiplier))
+$textOrder.Size = New-Object System.Drawing.Size((200 * $script:ScaleMultiplier),(20 * $script:ScaleMultiplier))
+$textOrder.TabIndex = 3
+$formHIDLookup.Controls.Add($textOrder)
+
+# Status label
+$labelStatus = New-Object System.Windows.Forms.Label
+$labelStatus.Text = ""
+#$labelStatus.Location = ((10 * $script:ScaleMultiplier),(260 * $script:ScaleMultiplier))
+$labelStatus.Location = "10,260"
+$labelStatus.Top = (260 * $script:ScaleMultiplier)
+$labelStatus.Left = (10 * $script:ScaleMultiplier)
+$labelStatus.Font = New-Object System.Drawing.Font($labelStatus.Font.FontFamily, [math]::Round($labelStatus.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$labelStatus.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(40 * $script:ScaleMultiplier))
+$labelStatus.ForeColor = 'Red'
+$formHIDLookup.Controls.Add($labelStatus)
+
+# Action button
+$buttonAction = New-Object System.Windows.Forms.Button
+$buttonAction.Text = "Apply"
+#$buttonAction.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
+#$buttonAction.Location = "10,310"
+$buttonAction.Top = (310 * $script:ScaleMultiplier)
+$buttonAction.Left = (10 * $script:ScaleMultiplier)
+$buttonAction.Font = New-Object System.Drawing.Font($buttonAction.Font.FontFamily, [math]::Round($buttonAction.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+$buttonAction.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
+$buttonAction.TabIndex = 4
+$formHIDLookup.Controls.Add($buttonAction)
+
+# Global variables
+$devices = @()
+
+function LoadDevices {
+    $oemName = ""
+    $listDevices.Items.Clear()
+    $devices = Get-PnpDevice -Class "HIDClass" | Where-Object {
+        $_.FriendlyName -like "*HID-compliant game controller*" -and $_.Status -eq "OK"
+    }
+    if ($devices.Count -eq 0) {
+        $labelStatus.Text = "No active HID-compliant game controllers found."
+        $buttonAction.Enabled = $false
+    } else {
+        $i = 1
+        foreach ($d in $devices) {
+            $instanceIdShort = $d.InstanceId
+            if ($instanceIdShort -like "HID\*") {
+                $instanceIdShort = $instanceIdShort.Substring(4)
+                if ($instanceIdShort.Contains("\")) {
+                    $instanceIdShort = $instanceIdShort.Split('\')[0]
+                }
+            }
+            $oemRegPath = "HKCU:\System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\$($instanceIdShort)"
+            #Write-Host "Checking OEM registry path: $oemRegPath"
+            $oemName = "Unknown"
+            if (Test-Path $oemRegPath) {
+                $oemName = (Get-ItemProperty -Path $oemRegPath -Name OEMName -ErrorAction SilentlyContinue).OEMName
+            } else {
+                Write-Host "OEM registry path not found for device: $($instanceIdShort)"
+            }
+            $listDevices.Items.Add("$i. $oemName - $($d.InstanceId)")
+            $i++
+        }
+        $buttonAction.Enabled = $true
+    }
+    return ,$devices
+}
+
+$formHIDLookup.Add_Shown({
+    $script:devices = LoadDevices
+})
+
+$buttonAction.Add_Click({
+    $orderInput = $textOrder.Text
+    $order = $orderInput -split ',' | ForEach-Object { $_.Trim() -as [int] }
+    if ($order.Count -ne $devices.Count -or $order -contains $null) {
+        $labelStatus.Text = "Invalid order entered. Try again."
+        return
+    }
+    # Disable all devices
+    $labelStatus.ForeColor = 'Red'
+    $labelStatus.Text = "Disabling all devices..."
+    foreach ($device in $devices) {
+        Disable-PnpDevice -InstanceId $device.InstanceId -Confirm:$false
+    }
+    Start-Sleep -Seconds 2
+    # Enable in order
+    $labelStatus.Text = "Enabling devices in the specified order..."
+    foreach ($idx in $order) {
+        $selectedDevice = $devices[$idx - 1]
+        Enable-PnpDevice -InstanceId $selectedDevice.InstanceId -Confirm:$false
+    }
+    $labelStatus.ForeColor = 'Green'
+    $labelStatus.Text = "Configuration completed. Devices are now enabled in the specified order."
+})
 
 
 
 Set-DefaultFont -control $form
+Set-DefaultFont -control $formHIDLookup
 Set-DefaultFont -control $ActionsGroupBox
 Set-DefaultFont -control $editGroupBox
 Set-DefaultFont -control $keyBindsForm
