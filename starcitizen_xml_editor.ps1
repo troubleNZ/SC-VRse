@@ -71,22 +71,19 @@ function Set-DefaultFont {
 
 $scriptIcon = $null
 
-if ($null -ne $PSScriptRoot) {
-    $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
-    if (Test-Path $iconPath) {
-        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
-    } else {
-        $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
-        try {
-            $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
-            Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
-            $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
-        } catch {
-            if ($debug) {Write-Host "Failed to download icon"}
-        }
+$iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
+if (($null -ne $iconPath) -and (Test-Path $iconPath)) {
+    $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
+} else {
+    $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
+    try {
+        $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
+        Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
+        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
+    } catch {
+        if ($debug) {Write-Host "Failed to download icon"}
     }
 }
-
 
 $script:ScaleMultiplier = 1.0
 <#       We'll use the screen dimensions below for suggesting a max window size                   #>
@@ -2504,7 +2501,12 @@ $keyBindsForm.Controls.Add($tabControl)
 
 # Load default action maps XML
 $ActionMapDefaults = "actionmaps-4.1.1.xml"
-$defaultActionMapsXml = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
+if ($PSScriptRoot -ne "") {
+    $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
+} else {
+    $ActionMapDefaults = "actionmaps-4.1.1.xml"
+}
+#$defaultActionMapsXml = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
 #$defaultsXml = $null
 
 # Populate and wire up controls only after XML is loaded
