@@ -57,3 +57,5 @@
 **0.3.5** invictus blue and yellow dark mode    
 **0.3.6** DPI scaling, invictus default dark mode    
 **0.3.7** Can't locate Game Install error handling    
+**0.4.0** HOTAS Hardware ID Reassignment Utility
+**0.4.1** Dynamic Scaling on all controls
