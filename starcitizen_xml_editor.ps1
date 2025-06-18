@@ -9,7 +9,7 @@
               ███    ███  The VRse Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.4.1"                        # added HOTAS Hardware ID Reassignment utility, and Dynamic scaling finally applied to all controls
+$scriptVersion = "0.4.2"                        # fix for running the script from github and missing a psroot variable
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
@@ -71,19 +71,22 @@ function Set-DefaultFont {
 
 $scriptIcon = $null
 
-$iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
-if (Test-Path $iconPath) {
-    $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
-} else {
-    $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
-    try {
-        $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
-        Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
-        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
-    } catch {
-        if ($debug) {Write-Host "Failed to download icon"}
+if ($null -ne $PSScriptRoot) {
+    $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
+    if (Test-Path $iconPath) {
+        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
+    } else {
+        $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
+        try {
+            $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
+            Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
+            $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
+        } catch {
+            if ($debug) {Write-Host "Failed to download icon"}
+        }
     }
 }
+
 
 $script:ScaleMultiplier = 1.0
 <#       We'll use the screen dimensions below for suggesting a max window size                   #>
@@ -676,10 +679,12 @@ function Open-LiveFolder {
             elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
                 $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
                 if (Test-Path -Path $script:attributesXmlPath) {
+                    if ($null -ne $PSScriptRoot) {
                         $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
                         if (-not (Test-Path -Path $backupDir)) {
                             New-Item -ItemType Directory -Path $backupDir | Out-Null
                         }
+                    }
                     $destinationPath = Join-Path -Path $backupDir -ChildPath "attributes_backup_$niceDate.xml"
                     Copy-Item -Path $script:attributesXmlPath -Destination $destinationPath -Force
                     $script:xmlPath = $script:attributesXmlPath
