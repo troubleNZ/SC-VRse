@@ -78,4 +78,4 @@ You can easily restore the EAC Cached files by running Verify Files in the Star 
 * 0.3.7 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/86
 
 
-**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.3.4
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.3.7
