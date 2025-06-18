@@ -76,6 +76,6 @@ You can easily restore the EAC Cached files by running Verify Files in the Star 
 * 0.3.5 Invictus Blue and Yellow dark mode by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/82
 * 0.3.6 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/84
 * 0.3.7 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/86
+* 0.4.1 by @troubleNZ in https://github.com/troubleNZ/SC-VRse/pull/87
 
-
-**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.3.7
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.4.1
