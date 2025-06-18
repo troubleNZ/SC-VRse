@@ -68,7 +68,7 @@ function Set-DefaultFont {
         }
     }
 }
-
+Write-Host "PSscriptRoot: " $PSScriptRoot -BackgroundColor White -ForegroundColor Black
 $scriptIcon = $null
 if ($PSScriptRoot -ne "") {
     $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
