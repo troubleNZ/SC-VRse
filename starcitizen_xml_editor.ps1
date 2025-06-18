@@ -20,7 +20,7 @@ $loadedProfile = $false
 [Reflection.Assembly]::LoadWithPartialName('System.Drawing')       | Out-Null
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-$debug = $false
+$debug = $true
 
 $script:xmlPath = $null
 $script:xmlContent = @()
@@ -68,7 +68,7 @@ function Set-DefaultFont {
         }
     }
 }
-if ($debug) {Write-Host "PSscriptRoot: " $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
+if ($debug) {Write-Host "PSscriptRoot:`n" $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
 $scriptIcon = $null
 if ($PSScriptRoot -ne " ") {
     $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
@@ -2503,7 +2503,7 @@ $keyBindsForm.Controls.Add($tabControl)
 
 # Load default action maps XML
 $ActionMapDefaults = "actionmaps-4.1.1.xml"
-if ($PSScriptRoot -ne "") {
+if ($PSScriptRoot -ne " ") {
     $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
 } else {
     $ActionMapDefaults = "actionmaps-4.1.1.xml"
