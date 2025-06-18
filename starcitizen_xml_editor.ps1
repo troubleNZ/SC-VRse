@@ -70,7 +70,7 @@ function Set-DefaultFont {
 }
 if ($debug) {Write-Host "PSscriptRoot:`n" $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
 $scriptIcon = $null
-if ($PSScriptRoot -ne "") { # if the script is run from a path, not from the console
+if (![string]::IsNullOrEmpty($PSScriptRoot)) { # if the script is run from a path, not from the console
     $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
     if (Test-Path $iconPath) {
         $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
@@ -678,7 +678,7 @@ function Open-LiveFolder {
             elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
                 $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
                 if (Test-Path -Path $script:attributesXmlPath) {
-                    if ($null -ne $PSScriptRoot) {
+                    if (![string]::IsNullOrEmpty($PSScriptRoot)) {
                         $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
                         if (-not (Test-Path -Path $backupDir)) {
                             New-Item -ItemType Directory -Path $backupDir | Out-Null
@@ -2157,8 +2157,12 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
 function Open-FovWizard {
     # Open the FOV wizard form
     # Define the path to the Python script
-    $pythonScriptPath = Join-Path -Path $PSScriptRoot -ChildPath "fovwizard.py"
 
+    if (![string]::IsNullOrEmpty($PSScriptRoot)) {
+        $pythonScriptPath = Join-Path -Path $PSScriptRoot -ChildPath "fovwizard.py"
+    } else {
+        $pythonScriptPath = "fovwizard.py"
+    }
     # Check if the Python script exists
     if (-not (Test-Path -Path $pythonScriptPath)) {
         [System.Windows.Forms.MessageBox]::Show("FOV Wizard script not found at: $pythonScriptPath")
@@ -2503,7 +2507,7 @@ $keyBindsForm.Controls.Add($tabControl)
 
 # Load default action maps XML
 $ActionMapDefaults = "actionmaps-4.1.1.xml"
-if ($PSScriptRoot -ne "") {
+if (![string]::IsNullOrEmpty($PSScriptRoot)) {
     $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
 } else {
     $ActionMapDefaults = "actionmaps-4.1.1.xml"
