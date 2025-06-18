@@ -70,20 +70,22 @@ function Set-DefaultFont {
 }
 
 $scriptIcon = $null
-
-$iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
-if (($null -ne $iconPath) -and (Test-Path $iconPath)) {
-    $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
-} else {
-    $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
-    try {
-        $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
-        Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
-        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
-    } catch {
-        if ($debug) {Write-Host "Failed to download icon"}
+if ($PSScriptRoot -ne "") {
+    $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
+    if (Test-Path $iconPath) {
+        $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
+    } else {
+        $iconwebPath = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/"
+        try {
+            $tempIconPath = Join-Path -Path $env:TEMP -ChildPath "icon.ico"
+            Invoke-WebRequest -Uri $iconwebPath -OutFile $tempIconPath -ErrorAction Stop
+            $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($tempIconPath)
+        } catch {
+            if ($debug) {Write-Host "Failed to download icon"}
+        }
     }
 }
+
 
 $script:ScaleMultiplier = 1.0
 <#       We'll use the screen dimensions below for suggesting a max window size                   #>
