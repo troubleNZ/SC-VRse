@@ -68,7 +68,7 @@ function Set-DefaultFont {
         }
     }
 }
-Write-Host "PSscriptRoot: " $PSScriptRoot -BackgroundColor White -ForegroundColor Black
+if ($debug) {Write-Host "PSscriptRoot: " $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
 $scriptIcon = $null
 if ($PSScriptRoot -ne " ") {
     $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
@@ -109,7 +109,7 @@ function Get-DesktopResolutionScale {
         2 { $script:ScaleMultiplier = 2.0; return "200%" }
         default { $script:ScaleMultiplier = [math]::Round($scaleFactor * 100) / 100; return "$([math]::Round($scaleFactor * 100))%" }
     }
-}Get-DesktopResolutionScale
+}Get-DesktopResolutionScale | Out-Null
 if ($debug) {
     write-host "Resolution Scale: " (Get-DesktopResolutionScale)
     Write-Host "Scale Multiplier: " $script:ScaleMultiplier -BackgroundColor White -ForegroundColor Black
@@ -2503,7 +2503,7 @@ $keyBindsForm.Controls.Add($tabControl)
 
 # Load default action maps XML
 $ActionMapDefaults = "actionmaps-4.1.1.xml"
-if ($PSScriptRoot -ne " ") {
+if ($PSScriptRoot -ne "") {
     $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
 } else {
     $ActionMapDefaults = "actionmaps-4.1.1.xml"
