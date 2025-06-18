@@ -20,7 +20,7 @@ $loadedProfile = $false
 [Reflection.Assembly]::LoadWithPartialName('System.Drawing')       | Out-Null
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-$debug = $true
+$debug = $false
 
 $script:xmlPath = $null
 $script:xmlContent = @()
