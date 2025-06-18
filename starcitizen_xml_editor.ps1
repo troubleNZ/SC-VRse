@@ -70,7 +70,7 @@ function Set-DefaultFont {
 }
 if ($debug) {Write-Host "PSscriptRoot:`n" $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
 $scriptIcon = $null
-if ($PSScriptRoot -ne " ") {
+if ($PSScriptRoot -ne "") { # if the script is run from a path, not from the console
     $iconPath = Join-Path -Path $PSScriptRoot -ChildPath "icon.ico"
     if (Test-Path $iconPath) {
         $scriptIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
@@ -2503,7 +2503,7 @@ $keyBindsForm.Controls.Add($tabControl)
 
 # Load default action maps XML
 $ActionMapDefaults = "actionmaps-4.1.1.xml"
-if ($PSScriptRoot -ne " ") {
+if ($PSScriptRoot -ne "") {
     $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath $ActionMapDefaults
 } else {
     $ActionMapDefaults = "actionmaps-4.1.1.xml"
