@@ -1403,23 +1403,6 @@ $dataTableGroupBox.Visible = $false  # Initially hide the group box
 
 #$form.Controls.Add($dataTableGroupBox)
 
-<#              unused for now
-$fileLabel = New-Object System.Windows.Forms.Label
-$fileLabel.Text = "File:"
-$fileLabel.Top = $ActionsGroupBox.Top + $ActionsGroupBox.Height + 10
-$fileLabel.Left = 20
-$fileLabel.Width = 30
-$form.Controls.Add($fileLabel)
-
-$fileTextBox = New-Object System.Windows.Forms.TextBox
-$fileTextBox.Top = $ActionsGroupBox.Top + $ActionsGroupBox.Height + 10
-$fileTextBox.Left = 60
-$fileTextBox.Width = 500
-$fileTextBox.ReadOnly = $true
-$fileTextBox.Visible = $true
-$fileTextBox.Text = $xmlPath
-$form.Controls.Add($fileTextBox)    #>
-
 $editGroupBox = New-Object System.Windows.Forms.GroupBox
 $editGroupBox.Text = "VR Centric Settings"
 $editGroupBox.Width = (550 * $script:ScaleMultiplier)
@@ -1667,15 +1650,6 @@ $AutoZoomLabel.Top = (260 * $script:ScaleMultiplier)
 $AutoZoomLabel.Left = (290 * $script:ScaleMultiplier)
 $AutoZoomLabel.Width = (100 * $script:ScaleMultiplier)
 $editGroupBox.Controls.Add($AutoZoomLabel)
-
-<#$AutoZoomTextBox = New-Object System.Windows.Forms.TextBox
-$AutoZoomTextBox.Name = "AutoZoomTextBox"
-$AutoZoomTextBox.Top = 140
-$AutoZoomTextBox.Left = 410
-$AutoZoomTextBox.Width = 50
-$AutoZoomTextBox.TextAlign = 'Left'
-$AutoZoomTextBox.TabIndex = 12
-$editGroupBox.Controls.Add($AutoZoomTextBox)#>
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
@@ -1959,18 +1933,6 @@ $FilmGrainComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
 $HeadtrackingEnableRollFPSComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
 $HeadtrackingDisableDuringWalkingComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
 $HeadtrackingThirdPersonCameraToggleComboBox.Add_SelectedIndexChanged({ Enable-SaveButtons })
-
-<#$saveAcknowledgeLabel = New-Object System.Windows.Forms.Label
-$saveAcknowledgeLabel.Text = "Saved. You may now close this window. Remember to start VorpX Control Panel and the Watcher before launching Star Citizen!" + "`n`n" + $vorpxindicatorText
-$saveAcknowledgeLabel.Font = New-Object System.Drawing.Font($saveAcknowledgeLabel.Font.FontFamily, $saveAcknowledgeLabel.Font.Size, [System.Drawing.FontStyle]::Bold)
-$saveAcknowledgeLabel.ForeColor = [System.Drawing.Color]::Red
-$saveAcknowledgeLabel.Top = 530
-$saveAcknowledgeLabel.Left = 30
-$saveAcknowledgeLabel.Width = 500
-$saveAcknowledgeLabel.Height = 50
-$saveAcknowledgeLabel.Visible = $false
-$form.Controls.Add($saveAcknowledgeLabel)#>
-
 
 $fovTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $widthTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -2909,9 +2871,3 @@ Set-DefaultFont -control $keyBindsForm
 Switch-DarkMode
 
 $form.ShowDialog()
-
-<#      extra to add to the form eventually.
-<Attr name="Upscaling" value="1"/>
-<Attr name="UpscalingTechnique" value="2"/> #DLSS
-#>
-
