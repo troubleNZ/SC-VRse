@@ -1218,69 +1218,6 @@ $fileMenuItem.MenuItems.Add($exitMenuItem)  # Add the Exit menu item to the File
 
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
-# Create the Find Live Folder button
-<#$findLiveFolderButton = New-Object System.Windows.Forms.Button
-$findLiveFolderButton.Name = "FindLiveFolderButton"
-$findLiveFolderButton.Text = "Open SC Folder"
-$findLiveFolderButton.Width = 120
-$findLiveFolderButton.Height = 30
-$findLiveFolderButton.Top = 30
-$findLiveFolderButton.Left = 20
-$findLiveFolderButton.TabIndex = 0
-$findLiveFolderButton.Add_Click({
-    $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    if ($AutoDetectSCPath -ne $null -and (Test-Path -Path $AutoDetectSCPath)) {
-        $folderBrowserDialog.SelectedPath = $AutoDetectSCPath
-    }
-    $statusBar.Text = "Opening SC Folder..."
-    $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
-    if ($script:profileArray -and ($null -ne $script:profileArray.SCPath)) {
-        if ($folderBrowserDialog -ne $null) {
-            $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.SCPath)
-        } else {
-            Write-Error "Error: FolderBrowserDialog is not initialized." -ForegroundColor Red
-        }
-    }
-    if ($folderBrowserDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $selectedPath = $folderBrowserDialog.SelectedPath
-        $script:liveFolderPath = Join-Path -Path $selectedPath -ChildPath "Live"
-        if (Test-Path -Path $script:liveFolderPath -PathType Container) {
-            $statusBar.Text = "SC Folder found at: $script:liveFolderPath"
-            #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
-            $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
-            if (-not (Test-Path -Path $defaultProfilePath -PathType Container)) {
-                $statusBar.Text = "'default' folder not found."
-                [System.Windows.Forms.MessageBox]::Show("'default' folder not found.")
-                return
-            }
-            elseif (Test-Path -Path $defaultProfilePath -PathType Container) {
-                $script:attributesXmlPath = Join-Path -Path $defaultProfilePath -ChildPath "attributes.xml"
-                if (Test-Path -Path $script:attributesXmlPath) {
-                        $backupDir = Join-Path -Path $PSScriptRoot -ChildPath $BackupFolderName
-                        if (-not (Test-Path -Path $backupDir)) {
-                            New-Item -ItemType Directory -Path $backupDir | Out-Null
-                        }
-                    $destinationPath = Join-Path -Path $backupDir -ChildPath "attributes_backup_$niceDate.xml"
-                    Copy-Item -Path $script:attributesXmlPath -Destination $destinationPath -Force
-                    $script:xmlPath = $script:attributesXmlPath
-                    Open-XMLViewer($script:xmlPath)
-                } else {
-                    $statusBar.Text = "attributes.xml file not found in the 'default' profile folder."
-                    [System.Windows.Forms.MessageBox]::Show("attributes.xml file not found in the 'default' profile folder.")
-
-                }
-            }
-        } else {
-            $statusBar.Text = "'Live' folder not found."
-            [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
-        }
-    }else {
-        $statusBar.Text = "Folder selection canceled."
-        #[System.Windows.Forms.MessageBox]::Show("Folder selection canceled.")
-    }
-})
-$ActionsGroupBox.Controls.Add($findLiveFolderButton)
-#>
 
 $openProfileButton = New-Object System.Windows.Forms.Button
 $openProfileButton.Name = "OpenProfileButton"
@@ -1298,29 +1235,6 @@ $ActionsGroupBox.Controls.Add($openProfileButton)
 $openProfileButton.Visible = $false
 $openProfileButton.Enabled = $false
 $openProfileButton.TabStop = $false
-
-
-<# unused
-    $navigateButton = New-Object System.Windows.Forms.Button
-    $navigateButton.Text = "Navigate to File"
-    $navigateButton.Width = 120
-    $navigateButton.Height = 30
-    $navigateButton.Top = 90
-    $navigateButton.Left = 20
-    $navigateButton.TabIndex = 0
-    $navigateButton.Visible = $false
-
-    $navigateButton.Add_Click({
-        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-        $openFileDialog.Filter = "XML Files (attributes.xml)|attributes.xml"
-        $openFileDialog.Title = "Select the attributes.xml file"
-        if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-            $script:xmlPath = $openFileDialog.FileName
-            Open-XMLViewer($script:xmlPath)
-        }
-    })
-    $ActionsGroupBox.Controls.Add($navigateButton)
-#>
 
 # Create the EAC Bypass group box
 $eacGroupBox = New-Object System.Windows.Forms.GroupBox
@@ -2130,6 +2044,9 @@ $ShowHelp={
 $statusBar = New-Object System.Windows.Forms.StatusBar
 $statusBar.Text = "Ready"
 $statusBar.Dock = [System.Windows.Forms.DockStyle]::Bottom
+$statusBar.Height = (20 * $script:ScaleMultiplier)
+$statusBar.Font = New-Object System.Drawing.Font($statusBar.Font.FontFamily, [math]::Round($statusBar.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$statusBar.Name = "StatusBar"
 $form.Controls.Add($statusBar)
 
 
