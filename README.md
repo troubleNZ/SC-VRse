@@ -8,6 +8,9 @@
 # SC-VRse
 ## VRse-AE (Attribute Editor)
 
+# this is obsolete now that 4.5 released with native vr support. i'll look at updating this in the future, but the bypass stuff is redundant.
+
+
 ### Easy Virtual Reality configuration manager for Star Citizen (Live PU).
 
 Get help with VR in Star Citizen at  
