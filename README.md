@@ -100,3 +100,4 @@ Also find the handy Keybinds viewer under the Actions Menu, where you can easily
   
 
 **Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.4.1
+
