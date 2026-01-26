@@ -66,10 +66,6 @@ Unzip to a folder.
 
 The tool should automatically detect your Star Citizen Live Install, and populate the fields with the current values from the game.
 
-You can enable and disable Easy Anticheat 'easily', and Toggle VR on with 1 button.
-
-  
-
 Many settings that a VR Citizen might want exposed are available to configure, from Filmgrain and Motion Blur, to Head Bob and Autozoom
 
 The new Experimental VR Settings are all currently contained off a submenu, accessed via the button at the bottom of the screen.
