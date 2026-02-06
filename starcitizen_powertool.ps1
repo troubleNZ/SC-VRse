@@ -9,12 +9,12 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.5.0"                        # fix for running the script from github and missing a psroot variable
+$scriptVersion = "0.5.1"
 
 $scbuild = "4.6"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
 
-$debug = $true
+$debug = $false
 
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
@@ -47,15 +47,20 @@ $darkModeMenuItem = $null
 $textboxExpCategory_EscMenuSettings_EscMenuDistance = $null
 $textboxExpCategory_EscMenuSettings_EscMenuYPos = $null
 $textboxExpCategory_EscMenuSettings_EscMenuScale = $null
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth = $null
+$textboxExpCategory_HelmetVisorLensDepth = $null
+$textboxExpCategory_HelmetVisorLens_AspectModifier = $null
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight = $null
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale = $null
 $ComboboxExpCategory_MirrorMode_StereoMirrorMode = $null
 $textboxExpCategory_TheatreMode_Scale = $null
 $textboxExpCategory_TheatreMode_Curvature = $null
 $textboxExpCategory_TheatreMode_Distance = $null
-$textboxExpCategory_UserSettings_StereoScaleformDepth = $null
+#$textboxExpCategory_UserSettings_StereoScaleformDepth = $null
 $textboxExpCategory_UserSettings_StereoStrength = $null
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch = $null
+$textboxExpCategory_ConsoleSettings_StereoCursorScale = $null
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch = $null
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode = $null
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye = $null
 
 
 
@@ -71,7 +76,7 @@ public class DPIAware
 
 [System.Windows.Forms.Application]::EnableVisualStyles()
 [void] [DPIAware]::SetProcessDPIAware()                    # this seems to scale everything badly, so commented out for now until i get more time to test it
-$defaultFont = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Regular) #segoia UI, 12pt, style=Regular
+$defaultFont = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular) #segoia UI, 12pt, style=Regular
 
 function Set-DefaultFont {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -256,8 +261,12 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $textboxExpCategory_EscMenuSettings_EscMenuScale.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_EscMenuSettings_EscMenuScale.ForeColor = [System.Drawing.Color]::White
         #$textboxExpCategory_EscMenuSettings_EscMenuScale.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-        $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
-        #$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.ForeColor = [System.Drawing.Color]::White
+        $textboxExpCategory_HelmetVisorLensDepth.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$textboxExpCategory_HelmetVisorLensDepth.ForeColor = [System.Drawing.Color]::White
+
+        $textboxExpCategory_HelmetVisorLens_AspectModifier.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        $textboxExpCategory_HelmetVisorLens_HmdVisorScale.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
 
         $textboxExpCategory_TheatreMode_Scale.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_TheatreMode_Scale.ForeColor = [System.Drawing.Color]::White
@@ -267,7 +276,7 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         
         $textboxExpCategory_TheatreMode_Distance.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_TheatreMode_Distance.ForeColor = [System.Drawing.Color]::White
-        $textboxExpCategory_UserSettings_StereoScaleformDepth.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$textboxExpCategory_UserSettings_StereoScaleformDepth.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_UserSettings_StereoScaleformDepth.ForeColor = [System.Drawing.Color]::White
         $textboxExpCategory_UserSettings_StereoStrength.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_UserSettings_StereoStrength.ForeColor = [System.Drawing.Color]::White
@@ -361,15 +370,20 @@ function Set-ProfileArray {
             HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
             HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text;
             HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text;
-            HmdVisorAspectModifier = $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text;
+            HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text;
+            HmdVisorAspectModifier = $textboxExpCategory_HelmetVisorLens_AspectModifier.Text;
+            HmdVisorHeight = $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text;
+            HmdVisorScale = $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text;
             HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex;
             HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text;
             HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text;
             HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text;
-            HmdVisorDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
+            #HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
             HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text;
-            HmdAutomaticSwitching = $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex;
+            HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text;
+            HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex;
             HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
+            HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex
 
         }) | Out-Null
     }
@@ -524,15 +538,20 @@ function Open-XMLViewer {
                 HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
                 HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text;
                 HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text;
-                HmdVisorAspectModifier = $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text;
+                HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text;
+                HmdVisorAspectModifier = $textboxExpCategory_HelmetVisorLens_AspectModifier.Text;
+                HmdVisorHeight = $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text;
+                HmdVisorScale = $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text;
                 HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex;
                 HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text;
                 HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text;
                 HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text;
-                HmdVisorDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
+                HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
                 HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text;
-                HmdAutomaticSwitching = $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex;
+                HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
+                HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex;
                 HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
+                HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex;
                 #>
                 if ($null -ne $script:profileArray.HmdUIDistance) {
                     $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:profileArray.HmdUIDistance
@@ -549,11 +568,30 @@ function Open-XMLViewer {
                 } else {
                     $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIScale" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray.HmdVisorAspectModifier) {
-                    $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text = $script:profileArray.HmdVisorAspectModifier
+                if ($null -ne $script:profileArray.HmdVisorDistance) {
+                    $textboxExpCategory_HelmetVisorLensDepth.Text = $script:profileArray.HmdVisorDistance
                 } else {
-                    $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" } | Select-Object -ExpandProperty value
+                    $textboxExpCategory_HelmetVisorLensDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" } | Select-Object -ExpandProperty value
                 }
+
+                if ($null -ne $script:profileArray.HmdVisorAspectModifier) {
+                    $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:profileArray.HmdVisorAspectModifier
+                } else {
+                    $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.HmdVisorHeight) {
+                    $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text= $script:profileArray.HmdVisorHeight
+                } else {
+                    $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorHeight" } | Select-Object -ExpandProperty value
+                }
+                if ($null -ne $script:profileArray.HmdVisorScale) {
+                    $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:profileArray.HmdVisorScale
+                } else {
+                    $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorScale" } | Select-Object -ExpandProperty value
+                }
+
+
+
                 if ($null -ne $script:profileArray.HmdTheaterMode) {
                     $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex; = $script:profileArray.HmdTheaterMode
                 } else {
@@ -576,27 +614,41 @@ function Open-XMLViewer {
                 } else {
                     $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeDistance" } | Select-Object -ExpandProperty value
                 }
-                 if ($null -ne $script:profileArray.HmdVisorDistance) {
-                    $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:profileArray.HmdVisorDistance
+                <# if ($null -ne $script:profileArray.HmdVisorDistance) {
+                    $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:profileArray.HmdUIDistance
                 } else {
-                    $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" } | Select-Object -ExpandProperty value
-                }
+                    $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
+                }#>
+
+
+                
                 if ($null -ne $script:profileArray.HmdIPDScale) {
                     $textboxExpCategory_UserSettings_StereoStrength.Text = $script:profileArray.HmdIPDScale
                 } else {
                     $textboxExpCategory_UserSettings_StereoStrength.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdIPDScale" } | Select-Object -ExpandProperty value
                 }
-                if ($null -ne $script:profileArray.HmdAutomaticSwitching) {
-                    $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex = $script:profileArray.HmdAutomaticSwitching
+                if ($null -ne $script:profileArray.HmdCursorSize) {
+                    $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:profileArray.HmdCursorSize
                 } else {
-                    $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
+                    $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdCursorSize" } | Select-Object -ExpandProperty value
+                }
+                
+                if ($null -ne $script:profileArray.HmdAutomaticSwitching) {
+                    $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:profileArray.HmdAutomaticSwitching
+                } else {
+                    $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
                 }
                 if ($null -ne $script:profileArray.HmdActorControlMode) {
                     $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:profileArray.HmdActorControlMode
                 } else {
                     $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" } | Select-Object -ExpandProperty value
                 }
-
+                if ($null -ne $script:profileArray.HmdfpsAdsDominantEye) {
+                    $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:profileArray.HmdfpsAdsDominantEye
+                } else {
+                    $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
+                }
+                
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray
@@ -653,18 +705,23 @@ function Save-Profile {
                 $script:profileArray[0].HeadtrackingDisableDuringWalking = $HeadtrackingDuringFPSComboBox.SelectedIndex
                 #$script:profileArray[0].HeadtrackingDuringFPS = $HeadtrackingDuringFPSComboBox.SelectedIndex
                 $script:profileArray[0].HeadtrackingThirdPersonCameraToggle = $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex
-                $script:profileArray[0].HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
-                $script:profileArray[0].HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text;
-                $script:profileArray[0].HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text;
-                $script:profileArray[0].HmdVisorAspectModifier = $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text;
-                $script:profileArray[0].HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex;
-                $script:profileArray[0].HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text;
-                $script:profileArray[0].HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text;
-                $script:profileArray[0].HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text;
-                $script:profileArray[0].HmdVisorDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
-                $script:profileArray[0].HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text;
-                $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex;
-                $script:profileArray[0].HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
+                $script:profileArray[0].HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text
+                $script:profileArray[0].HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text
+                $script:profileArray[0].HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text
+                $script:profileArray[0].HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text
+                $script:profileArray[0].HmdVisorAspectModifier = $textboxExpCategory_HelmetVisorLens_AspectModifier
+                $script:profileArray[0].HmdVisorHeight = $textboxExpCategory_HelmetVisorLens_HmdVisorHeight
+                $script:profileArray[0].HmdVisorScale = $textboxExpCategory_HelmetVisorLens_HmdVisorScale
+                $script:profileArray[0].HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex
+                $script:profileArray[0].HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text
+                $script:profileArray[0].HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text
+                $script:profileArray[0].HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text
+                #$script:profileArray[0].HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
+                $script:profileArray[0].HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text
+                $script:profileArray[0].HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
+                $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex
+                $script:profileArray[0].HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex
+                $script:profileArray[0].HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex
 
                 $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
                 if ($null -ne $jsonContent) {
@@ -734,9 +791,6 @@ function Open-Profile {
     }
 }
 
-
-
-#converted from csharp to powershell
 function Get-GameRootDirFromRegistry {
     $keyPath = "HKCU:\System\GameConfigStore\Children"
     try {
@@ -990,10 +1044,24 @@ function Save-SettingsToGame {
             if ($null -ne $HmdUIScaleNode) {
                 $HmdUIScaleNode.SetAttribute("value", $textboxExpCategory_EscMenuSettings_EscMenuScale.Text)  # HmdUIScale
             }
+            $HmdVisorDistanceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" }
+            if ($null -ne $HmdVisorDistanceNode) {
+                $HmdVisorDistanceNode.SetAttribute("value", $textboxExpCategory_HelmetVisorLensDepth.Text)  # HmdVisorDistance
+            }
             $HmdVisorAspectModifierNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" }
             if ($null -ne $HmdVisorAspectModifierNode) {
-                $HmdVisorAspectModifierNode.SetAttribute("value", $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text)  # HmdVisorAspectModifier
+                $HmdVisorAspectModifierNode.SetAttribute("value", $textboxExpCategory_HelmetVisorLens_AspectModifier.Text)  # HmdVisorAspectModifier
             }
+            $HmdVisorHeightNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorHeight" }
+            if ($null -ne $HmdVisorHeightNode) {
+                $HmdVisorHeightNode.SetAttribute("value", $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text)  # HmdVisorHeight
+            }
+            $HmdVisorScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorScale" }
+            if ($null -ne $HmdVisorScaleNode) {
+                $HmdVisorScaleNode.SetAttribute("value", $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text)  # HmdVisorScale
+            }
+
+
             $HmdTheaterModeNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeNode" }
             if ($null -ne $HmdTheaterModeNode) {
                 if ($ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedItem -eq "Disabled") {
@@ -1015,21 +1083,29 @@ function Save-SettingsToGame {
             if ($null -ne $HmdTheaterModeDistanceNode) {
                 $HmdTheaterModeDistanceNode.SetAttribute("value", $textboxExpCategory_TheatreMode_Distance.Text)  # HmdTheaterModeDistance
             }
-            $HmdVisorDistanceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" }
-            if ($null -ne $HmdVisorDistanceNode) {
-                $HmdVisorDistanceNode.SetAttribute("value", $textboxExpCategory_UserSettings_StereoScaleformDepth.Text)  # HmdVisorDistance
-            }
+            #$HmdVisorDistanceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" }
+            #if ($null -ne $HmdVisorDistanceNode) {
+            #    $HmdVisorDistanceNode.SetAttribute("value", $textboxExpCategory_UserSettings_StereoScaleformDepth.Text)  # HmdUIDistance
+            #}
             $HmdIPDScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdIPDScale" }
             if ($null -ne $HmdIPDScaleNode) {
                 $HmdIPDScaleNode.SetAttribute("value", $textboxExpCategory_UserSettings_StereoStrength.Text)  # HmdIPDScale
             }
+            $HmdCursorSizeNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdCursorSize" }
+            if ($null -ne $HmdIPDScaleNode) {
+                $HmdCursorSizeNode.SetAttribute("value", $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text)  # HmdCursorSize
+            }
             $HmdAutomaticSwitchingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" }
             if ($null -ne $HmdAutomaticSwitchingNode) {
-                $HmdAutomaticSwitchingNode.SetAttribute("value", $textboxExpCategory_UserSettings_StereoStrength.Text)  # HmdAutomaticSwitching
+                $HmdAutomaticSwitchingNode.SetAttribute("value", $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Text)  # HmdAutomaticSwitching
             }
             $HmdActorControlModeNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" }
             if ($null -ne $HmdActorControlModeNode) {
-                $HmdActorControlModeNode.SetAttribute("value", $textboxExpCategory_UserSettings_StereoStrength.Text)  # HmdActorControlMode
+                $HmdActorControlModeNode.SetAttribute("value", $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Text)  # HmdActorControlMode
+            }
+            $HmdfpsAdsDominantEyeNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" }
+            if ($null -ne $HmdfpsAdsDominantEyeNode) {
+                $HmdfpsAdsDominantEyeNode.SetAttribute("value", $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Text)  # HmdfpsAdsDominantEye
             }
 
             # Save the XML content to the specified path
@@ -1275,15 +1351,20 @@ $openXmlMenuItem.Add_Click({
                         $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIHeight" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIScale" } | Select-Object -ExpandProperty value
-                        $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" } | Select-Object -ExpandProperty value
+                        $textboxExpCategory_HelmetVisorLensDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" } | Select-Object -ExpandProperty value
+                        $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" } | Select-Object -ExpandProperty value
+                        $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorHeight" } | Select-Object -ExpandProperty value
+                        $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorScale" } | Select-Object -ExpandProperty value
                         $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterMode" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_TheatreMode_Scale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeScale" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeCurvature" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_TheatreMode_Distance.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeDistance" } | Select-Object -ExpandProperty value
-                        $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" } | Select-Object -ExpandProperty value
+                        #$textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_UserSettings_StereoStrength.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdIPDScale" } | Select-Object -ExpandProperty value
-                        $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
+                        $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdCursorSize" } | Select-Object -ExpandProperty value
+                        $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
                         $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" } | Select-Object -ExpandProperty value
+                        $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
                         
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
@@ -1324,7 +1405,7 @@ $CheckForUpdatesMenuItem.Text = "Check for &Updates"
 $CheckForUpdatesMenuItem.Add_Click({
     # Version check script block
     try {
-        $url = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/starcitizen_xml_editor.ps1"
+        $url = "https://raw.githubusercontent.com/troubleNZ/SC-VRse/main/starcitizen_powertool.ps1"
         $remoteContent = Invoke-WebRequest -Uri $url -UseBasicParsing -ErrorAction Stop
         if ($remoteContent.StatusCode -eq 200) {
             $remoteScriptVersion = ($remoteContent.Content -split "`n" | Where-Object { $_ -match '\$scriptVersion' } | Select-Object -First 1) -replace '.*"(.*)".*', '$1'
@@ -1351,13 +1432,20 @@ $GithubMenuItem.Add_Click({
 })
 $helpMenuItem.MenuItems.Add($GithubMenuItem)  # Add the GitHub menu item to the main menu
 
+$DiscordMenuItem = New-Object System.Windows.Forms.MenuItem
+$DiscordMenuItem.Text = "Open The VR Citizen &Discord"
+$DiscordMenuItem.Add_Click({
+    Start-Process "https://discord.gg/g2jn2vzju3"
+})
+$helpMenuItem.MenuItems.Add($DiscordMenuItem)  # Add the Discord menu item to the main menu
+
 $creditsMenuItem = New-Object System.Windows.Forms.MenuItem
 $creditsMenuItem.Text = "&Credits"
 $creditsMenuItem.Add_Click({
     $creditsForm = New-Object System.Windows.Forms.Form
     $creditsForm.Text = "Credits"
     $creditsForm.Width = (400 * $script:ScaleMultiplier)
-    $creditsForm.Height = (300 * $script:ScaleMultiplier)
+    $creditsForm.Height = (350 * $script:ScaleMultiplier)
     $creditsForm.StartPosition = 'CenterScreen'
     $creditsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $creditsForm.MaximizeBox = $false
@@ -1375,7 +1463,12 @@ $creditsMenuItem.Add_Click({
         "`n`n" +
         "This tool is open source and available on GitHub:" +
         "`n" +
-        "https://github.com/troubleNZ/SC-VRse"
+        "https://github.com/troubleNZ/SC-VRse" +
+        "`n" +
+        "`n" +
+        "To get help with Star Citzen in VR, and find other VR enthusiasts," +
+        "`n" +
+        "Join Chachi's VR Citizen Discord"
 
     $creditsLabel.AutoSize = $false
     $creditsLabel.Top = (10 * $script:ScaleMultiplier)
@@ -1526,20 +1619,25 @@ function Import-SettingsFromGame {
                 $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = Get-AttributeValue "HmdUIDistance"
                 $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = (Get-AttributeValue "HmdUIHeight")
                 $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = Get-AttributeValue "HmdUIScale"
-                $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text = Get-AttributeValue "HmdVisorAspectModifier"
+                $textboxExpCategory_HelmetVisorLensDepth.Text = Get-AttributeValue "HmdVisorDistance"
+                $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = Get-AttributeValue "HmdVisorAspectModifier"
+                $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text = Get-AttributeValue "HmdVisorHeight"
+                $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = Get-AttributeValue "HmdVisorScale"
                 SetComboBoxValue -comboBox $ComboboxExpCategory_MirrorMode_StereoMirrorMode -value (Get-AttributeValue "HmdTheaterMode")
                 $textboxExpCategory_TheatreMode_Scale.Text = Get-AttributeValue "HmdTheaterModeScale"
                 $textboxExpCategory_TheatreMode_Curvature.Text = Get-AttributeValue "HmdTheaterModeCurvature"
                 $textboxExpCategory_TheatreMode_Distance.Text = Get-AttributeValue "HmdTheaterModeDistance"
-                $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = Get-AttributeValue "HmdVisorDistance"
+                #$textboxExpCategory_UserSettings_StereoScaleformDepth.Text = Get-AttributeValue "HmdUIDistance"
                 $textboxExpCategory_UserSettings_StereoStrength.Text = Get-AttributeValue "HmdIPDScale"
-                SetComboBoxValue -comboBox $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch -value (Get-AttributeValue "HmdAutomaticSwitching")
+                $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = Get-AttributeValue "HmdCursorSize"
+                SetComboBoxValue -comboBox $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch -value (Get-AttributeValue "HmdAutomaticSwitching")
                 SetComboBoxValue -comboBox $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode -value (Get-AttributeValue "HmdActorControlMode")
+                SetComboBoxValue -comboBox $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye -value (Get-AttributeValue "HmdfpsAdsDominantEye")
 
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("Debug: XML looks good.")}
                 Update-ButtonState
                 Set-ProfileArray
-                if ($debug) {Write-Host "importButton lets see Paul Allens ProfileArray : " $script:profileArray -BackgroundColor White -ForegroundColor Black}
+                #if ($debug) {Write-Host "importButton lets see Paul Allens ProfileArray : " $script:profileArray -BackgroundColor White -ForegroundColor Black}
             } else {
                 $statusBar.Text = "No attributes found in the XML file."
                 #if ($debug) {[System.Windows.Forms.MessageBox]::Show("No attributes found in the XML file.")}
@@ -1692,7 +1790,7 @@ $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
 $AutoZoomLabel.Top = (260 * $script:ScaleMultiplier)
 $AutoZoomLabel.Left = (290 * $script:ScaleMultiplier)
-$AutoZoomLabel.Width = (100 * $script:ScaleMultiplier)
+$AutoZoomLabel.Width = (80 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($AutoZoomLabel)
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1711,7 +1809,7 @@ $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
 $MotionBlurLabel.Top = (290 * $script:ScaleMultiplier)
 $MotionBlurLabel.Left = (70 * $script:ScaleMultiplier)
-$MotionBlurLabel.Width = (100 * $script:ScaleMultiplier)
+$MotionBlurLabel.Width = (80 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($MotionBlurLabel)
 
 #$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
@@ -1741,7 +1839,7 @@ $ShakeScaleLabel = New-Object System.Windows.Forms.Label
 $ShakeScaleLabel.Text = "Shake Scale"
 $ShakeScaleLabel.Top = (170 * $script:ScaleMultiplier)
 $ShakeScaleLabel.Left = (290 * $script:ScaleMultiplier)
-$ShakeScaleLabel.Width = (100 * $script:ScaleMultiplier)
+$ShakeScaleLabel.Width = (80 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
@@ -1773,7 +1871,7 @@ $FilmGrainLabel = New-Object System.Windows.Forms.Label
 $FilmGrainLabel.Text = "Film Grain"
 $FilmGrainLabel.Top = (200 * $script:ScaleMultiplier)
 $FilmGrainLabel.Left = (290 * $script:ScaleMultiplier)
-$FilmGrainLabel.Width = (100 * $script:ScaleMultiplier)
+$FilmGrainLabel.Width = (80 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($FilmGrainLabel)
 
 #$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
@@ -1891,7 +1989,7 @@ $applySaveButton = New-Object System.Windows.Forms.Button
 $applySaveButton.Name = "ApplySaveButton"
 $applySaveButton.Text = "Apply Changes"
 $applySaveButton.Font = New-Object System.Drawing.Font($applySaveButton.Font.FontFamily, [math]::Round($applySaveButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
-$applySaveButton.Width = (120 * $script:ScaleMultiplier)
+$applySaveButton.Width = (150 * $script:ScaleMultiplier)
 $applySaveButton.Height = (30 * $script:ScaleMultiplier)
 $applySaveButton.Top = (385 * $script:ScaleMultiplier)
 $applySaveButton.Left = (280 * $script:ScaleMultiplier)
@@ -1909,7 +2007,7 @@ $form.Controls.Add($applySaveButton)
 $saveAndCloseButton = New-Object System.Windows.Forms.Button
 $saveAndCloseButton.Name = "SaveAndCloseButton"
 $saveAndCloseButton.Text = "Save and Close"
-$saveAndCloseButton.Width = (120 * $script:ScaleMultiplier)
+$saveAndCloseButton.Width = (150 * $script:ScaleMultiplier)
 $saveAndCloseButton.Font = New-Object System.Drawing.Font($saveAndCloseButton.Font.FontFamily, [math]::Round($saveAndCloseButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
 $saveAndCloseButton.Height = (30 * $script:ScaleMultiplier)
 $saveAndCloseButton.Top = (385 * $script:ScaleMultiplier)
@@ -1924,20 +2022,6 @@ $saveAndCloseButton.Add_Click({
 $form.Controls.Add($saveAndCloseButton)
 
 
-
-$closeButton = New-Object System.Windows.Forms.Button
-$closeButton.Text = "Close"
-$closeButton.Width = (120 * $script:ScaleMultiplier)
-$closeButton.Height = (30 * $script:ScaleMultiplier)
-$closeButton.Top = (115 * $script:ScaleMultiplier)
-
-$closeButton.Left = (300 * $script:ScaleMultiplier)
-$closeButton.TabIndex = 23
-$closeButton.Add_Click({
-    $form.Close()
-})
-
-
 # Experimental VR Settings -------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
 # needed a quick way to contain the new stuff so tucked it into its own group panel, accessed via button off $form
@@ -1945,11 +2029,12 @@ $closeButton.Add_Click({
 $buttonOpenExpVRSettings = New-Object System.Windows.Forms.Button
 $buttonOpenExpVRSettings.Name = "buttonNewVRSettings"
 $buttonOpenExpVRSettings.Text = "Experimental VR Settings >>"
+$buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=bold
 #$buttonOpenExpVRSettings.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
 #$buttonOpenExpVRSettings.Location = "10,310"
 $buttonOpenExpVRSettings.Top = (385 * $script:ScaleMultiplier)
-$buttonOpenExpVRSettings.Left = (80 * $script:ScaleMultiplier)
-$buttonOpenExpVRSettings.Width = (150 * $script:ScaleMultiplier)
+$buttonOpenExpVRSettings.Left = (30 * $script:ScaleMultiplier)
+$buttonOpenExpVRSettings.Width = (200 * $script:ScaleMultiplier)
 $buttonOpenExpVRSettings.Height = (30  * $script:ScaleMultiplier)
 #$buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font($buttonOpenExpVRSettings.Font.FontFamily, [math]::Round($buttonOpenExpVRSettings.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
 #$buttonOpenExpVRSettings.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
@@ -1960,17 +2045,19 @@ $form.Controls.Add($buttonOpenExpVRSettings)
 $buttonGoBacktoMain = New-Object System.Windows.Forms.Button
 $buttonGoBacktoMain.Name = "buttonBacktoMain"
 $buttonGoBacktoMain.Text = "<< Back to Legacy Settings"
+$buttonGoBacktoMain.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=bold
 #$buttonGoBacktoMain.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
 #$buttonGoBacktoMain.Location = "10,310"
 $buttonGoBacktoMain.Top = (385 * $script:ScaleMultiplier)
-$buttonGoBacktoMain.Left = (80 * $script:ScaleMultiplier)
-$buttonGoBacktoMain.Width = (150 * $script:ScaleMultiplier)
+$buttonGoBacktoMain.Left = (30 * $script:ScaleMultiplier)
+$buttonGoBacktoMain.Width = (200 * $script:ScaleMultiplier)
 $buttonGoBacktoMain.Height = (30  * $script:ScaleMultiplier)
 #$buttonGoBacktoMain.Font = New-Object System.Drawing.Font($buttonGoBacktoMain.Font.FontFamily, [math]::Round($buttonGoBacktoMain.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
 #$buttonGoBacktoMain.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
 $buttonGoBacktoMain.Enabled = $true
 $buttonGoBacktoMain.Visible = $false
 $buttonGoBacktoMain.TabIndex = 4
+
 $form.Controls.Add($buttonGoBacktoMain)
 
 
@@ -2006,110 +2093,86 @@ $buttonGoBacktoMain.Add_Click({
 
 #"Experimental VR Settings"
 
+#Group
+$groupExp_UISettings = New-Object System.Windows.Forms.GroupBox
+$groupExp_UISettings.Text = "UI Settings"
+$groupExp_UISettings.Width = (250 * $script:ScaleMultiplier)
+$groupExp_UISettings.Height = (100 * $script:ScaleMultiplier)
+$groupExp_UISettings.Top = (20 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
+$groupExp_UISettings.Left = (5 * $script:ScaleMultiplier)
+$groupExp_UISettings.Visible = $true
+$groupExperimentalVRSettings.Controls.Add($groupExp_UISettings)
+
+
 #r_StereoUILayerZPos = 3.1               ; the escape menu distance
 $labelExpCategory_EscMenuSettings_EscMenuDistance = New-Object System.Windows.Forms.Label           #r_StereoUILayerZPos        HmdUIDistance
-$labelExpCategory_EscMenuSettings_EscMenuDistance.Text = "escape menu distance"
-$labelExpCategory_EscMenuSettings_EscMenuDistance.Top = (40 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_EscMenuDistance.Text = "Escape Menu Distance"
+$labelExpCategory_EscMenuSettings_EscMenuDistance.Top = (20 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_EscMenuDistance.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuDistance.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_EscMenuDistance.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuDistance)
+$labelExpCategory_EscMenuSettings_EscMenuDistance.Width = (149 * $script:ScaleMultiplier)
+$groupExp_UISettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuDistance)
 
 $textboxExpCategory_EscMenuSettings_EscMenuDistance = New-Object System.Windows.Forms.TextBox           #HmdUIDistance
-$textboxExpCategory_EscMenuSettings_EscMenuDistance.Name = "r_StereoUILayerZPos"
-$textboxExpCategory_EscMenuSettings_EscMenuDistance.Top = (40 * $script:ScaleMultiplier)
-$textboxExpCategory_EscMenuSettings_EscMenuDistance.Left = (140 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_EscMenuDistance.Name = "HmdUIDistance"
+$textboxExpCategory_EscMenuSettings_EscMenuDistance.Top = (20 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_EscMenuDistance.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_EscMenuSettings_EscMenuDistance.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_EscMenuSettings_EscMenuDistance.TextAlign = 'Left'
 $textboxExpCategory_EscMenuSettings_EscMenuDistance.AcceptsTab = $true
 $textboxExpCategory_EscMenuSettings_EscMenuDistance.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuDistance)
+$groupExp_UISettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuDistance)
 
 #r_StereoUILayerYPos = 0.5               ; the escape menu height
 $labelExpCategory_EscMenuSettings_EscMenuYPos = New-Object System.Windows.Forms.Label           #r_StereoUILayerYPos        HmdUIHeight
-$labelExpCategory_EscMenuSettings_EscMenuYPos.Text = "escape menu height"
-$labelExpCategory_EscMenuSettings_EscMenuYPos.Top = (60 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_EscMenuYPos.Text = "Escape Menu Height"
+$labelExpCategory_EscMenuSettings_EscMenuYPos.Top = (45 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_EscMenuYPos.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuYPos.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_EscMenuYPos.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuYPos)
+$labelExpCategory_EscMenuSettings_EscMenuYPos.Width = (149 * $script:ScaleMultiplier)
+$groupExp_UISettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuYPos)
 
 $textboxExpCategory_EscMenuSettings_EscMenuYPos = New-Object System.Windows.Forms.TextBox                                   #HmdUIHeight
-$textboxExpCategory_EscMenuSettings_EscMenuYPos.Name = "r_StereoUILayerYPos"
-$textboxExpCategory_EscMenuSettings_EscMenuYPos.Top = (60 * $script:ScaleMultiplier)
-$textboxExpCategory_EscMenuSettings_EscMenuYPos.Left = (140 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_EscMenuYPos.Name = "HmdUIHeight"
+$textboxExpCategory_EscMenuSettings_EscMenuYPos.Top = (45 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_EscMenuYPos.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.TextAlign = 'Left'
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = "0.5"
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.AcceptsTab = $true
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.TabIndex = 6
 
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuYPos)
+$groupExp_UISettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuYPos)
 
 #r_StereoUILayerScale = 4                ; how big the menu is in 3d space
 $labelExpCategory_EscMenuSettings_EscMenuScale = New-Object System.Windows.Forms.Label           #r_StereoUILayerScale              HmdUIScale
-$labelExpCategory_EscMenuSettings_EscMenuScale.Text = "escape menu scale"
-$labelExpCategory_EscMenuSettings_EscMenuScale.Top = (80 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_EscMenuScale.Text = "Escape Menu Scale"
+$labelExpCategory_EscMenuSettings_EscMenuScale.Top = (70 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_EscMenuScale.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuScale.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_EscMenuScale.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuScale)
+$labelExpCategory_EscMenuSettings_EscMenuScale.Width = (149 * $script:ScaleMultiplier)
+$groupExp_UISettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuScale)
 
 $textboxExpCategory_EscMenuSettings_EscMenuScale = New-Object System.Windows.Forms.TextBox                                 # HmdUIScale
-$textboxExpCategory_EscMenuSettings_EscMenuScale.Name = "r_StereoUILayerScale"
-$textboxExpCategory_EscMenuSettings_EscMenuScale.Top = (80 * $script:ScaleMultiplier)
-$textboxExpCategory_EscMenuSettings_EscMenuScale.Left = (140 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_EscMenuScale.Name = "HmdUIScale"
+$textboxExpCategory_EscMenuSettings_EscMenuScale.Top = (70 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_EscMenuScale.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_EscMenuSettings_EscMenuScale.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_EscMenuSettings_EscMenuScale.TextAlign = 'Left'
 $textboxExpCategory_EscMenuSettings_EscMenuScale.AcceptsTab = $true
 $textboxExpCategory_EscMenuSettings_EscMenuScale.TabIndex = 6
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuScale)
-
-#r_StereoUILensDepth = 3                 ; helmet vr lens / markers convergence distance
-$labelExpCategory_EscMenuSettings_EscMenuLensDepth = New-Object System.Windows.Forms.Label           #r_StereoUILensDepth  (not actually menu specific)
-$labelExpCategory_EscMenuSettings_EscMenuLensDepth.Text = "UI Distance"
-$labelExpCategory_EscMenuSettings_EscMenuLensDepth.Top = (110 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_EscMenuLensDepth.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_EscMenuLensDepth.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_EscMenuLensDepth)
-
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth = New-Object System.Windows.Forms.TextBox      #HmdVisorAspectModifier
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Name = "r_StereoUILensDepth"
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Top = (110 * $script:ScaleMultiplier)
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Left = (140 * $script:ScaleMultiplier)
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Width = (40 * $script:ScaleMultiplier)
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.TextAlign = 'Left'
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.AcceptsTab = $true
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.TabIndex = 6
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuLensDepth)
+$groupExp_UISettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuScale)
 
 
-#; -- Mirror Mode --                     ; r_StereoScreenOutput renamed to r_StereoMirrorMode in a4.6
-                                        #;r_StereoScreenOutput = 0               ; display the VR output on monitor:  0 expanded view, 1 one eye only, 2 both eyes
-                                        #;r_StereoMirrorMode = 0                ; 0 Left eye, , 1 Right Eye, 2 Aspect Ratio Left eye, 3 Aspect Ratio Left eye, 4 both eye, 10 checkerboard
-$labelExpCategory_MirrorMode_StereoMirrorMode = New-Object System.Windows.Forms.Label
-$labelExpCategory_MirrorMode_StereoMirrorMode.Text = "Mirror Mode"
-$labelExpCategory_MirrorMode_StereoMirrorMode.Top = (140 * $script:ScaleMultiplier)
-$labelExpCategory_MirrorMode_StereoMirrorMode.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_MirrorMode_StereoMirrorMode.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_MirrorMode_StereoMirrorMode)
-
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode = New-Object System.Windows.Forms.ComboBox
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Name = "MirrorMode"
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Top = (140 * $script:ScaleMultiplier)
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Left = (140 * $script:ScaleMultiplier)
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-#$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Items.AddRange(@(0, 1))
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Left Eye")
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Right Eye")
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Left Eye Aspect Ratio")
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Right Eye Aspect Ratio")
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Both Eyes")
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Checkerbox")
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.TabIndex = 9
-$ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex = 0
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_MirrorMode_StereoMirrorMode)
-
-
-
+#Group
+$groupTheatremode = New-Object System.Windows.Forms.GroupBox
+$groupTheatremode.Text = "Theatre Mode Settings"
+$groupTheatremode.Width = (250 * $script:ScaleMultiplier)
+$groupTheatremode.Height = (125 * $script:ScaleMultiplier)
+$groupTheatremode.Top = (115 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
+$groupTheatremode.Left = (5 * $script:ScaleMultiplier)
+$groupTheatremode.Visible = $true
+$groupExperimentalVRSettings.Controls.Add($groupTheatremode)
 
 #theatre mode (spelt properly)
 <#
@@ -2120,132 +2183,299 @@ r_StereoTheaterModeYPos = 0.1           ; how high in the air is it
 r_StereoTheaterModeZPos = 2             ; how far away is it
 #>
 $labelExpCategory_TheatreMode_TheatreMode = New-Object System.Windows.Forms.Label
-$labelExpCategory_TheatreMode_TheatreMode.Text = "Theater Mode"
-$labelExpCategory_TheatreMode_TheatreMode.Top = (170 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_TheatreMode.Text = "Start in Theater Mode"
+$labelExpCategory_TheatreMode_TheatreMode.Top = (20 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_TheatreMode.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_TheatreMode_TheatreMode.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_TheatreMode_TheatreMode.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_TheatreMode_TheatreMode)
+$labelExpCategory_TheatreMode_TheatreMode.Width = (149 * $script:ScaleMultiplier)
+$groupTheatremode.Controls.Add($labelExpCategory_TheatreMode_TheatreMode)
 
 $ComboboxExpCategory_TheatreMode_TheatreMode = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_TheatreMode_TheatreMode.Name = "TheaterMode"
-$ComboboxExpCategory_TheatreMode_TheatreMode.Top = (170 * $script:ScaleMultiplier)
-$ComboboxExpCategory_TheatreMode_TheatreMode.Left = (140 * $script:ScaleMultiplier)
-$ComboboxExpCategory_TheatreMode_TheatreMode.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_TheatreMode_TheatreMode.Top = (20 * $script:ScaleMultiplier)
+$ComboboxExpCategory_TheatreMode_TheatreMode.Left = (160 * $script:ScaleMultiplier)
+$ComboboxExpCategory_TheatreMode_TheatreMode.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $ComboboxExpCategory_TheatreMode_TheatreMode.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$ComboboxExpCategory_TheatreMode_TheatreMode.Items.AddRange(@(0, 1))
 $ComboboxExpCategory_TheatreMode_TheatreMode.items.Add("Disabled")
 $ComboboxExpCategory_TheatreMode_TheatreMode.items.Add("Enabled")
-
 $ComboboxExpCategory_TheatreMode_TheatreMode.TabIndex = 9
 $ComboboxExpCategory_TheatreMode_TheatreMode.SelectedIndex = 0
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_TheatreMode_TheatreMode)
+$groupTheatremode.Controls.Add($ComboboxExpCategory_TheatreMode_TheatreMode)
 
 
 $labelExpCategory_TheatreMode_Scale = New-Object System.Windows.Forms.Label
 $labelExpCategory_TheatreMode_Scale.Text = "Theater Mode Scale"
-$labelExpCategory_TheatreMode_Scale.Top = (190 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_Scale.Top = (45 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_Scale.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_TheatreMode_Scale.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_TheatreMode_Scale.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_TheatreMode_Scale)
+$labelExpCategory_TheatreMode_Scale.Width = (149 * $script:ScaleMultiplier)
+$groupTheatremode.Controls.Add($labelExpCategory_TheatreMode_Scale)
 
 $textboxExpCategory_TheatreMode_Scale = New-Object System.Windows.Forms.TextBox
 $textboxExpCategory_TheatreMode_Scale.Name = "Theater Mode Scale"
-$textboxExpCategory_TheatreMode_Scale.Top = (190 * $script:ScaleMultiplier)
-$textboxExpCategory_TheatreMode_Scale.Left = (140 * $script:ScaleMultiplier)
+$textboxExpCategory_TheatreMode_Scale.Top = (45 * $script:ScaleMultiplier)
+$textboxExpCategory_TheatreMode_Scale.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Scale.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Scale.TextAlign = 'Left'
 $textboxExpCategory_TheatreMode_Scale.AcceptsTab = $true
 $textboxExpCategory_TheatreMode_Scale.TabIndex = 6
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_TheatreMode_Scale)
+$groupTheatremode.Controls.Add($textboxExpCategory_TheatreMode_Scale)
 
 $labelExpCategory_TheatreMode_Curvature = New-Object System.Windows.Forms.Label
 $labelExpCategory_TheatreMode_Curvature.Text = "TheaterMode Curvature"
-$labelExpCategory_TheatreMode_Curvature.Top = (210 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_Curvature.Top = (70 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_Curvature.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_TheatreMode_Curvature.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_TheatreMode_Curvature.Width = (130 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_TheatreMode_Curvature)
+$labelExpCategory_TheatreMode_Curvature.Width = (149 * $script:ScaleMultiplier)
+$groupTheatremode.Controls.Add($labelExpCategory_TheatreMode_Curvature)
 
 $textboxExpCategory_TheatreMode_Curvature = New-Object System.Windows.Forms.TextBox            #HmdTheaterModeCurvature
 $textboxExpCategory_TheatreMode_Curvature.Name = "HmdTheaterModeCurvature"
-$textboxExpCategory_TheatreMode_Curvature.Top = (210 * $script:ScaleMultiplier)
-$textboxExpCategory_TheatreMode_Curvature.Left = (140 * $script:ScaleMultiplier)
+$textboxExpCategory_TheatreMode_Curvature.Top = (70 * $script:ScaleMultiplier)
+$textboxExpCategory_TheatreMode_Curvature.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Curvature.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Curvature.TextAlign = 'Left'
 $textboxExpCategory_TheatreMode_Curvature.AcceptsTab = $true
 $textboxExpCategory_TheatreMode_Curvature.TabIndex = 6
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_TheatreMode_Curvature)
+$groupTheatremode.Controls.Add($textboxExpCategory_TheatreMode_Curvature)
 
 $labelExpCategory_TheatreMode_Distance = New-Object System.Windows.Forms.Label
 $labelExpCategory_TheatreMode_Distance.Text = "Theater Mode Distance"
-$labelExpCategory_TheatreMode_Distance.Top = (230 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_Distance.Top = (95 * $script:ScaleMultiplier)
+$labelExpCategory_TheatreMode_Distance.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_TheatreMode_Distance.Left = (10 * $script:ScaleMultiplier)
-$labelExpCategory_TheatreMode_Distance.Width = (120 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_TheatreMode_Distance)
+$labelExpCategory_TheatreMode_Distance.Width = (149 * $script:ScaleMultiplier)
+$groupTheatremode.Controls.Add($labelExpCategory_TheatreMode_Distance)
 
 $textboxExpCategory_TheatreMode_Distance = New-Object System.Windows.Forms.TextBox          #HmdTheaterModeDistance
 $textboxExpCategory_TheatreMode_Distance.Name = "TheaterModeDistance"
-$textboxExpCategory_TheatreMode_Distance.Top = (230 * $script:ScaleMultiplier)
-$textboxExpCategory_TheatreMode_Distance.Left = (140 * $script:ScaleMultiplier)
+$textboxExpCategory_TheatreMode_Distance.Top = (95 * $script:ScaleMultiplier)
+$textboxExpCategory_TheatreMode_Distance.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Distance.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Distance.TextAlign = 'Left'
 $textboxExpCategory_TheatreMode_Distance.AcceptsTab = $true
 $textboxExpCategory_TheatreMode_Distance.TabIndex = 6
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_TheatreMode_Distance)
+$groupTheatremode.Controls.Add($textboxExpCategory_TheatreMode_Distance)
+
+
+#Group
+$groupMirrorMode = New-Object System.Windows.Forms.GroupBox
+$groupMirrorMode.Text = "Mirror Mode Settings"
+$groupMirrorMode.Width = (250 * $script:ScaleMultiplier)
+$groupMirrorMode.Height = (85 * $script:ScaleMultiplier)
+$groupMirrorMode.Top = (240 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
+$groupMirrorMode.Left = (5 * $script:ScaleMultiplier)
+$groupMirrorMode.Visible = $true
+$groupExperimentalVRSettings.Controls.Add($groupMirrorMode)
+
+
+#; -- Mirror Mode --                     ; r_StereoScreenOutput renamed to r_StereoMirrorMode in a4.6
+                                        #;r_StereoScreenOutput = 0               ; display the VR output on monitor:  0 expanded view, 1 one eye only, 2 both eyes
+                                        #;r_StereoMirrorMode = 0                ; 0 Left eye, , 1 Right Eye, 2 Aspect Ratio Left eye, 3 Aspect Ratio Left eye, 4 both eye, 10 checkerboard
+$labelExpCategory_MirrorMode_StereoMirrorMode = New-Object System.Windows.Forms.Label
+$labelExpCategory_MirrorMode_StereoMirrorMode.Text = "Mirror Mode"
+$labelExpCategory_MirrorMode_StereoMirrorMode.Top = (25 * $script:ScaleMultiplier)
+$labelExpCategory_MirrorMode_StereoMirrorMode.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_MirrorMode_StereoMirrorMode.Left = (10 * $script:ScaleMultiplier)
+$labelExpCategory_MirrorMode_StereoMirrorMode.Width = (90 * $script:ScaleMultiplier)
+$groupMirrorMode.Controls.Add($labelExpCategory_MirrorMode_StereoMirrorMode)
+
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode = New-Object System.Windows.Forms.ComboBox
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Name = "MirrorMode"
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Top = (25 * $script:ScaleMultiplier)
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Left = (120 * $script:ScaleMultiplier)
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+#$ComboboxExpCategory_MirrorMode_StereoMirrorMode.Items.AddRange(@(0, 1))
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Left Eye")
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Right Eye")
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Left Eye A/Ratio")
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Right Eye A/Ratio")
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Both Eyes")
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.items.Add("Checkerbox")
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.TabIndex = 9
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex = 0
+$groupMirrorMode.Controls.Add($ComboboxExpCategory_MirrorMode_StereoMirrorMode)
+
+#HmdMonitorMirrorModeSmoothing
+$labelExpCategory_MirrorMode_Smoothing = New-Object System.Windows.Forms.Label          #HmdMonitorMirrorModeSmoothing r_StereoMirrorModeSmoothing
+$labelExpCategory_MirrorMode_Smoothing.Text = "MirrorMode Smoothing"
+$labelExpCategory_MirrorMode_Smoothing.Top = (55 * $script:ScaleMultiplier)
+$labelExpCategory_MirrorMode_Smoothing.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_MirrorMode_Smoothing.Left = (10 * $script:ScaleMultiplier)
+$labelExpCategory_MirrorMode_Smoothing.Width = (149 * $script:ScaleMultiplier)
+$groupMirrorMode.Controls.Add($labelExpCategory_MirrorMode_Smoothing)
+
+$ComboboxExpCategory_MirrorMode_Smoothing = New-Object System.Windows.Forms.ComboBox
+$ComboboxExpCategory_MirrorMode_Smoothing.Name = "HmdMonitorMirrorModeSmoothing"
+$ComboboxExpCategory_MirrorMode_Smoothing.Top = (55 * $script:ScaleMultiplier)
+$ComboboxExpCategory_MirrorMode_Smoothing.Left = (160 * $script:ScaleMultiplier)
+$ComboboxExpCategory_MirrorMode_Smoothing.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_MirrorMode_Smoothing.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+#$ComboboxExpCategory_MirrorMode_Smoothing.Items.AddRange(@(0, 1))
+$ComboboxExpCategory_MirrorMode_Smoothing.items.Add("Disabled")
+$ComboboxExpCategory_MirrorMode_Smoothing.items.Add("Enabled")
+$ComboboxExpCategory_MirrorMode_Smoothing.TabIndex = 9
+$ComboboxExpCategory_MirrorMode_Smoothing.SelectedIndex = 0
+$groupMirrorMode.Controls.Add($ComboboxExpCategory_MirrorMode_Smoothing)
+
+
+
+
+
 
 #-- User specific settings --
 #r_StereoScaleformDepth = 1.0            ; convergence distance of marker icons etc - varies between headsets and users
 #r_StereoStrength    = 1.0               ; Hmd IPD Scale (floating value from 0.0 - 1.5 [ie 150%], default 100% ie. 1.0) - varies between users
 
-# StereoScaleformDepth
-$labelExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.Label           #r_StereoScaleformDepth HmdUIDistance
+# StereoScaleformDepth 
+<#$labelExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.Label           #r_StereoScaleformDepth HmdUIDistance
 $labelExpCategory_UserSettings_StereoScaleformDepth.Text = "Stereo Scaleform Depth"
 $labelExpCategory_UserSettings_StereoScaleformDepth.Top = (40 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoScaleformDepth.Left = (280 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoScaleformDepth.Width = (120 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoScaleformDepth.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoScaleformDepth.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoScaleformDepth.Width = (149 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_UserSettings_StereoScaleformDepth)
 
-$textboxExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.TextBox
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Name = "StereoScaleformDepth"
+$textboxExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.TextBox         #HmdUIDistance
+$textboxExpCategory_UserSettings_StereoScaleformDepth.Name = "HmdUIDistance"
 $textboxExpCategory_UserSettings_StereoScaleformDepth.Top = (40 * $script:ScaleMultiplier)
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Left = (410 * $script:ScaleMultiplier)
+$textboxExpCategory_UserSettings_StereoScaleformDepth.Left = (450 * $script:ScaleMultiplier)
 $textboxExpCategory_UserSettings_StereoScaleformDepth.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_UserSettings_StereoScaleformDepth.TextAlign = 'Left'
 $textboxExpCategory_UserSettings_StereoScaleformDepth.AcceptsTab = $true
 $textboxExpCategory_UserSettings_StereoScaleformDepth.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_UserSettings_StereoScaleformDepth)
+$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_UserSettings_StereoScaleformDepth)#>
+
+
+#Group
+$groupExp_HelmetVisorSettings = New-Object System.Windows.Forms.GroupBox
+$groupExp_HelmetVisorSettings.Text = "Helmet Visor Settings"
+$groupExp_HelmetVisorSettings.Width = (250 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Height = (130 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Top = (20 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
+$groupExp_HelmetVisorSettings.Left = (295 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Visible = $true
+$groupExperimentalVRSettings.Controls.Add($groupExp_HelmetVisorSettings)
+
+
+#r_StereoUILensDepth = 3                 ; helmet vr lens / markers convergence distance
+$labelExpCategory_HelmetVisorLensDepth = New-Object System.Windows.Forms.Label           #r_StereoUILensDepth  (not actually menu specific)
+$labelExpCategory_HelmetVisorLensDepth.Text = "Visor Depth"
+$labelExpCategory_HelmetVisorLensDepth.Top = (20 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLensDepth.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLensDepth.Left = (10 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLensDepth.Width = (140 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Controls.Add($labelExpCategory_HelmetVisorLensDepth)
+
+$textboxExpCategory_HelmetVisorLensDepth = New-Object System.Windows.Forms.TextBox      #HmdVisorDistance
+$textboxExpCategory_HelmetVisorLensDepth.Name = "HmdVisorDistance"
+$textboxExpCategory_HelmetVisorLensDepth.Top = (20 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLensDepth.Left = (155 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLensDepth.Width = (40 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLensDepth.TextAlign = 'Left'
+$textboxExpCategory_HelmetVisorLensDepth.AcceptsTab = $true
+$textboxExpCategory_HelmetVisorLensDepth.TabIndex = 6
+$groupExp_HelmetVisorSettings.Controls.Add($textboxExpCategory_HelmetVisorLensDepth)
+
+
+#pl_lensdisplay.hmd_aspectModifier value="0.1"        ; helmet vr lens / aspect ratio stretch
+$labelExpCategory_HelmetVisorLens_AspectModifier = New-Object System.Windows.Forms.Label           #pl_lensdisplay.hmd_aspectModifier
+$labelExpCategory_HelmetVisorLens_AspectModifier.Text = "Visor Aspect Modifier"
+$labelExpCategory_HelmetVisorLens_AspectModifier.Top = (45 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_AspectModifier.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_AspectModifier.Left = (10 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_AspectModifier.Width = (140 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Controls.Add($labelExpCategory_HelmetVisorLens_AspectModifier)
+
+$textboxExpCategory_HelmetVisorLens_AspectModifier = New-Object System.Windows.Forms.TextBox      #HmdVisorAspectModifier
+$textboxExpCategory_HelmetVisorLens_AspectModifier.Name = "HmdVisorAspectModifier"
+$textboxExpCategory_HelmetVisorLens_AspectModifier.Top = (45 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_AspectModifier.Left = (155 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_AspectModifier.Width = (40 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_AspectModifier.TextAlign = 'Left'
+$textboxExpCategory_HelmetVisorLens_AspectModifier.AcceptsTab = $true
+$textboxExpCategory_HelmetVisorLens_AspectModifier.TabIndex = 6
+$groupExp_HelmetVisorSettings.Controls.Add($textboxExpCategory_HelmetVisorLens_AspectModifier)
+
+
+#pl_lensdisplay.hmd_position_offset_z value="0.5"        ; helmet vr lens / Offset Z
+$labelExpCategory_HelmetVisorLens_HmdVisorHeight = New-Object System.Windows.Forms.Label           #pl_lensdisplay.hmd_position_offset_z
+$labelExpCategory_HelmetVisorLens_HmdVisorHeight.Text = "Visor Vertical Offset"
+$labelExpCategory_HelmetVisorLens_HmdVisorHeight.Top = (70 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_HmdVisorHeight.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_HmdVisorHeight.Left = (10 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_HmdVisorHeight.Width = (140 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Controls.Add($labelExpCategory_HelmetVisorLens_HmdVisorHeight)
+
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight = New-Object System.Windows.Forms.TextBox      #HmdVisorHeight
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Name = "HmdVisorHeight"
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Top = (70 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Left = (155 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Width = (40 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.TextAlign = 'Left'
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.AcceptsTab = $true
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.TabIndex = 6
+$groupExp_HelmetVisorSettings.Controls.Add($textboxExpCategory_HelmetVisorLens_HmdVisorHeight)
+
+
+#pl_lensdisplay.hmd_position_offset_z value="0.5"        ; helmet vr lens / Scale
+$labelExpCategory_HelmetVisorLens_HmdVisorScale = New-Object System.Windows.Forms.Label           #pl_lensdisplay.hmd_position_offset_z
+$labelExpCategory_HelmetVisorLens_HmdVisorScale.Text = "Visor Scale"
+$labelExpCategory_HelmetVisorLens_HmdVisorScale.Top = (95 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_HmdVisorScale.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_HmdVisorScale.Left = (10 * $script:ScaleMultiplier)
+$labelExpCategory_HelmetVisorLens_HmdVisorScale.Width = (140 * $script:ScaleMultiplier)
+$groupExp_HelmetVisorSettings.Controls.Add($labelExpCategory_HelmetVisorLens_HmdVisorScale)
+
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale = New-Object System.Windows.Forms.TextBox      #HmdVisorScale
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.Name = "HmdVisorScale"
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.Top = (95 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.Left = (155 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.Width = (40 * $script:ScaleMultiplier)
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.TextAlign = 'Left'
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.AcceptsTab = $true
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.TabIndex = 6
+$groupExp_HelmetVisorSettings.Controls.Add($textboxExpCategory_HelmetVisorLens_HmdVisorScale)
+
+
 
 #r_StereoStrength
 $labelExpCategory_UserSettings_StereoStrength = New-Object System.Windows.Forms.Label           #r_StereoStrength           HmdIPDScale
-$labelExpCategory_UserSettings_StereoStrength.Text = "Stereo Strength"
-$labelExpCategory_UserSettings_StereoStrength.Top = (60 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoStrength.Left = (280 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoStrength.Width = (120 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoStrength.Text = "IPD Scale Modifier"
+$labelExpCategory_UserSettings_StereoStrength.Top = (165 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoStrength.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoStrength.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_UserSettings_StereoStrength.Width = (149 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_UserSettings_StereoStrength)
 
 $textboxExpCategory_UserSettings_StereoStrength = New-Object System.Windows.Forms.TextBox                               #HmdIPDScale
-$textboxExpCategory_UserSettings_StereoStrength.Name = "r_StereoStrength"
-$textboxExpCategory_UserSettings_StereoStrength.Top = (60 * $script:ScaleMultiplier)
-$textboxExpCategory_UserSettings_StereoStrength.Left = (410 * $script:ScaleMultiplier)
+$textboxExpCategory_UserSettings_StereoStrength.Name = "HmdIPDScale"
+$textboxExpCategory_UserSettings_StereoStrength.Top = (165 * $script:ScaleMultiplier)
+$textboxExpCategory_UserSettings_StereoStrength.Left = (450 * $script:ScaleMultiplier)
 $textboxExpCategory_UserSettings_StereoStrength.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_UserSettings_StereoStrength.TextAlign = 'Left'
 $textboxExpCategory_UserSettings_StereoStrength.AcceptsTab = $true
 $textboxExpCategory_UserSettings_StereoStrength.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
 $groupExperimentalVRSettings.Controls.Add($textboxExpCategory_UserSettings_StereoStrength)
+$textboxExpCategory_UserSettings_StereoStrength.Text = "1"
 
 #-- HMD specific settings --
 #r_StereoDynamicModeSwitch
 $labelExpCategory_HMDSettings_StereoDynamicModeSwitch = New-Object System.Windows.Forms.Label           #r_StereoDynamicModeSwitch    HmdAutomaticSwitching
 $labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Text = "HMD Removal Switch"
-$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Top = (80 * $script:ScaleMultiplier)
-$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Left = (280 * $script:ScaleMultiplier)
-$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Width = (120 * $script:ScaleMultiplier)
+$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Top = (190 * $script:ScaleMultiplier)
+$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Width = (149 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_HMDSettings_StereoDynamicModeSwitch)
 
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch = New-Object System.Windows.Forms.ComboBox
-$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Name = "r_StereoDynamicModeSwitch"
-$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Top = (80 * $script:ScaleMultiplier)
-$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Left = (410 * $script:ScaleMultiplier)
-$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Name = "HmdAutomaticSwitching"
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Top = (190 * $script:ScaleMultiplier)
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Left = (450 * $script:ScaleMultiplier)
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Items.AddRange(@(0, 1))
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.items.Add("Disabled")
@@ -2253,19 +2483,22 @@ $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.items.Add("Enabled")
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = 0
 $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch)
 
+
+
 # -- Console --
 #r_StereoCursorScale
 $labelExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.Label           #r_StereoCursorScale  <Attr name="HmdCursorSize" cvar="g_headtracking_hmd_cursorSize" value="1.0" />
 $labelExpCategory_ConsoleSettings_StereoCursorScale.Text = "Stereo Cursor Scale"
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Top = (110 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Left = (280 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Width = (120 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Top = (215 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Width = (149 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorScale)
 
 $textboxExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.TextBox         #   HmdCursorSize
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Name = "r_StereoCursorScale"
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Top = (110 * $script:ScaleMultiplier)
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Left = (410 * $script:ScaleMultiplier)
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Name = "HmdCursorSize"
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Top = (215 * $script:ScaleMultiplier)
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Left = (450 * $script:ScaleMultiplier)
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.Width = (40 * $script:ScaleMultiplier)
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.TextAlign = 'Left'
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.AcceptsTab = $true
@@ -2275,16 +2508,17 @@ $groupExperimentalVRSettings.Controls.Add($textboxExpCategory_ConsoleSettings_St
 #r_StereoDebugDrawing                                                                                       # ; Draws the ` Console in 3d space or not. (0: flat, 1: in stereo space)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.Label           #r_StereoDebugDrawing
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Text = "Display Stereo Console"
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Top = (135 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Left = (280 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Width = (120 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorToggle.Top = (240 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorToggle.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorToggle.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorToggle.Width = (149 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorToggle)
 
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Name = "r_StereoDebugDrawing"
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Top = (135 * $script:ScaleMultiplier)
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Left = (410 * $script:ScaleMultiplier)
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Top = (240 * $script:ScaleMultiplier)
+$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Left = (450 * $script:ScaleMultiplier)
+$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Items.AddRange(@(0, 1))
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.items.Add("Disabled")
@@ -2293,38 +2527,62 @@ $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.SelectedIndex = 0
 $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_ConsoleSettings_StereoCursorToggle)
 
 
-
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch = New-Object System.Windows.Forms.ComboBox
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.Name = "HmdAutomaticSwitching"
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.Top = (170 * $script:ScaleMultiplier)
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.Left = (410 * $script:ScaleMultiplier)
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-#$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.Items.AddRange(@(0, 1))
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.items.Add("Disabled")
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.items.Add("Enabled")
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex = 0
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch)
-
 #;g_headtracking_hmd_fpsMovementMode            ; HmdActorControlMode (default: value="1")  
 $labelExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.Label           #HmdActorControlMode
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Text = "FPS Movement Mode"
-$labelExpCategory_EscMenuSettings_HmdActorControlMode.Top = (170 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_HmdActorControlMode.Left = (280 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_HmdActorControlMode.Width = (120 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdActorControlMode.Top = (265 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdActorControlMode.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdActorControlMode.Width = (150 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_HmdActorControlMode)
 
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Name = "HmdActorControlMode"
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Top = (170 * $script:ScaleMultiplier)
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Left = (410 * $script:ScaleMultiplier)
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Width = (120 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Top = (265 * $script:ScaleMultiplier)
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Left = (450 * $script:ScaleMultiplier)
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Items.AddRange(@(0, 1))
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Disabled")
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Enabled")
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = 0
 $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdActorControlMode)
+
+
+#;g_headtracking_hmd_fpsAdsDominantEye            ; HmdFpsAdsDominantEye (default: value="1")
+$labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye = New-Object System.Windows.Forms.Label           #HmdFpsAdsDominantEye
+$labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Text = "Dominant Eye"
+$labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Top = (295 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Width = (150 * $script:ScaleMultiplier)
+$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye)
+
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye = New-Object System.Windows.Forms.ComboBox
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Name = "HmdFpsAdsDominantEye"
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Top = (295 * $script:ScaleMultiplier)
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Left = (450 * $script:ScaleMultiplier)
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+#$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Items.AddRange(@(0, 1))
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.items.Add("Left")
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.items.Add("Right")
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = 1
+$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye)
+
+
+# Experimental VR Settings -------------------------------------------------------------------------------------------------
+# END-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 # Experimental VR Settings -------------------------------------------------------------------------------------------------
 # END-----------------------------------------------------------------------------------------------------------------------
 
@@ -2361,16 +2619,21 @@ $HeadtrackingThirdPersonCameraToggleComboBox.Add_SelectedIndexChanged({ Enable-S
 $textboxExpCategory_EscMenuSettings_EscMenuDistance.Add_TextChanged({ Enable-SaveButtons })
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.Add_TextChanged({ Enable-SaveButtons })
 $textboxExpCategory_EscMenuSettings_EscMenuScale.Add_TextChanged({ Enable-SaveButtons })
-$textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Add_TextChanged({ Enable-SaveButtons })
+$textboxExpCategory_HelmetVisorLensDepth.Add_TextChanged({ Enable-SaveButtons })
+$textboxExpCategory_HelmetVisorLens_AspectModifier.Add_TextChanged({ Enable-SaveButtons })
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Add_TextChanged({ Enable-SaveButtons })
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.Add_TextChanged({ Enable-SaveButtons })
 $textboxExpCategory_TheatreMode_Scale.Add_TextChanged({ Enable-SaveButtons })
 $textboxExpCategory_TheatreMode_Curvature.Add_TextChanged({ Enable-SaveButtons })
 $textboxExpCategory_TheatreMode_Distance.Add_TextChanged({ Enable-SaveButtons })
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Add_TextChanged({ Enable-SaveButtons })
+#$textboxExpCategory_UserSettings_StereoScaleformDepth.Add_TextChanged({ Enable-SaveButtons })
 $textboxExpCategory_UserSettings_StereoStrength.Add_TextChanged({ Enable-SaveButtons })
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Add_TextChanged({ Enable-SaveButtons })
 
 $ComboboxExpCategory_MirrorMode_StereoMirrorMode.Add_SelectedIndexChanged({ Enable-SaveButtons })
-$ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Add_SelectedIndexChanged({ Enable-SaveButtons })
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Add_SelectedIndexChanged({ Enable-SaveButtons })
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Add_SelectedIndexChanged({ Enable-SaveButtons })
 
 $fovTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $widthTextBox.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -2400,15 +2663,17 @@ $importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
                 >$script:profileArray[0].HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
                 >$script:profileArray[0].HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text;
                 >$script:profileArray[0].HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text;
-                >$script:profileArray[0].HmdVisorAspectModifier = $textboxExpCategory_EscMenuSettings_EscMenuLensDepth.Text;
+                >$script:profileArray[0].HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text;
                 >$script:profileArray[0].HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex;
                 >$script:profileArray[0].HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text;
                 >$script:profileArray[0].HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text;
                 >$script:profileArray[0].HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text;
-                >$script:profileArray[0].HmdVisorDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
+                >$script:profileArray[0].HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
                 >$script:profileArray[0].HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text;
-                $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_ConsoleSettings_StereoDynamicModeSwitch.SelectedIndex;
+                >$script:profileArray[0].HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
+                $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex;
                 $script:profileArray[0].HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
+                $script:profileArray[0].HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex;
             #>
 
 #connect the ShowHelp scriptblock with the _MouseHover event for this control
@@ -2507,7 +2772,7 @@ $keyBindsForm.MinimizeBox = $false
 # Add a button to close KeyBinds Viewer and return to main form
 $closeKeyBindsButton = New-Object System.Windows.Forms.Button
 $closeKeyBindsButton.Text = "< Back"
-$closeKeyBindsButton.Width = (100 * $script:ScaleMultiplier)
+$closeKeyBindsButton.Width = (80 * $script:ScaleMultiplier)
 $closeKeyBindsButton.Height = (30 * $script:ScaleMultiplier)
 $closeKeyBindsButton.Top = (10 * $script:ScaleMultiplier)
 $closeKeyBindsButton.Left = (20 * $script:ScaleMultiplier)
@@ -2644,6 +2909,7 @@ $listDefaults.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(18
 $listDefaults.View = 'Details'
 $listDefaults.FullRowSelect = $true
 $listDefaults.GridLines = $true
+$listDefaults.Visible = $false
 
 # --- Tab 2: Device ---
 $tabDevice = New-Object System.Windows.Forms.TabPage
@@ -2995,7 +3261,7 @@ $hidLookupMenuItem.Add_Click({
     $formHIDLookup.ShowDialog()
 })
 # Add the HID Lookup menu item to the Actions menu
-$toolsMenuItem.MenuItems.Add($hidLookupMenuItem)
+#$toolsMenuItem.MenuItems.Add($hidLookupMenuItem)
 
 # Create a form for HOTAS Re-Order
 $formHIDLookup = New-Object System.Windows.Forms.Form
@@ -3009,7 +3275,7 @@ $HIDBackButton.Text = "< Back"
 #$HIDBackButton.Location = "10,10"   # Top left corner
 $HIDBackButton.Top = (10 * $script:ScaleMultiplier)
 $HIDBackButton.Left = (10 * $script:ScaleMultiplier)
-$HIDBackButton.Width = (100 * $script:ScaleMultiplier)
+$HIDBackButton.Width = (80 * $script:ScaleMultiplier)
 $HIDBackButton.Height = (30 * $script:ScaleMultiplier)
 $HIDBackButton.TabIndex = 1
 $HIDBackButton.Name = "HIDBackButton"
@@ -3208,7 +3474,7 @@ $splashbuttonLoadMainForm.Top = (310 * $script:ScaleMultiplier)
 $splashbuttonLoadMainForm.Left = ($splash.Width /2)
 $splashbuttonLoadMainForm.Font = New-Object System.Drawing.Font($splashbuttonLoadMainForm.Font.FontFamily, [math]::Round($splashbuttonLoadMainForm.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
 $splashbuttonLoadMainForm.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
-$splashbuttonLoadMainForm.Width = (100 * $script:ScaleMultiplier)
+$splashbuttonLoadMainForm.Width = (80 * $script:ScaleMultiplier)
 $splashbuttonLoadMainForm.TabIndex = 4
 $splash.Controls.Add($splashbuttonLoadMainForm)
 
