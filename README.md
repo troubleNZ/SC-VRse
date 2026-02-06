@@ -5,10 +5,7 @@
   <a href="https://github.com/troubleNZ/SC-VRse/blob/main/LICENSE"><img src="https://img.shields.io/github/license/troubleNZ/SC-VRse?color=black"/></a>
 </p>
 
-# SC-VRse
-## VRse-AE (Attribute Editor)
-
-  
+# SC/VR Powertool
 
 ### Easy Virtual Reality configuration manager for Star Citizen (Live PU).
 
@@ -91,9 +88,8 @@ Also find the handy Keybinds viewer under the Actions Menu, where you can easily
 
 ### What's Changed    
 
-* 0.5.0 by @troubleNZ in https://github.com/troubleNZ/SC-VR-Powertool
+**0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references
+**0.5.1** + Experimental VR settings introduced from alpha 4.6
 
-  
-
-**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.4.1
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.5.1
 

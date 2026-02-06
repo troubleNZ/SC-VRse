@@ -59,3 +59,5 @@
 **0.3.7** Can't locate Game Install error handling    
 **0.4.0** HOTAS Hardware ID Reassignment Utility
 **0.4.1** Dynamic Scaling on all controls
+**0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references
+**0.5.1** + Experimental VR settings introduced from alpha 4.6

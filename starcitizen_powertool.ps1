@@ -1457,7 +1457,7 @@ $creditsMenuItem.Add_Click({
     $creditsForm.Controls.Add($creditsPanel)
 
     $creditsLabel = New-Object System.Windows.Forms.Label
-    $creditsLabel.Text = "VRse Attribute Editor Credits:" +
+    $creditsLabel.Text = "SC/VR Powertools Credits:" +
         "`n`n" +
         "This tool is not affiliated with CIG or Star Citizen. Use at your own risk." +
         "`n`n" +
