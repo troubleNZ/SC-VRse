@@ -1820,15 +1820,6 @@ $MotionBlurLabel.Width = (80 * $script:ScaleMultiplier)
 $MotionBlurLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($MotionBlurLabel)
 
-#$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
-#$MotionBlurTextBox.Name = "MotionBlurTextBox"
-#$MotionBlurTextBox.Top = 170
-#$MotionBlurTextBox.Left = 190
-#$MotionBlurTextBox.Width = 50
-#$MotionBlurTextBox.TextAlign = 'Left'
-#$MotionBlurTextBox.TabIndex = 13
-#$groupLegacyVRSettings.Controls.Add($MotionBlurTextBox)
-
 $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
 $MotionBlurComboBox.Top = (290 * $script:ScaleMultiplier)
@@ -1885,14 +1876,6 @@ $FilmGrainLabel.Width = (80 * $script:ScaleMultiplier)
 $FilmGrainLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($FilmGrainLabel)
 
-#$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
-#$FilmGrainTextBox.Name = "FilmGrainTextBox"
-#$FilmGrainTextBox.Top = 200
-#$FilmGrainTextBox.Left = 410
-#$FilmGrainTextBox.Width = 50
-#$FilmGrainTextBox.TextAlign = 'Left'
-#$FilmGrainTextBox.TabIndex = 16
-#$groupLegacyVRSettings.Controls.Add($FilmGrainTextBox)
 $FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
 $FilmGrainComboBox.Name = "FilmGrainComboBox"
 $FilmGrainComboBox.Top = (200 * $script:ScaleMultiplier)
@@ -2587,22 +2570,6 @@ $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_EscMenuSettings_H
 # END-----------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-# Experimental VR Settings -------------------------------------------------------------------------------------------------
-# END-----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
 # Function to enable Apply/Save buttons when any field changes
 function Enable-SaveButtons {
     $applySaveButton.Enabled = $true
@@ -2672,24 +2639,25 @@ $buttonOpenExpVRSettings.add_MouseHover({ $ShowHelp.Invoke($_) })
 $loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 $importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 
-<#
-                >$script:profileArray[0].HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
-                >$script:profileArray[0].HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text;
-                >$script:profileArray[0].HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text;
-                >$script:profileArray[0].HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text;
-                >$script:profileArray[0].HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex;
-                >$script:profileArray[0].HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text;
-                >$script:profileArray[0].HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text;
-                >$script:profileArray[0].HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text;
-                >$script:profileArray[0].HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
-                >$script:profileArray[0].HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text;
-                >$script:profileArray[0].HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
-                $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex;
-                $script:profileArray[0].HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
-                $script:profileArray[0].HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex;
-            #>
+$textboxExpCategory_EscMenuSettings_EscMenuDistance.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_EscMenuSettings_EscMenuYPos.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_EscMenuSettings_EscMenuScale.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_HelmetVisorLensDepth.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_HelmetVisorLens_AspectModifier.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_HelmetVisorLens_HmdVisorHeight.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_HelmetVisorLens_HmdVisorScale.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_TheatreMode_Scale.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_TheatreMode_Curvature.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_TheatreMode_Distance.add_MouseHover({ $ShowHelp.Invoke($_) })
+#$textboxExpCategory_UserSettings_StereoScaleformDepth.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_UserSettings_StereoStrength.add_MouseHover({ $ShowHelp.Invoke($_) })
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.add_MouseHover({ $ShowHelp.Invoke($_) })
 
-#connect the ShowHelp scriptblock with the _MouseHover event for this control
+$ComboboxExpCategory_MirrorMode_StereoMirrorMode.add_MouseHover({ $ShowHelp.Invoke($_) })
+$ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.add_MouseHover({ $ShowHelp.Invoke($_) })
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.add_MouseHover({ $ShowHelp.Invoke($_) })
+$ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.add_MouseHover({ $ShowHelp.Invoke($_) })
+
 
 $toolTips = New-Object System.Windows.Forms.ToolTip
 $ShowHelp={
@@ -2724,8 +2692,26 @@ $ShowHelp={
         "saveProfileButton" {$tip = "Save these settings to a config file for later use"}
         "loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
         "importButton" {$tip = "Import settings from the game"}
-        "deleteEACTempFilesButton" {$tip = "Delete EAC TempFiles"}
-        "hostsFileAddButton" {$tip = "Update hosts file for EAC Bypass"}
+        #"deleteEACTempFilesButton" {$tip = "Delete EAC TempFiles"}
+        #"hostsFileAddButton" {$tip = "Update hosts file for EAC Bypass"}
+
+        "HmdUIDistance" {$tip = "How Far away the Escape Menu is."}
+        "HmdUIHeight" {$tip = "Vertical Offset of Menu."}
+        "HmdUIScale" {$tip = "How large the Escape Menu is in 3d space."}
+        "HmdVisorDistance" {$tip = "Helmet overlay focus distance."}
+        "HmdVisorAspectModifier" {$tip = "Helmet overlay width."}
+        "HmdVisorHeight" {$tip = "Helmet overlay focus distance."}
+        "HmdVisorScale" {$tip = "Vertical Offset of Helmet overlay."}
+        "HmdTheaterModeScale" {$tip = "How large is the Theater Mode Window."}
+        "HmdTheaterModeCurvature" {$tip = "[META QUEST Only] How much curve the Theater Mode Window has."}
+        "HmdTheaterModeDistance" {$tip = "Focus depth of the Theater Window."}
+        "HmdIPDScale" {$tip = "Inter Pupilary Distance Modifier."}
+        "HmdCursorSize" {$tip = "VR Mouse Cursor Size."}
+        "HmdTheaterMode" {$tip = "Toggle Theater Mode on Startup."}
+        "HmdAutomaticSwitching" {$tip = "If your HMD Supports headset removal detection."}
+        "HmdActorControlMode" {$tip = "VR FPS Actor Player Comfort setting."}
+        "HmdfpsAdsDominantEye" {$tip = "Mostly for Aim Down Sights (ADS)"}
+
         Default { $tip = "No tooltip available for this control." }
       }
      $toolTips.SetToolTip($this, $tip)
@@ -2842,9 +2828,9 @@ function On-KeybindDeviceComboBox-Changed {
     param($sender, $eventArgs)
     $selectedDevice = $keybindDeviceComboBox.SelectedItem
     # Filter ActionMaps tree to only show actions with rebind/input starting with the selected device prefix
-    $treeActionMaps.BeginUpdate()
-    $treeActionMaps.Nodes.Clear()
-    $profileNode = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    $treeKeybinds_ActionMaps.BeginUpdate()
+    $treeKeybinds_ActionMaps.Nodes.Clear()
+    $profileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
         $amNode = $profileNode.Nodes.Add("ActionMap: $($actionmap.name)")
         foreach ($action in $actionmap.action) {
@@ -2858,7 +2844,7 @@ function On-KeybindDeviceComboBox-Changed {
             }
         }
     }
-    $treeActionMaps.EndUpdate()
+    $treeKeybinds_ActionMaps.EndUpdate()
     # Example: Write-Host "Selected device: $selectedDevice"
 }
 
@@ -2874,102 +2860,102 @@ function Add-Column($listView, $columns) {
 }
 
 # Create TabControl
-$tabControl = New-Object System.Windows.Forms.TabControl
-#$tabControl.Location = '10,60'
-$tabControl.Top = (60 * $script:ScaleMultiplier)
-$tabControl.Left = (10 * $script:ScaleMultiplier)
-$tabControl.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
-$tabControl.Size = New-Object Drawing.Size((620 * $script:ScaleMultiplier),(470 * $script:ScaleMultiplier))
-$tabControl.Anchor = "Top, Left, Right, Bottom"
-$tabControl.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabControl_Keybinds = New-Object System.Windows.Forms.TabControl
+#$tabControl_Keybinds.Location = '10,60'
+$tabControl_Keybinds.Top = (60 * $script:ScaleMultiplier)
+$tabControl_Keybinds.Left = (10 * $script:ScaleMultiplier)
+$tabControl_Keybinds.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$tabControl_Keybinds.Size = New-Object Drawing.Size((620 * $script:ScaleMultiplier),(470 * $script:ScaleMultiplier))
+$tabControl_Keybinds.Anchor = "Top, Left, Right, Bottom"
+$tabControl_Keybinds.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 
 
 
 # --- Tab 1: ActionMaps ---
-$tabActionMaps = New-Object System.Windows.Forms.TabPage
-$tabActionMaps.Text = "KeyBinds"
-$tabActionMaps.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
-$tabActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+$tabKeybinds_ActionMaps = New-Object System.Windows.Forms.TabPage
+$tabKeybinds_ActionMaps.Text = "KeyBinds"
+$tabKeybinds_ActionMaps.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabKeybinds_ActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
 
-$treeActionMaps = New-Object Windows.Forms.TreeView
-#$treeActionMaps.Location = (10 * $script:ScaleMultiplier),(10 * $script:ScaleMultiplier)
-#$treeActionMaps.Location = "10,10"
-$treeActionMaps.Top = (10 * $script:ScaleMultiplier)
-$treeActionMaps.Left = (10 * $script:ScaleMultiplier)
-#$treeActionMaps.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
-$treeActionMaps.BackColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
-$treeActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(0, 0, 0)
-$treeActionMaps.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-$treeActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
-$treeActionMaps.HideSelection = $false
+$treeKeybinds_ActionMaps = New-Object Windows.Forms.TreeView
+#$treeKeybinds_ActionMaps.Location = (10 * $script:ScaleMultiplier),(10 * $script:ScaleMultiplier)
+#$treeKeybinds_ActionMaps.Location = "10,10"
+$treeKeybinds_ActionMaps.Top = (10 * $script:ScaleMultiplier)
+$treeKeybinds_ActionMaps.Left = (10 * $script:ScaleMultiplier)
+#$treeKeybinds_ActionMaps.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$treeKeybinds_ActionMaps.BackColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+$treeKeybinds_ActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(0, 0, 0)
+$treeKeybinds_ActionMaps.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+$treeKeybinds_ActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$treeKeybinds_ActionMaps.HideSelection = $false
 
-$listActionMaps = New-Object Windows.Forms.ListView
-#$listActionMaps.Location = "370,10"
-$listActionMaps.Top = (10 * $script:ScaleMultiplier)
-$listActionMaps.Left = (370 * $script:ScaleMultiplier)
+$listKeybinds_ActionMaps = New-Object Windows.Forms.ListView
+#$listKeybinds_ActionMaps.Location = "370,10"
+$listKeybinds_ActionMaps.Top = (10 * $script:ScaleMultiplier)
+$listKeybinds_ActionMaps.Left = (370 * $script:ScaleMultiplier)
 
-$listActionMaps.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(200 * $script:ScaleMultiplier))
-$listActionMaps.View = 'Details'
-$listActionMaps.FullRowSelect = $true
-$listActionMaps.GridLines = $true
+$listKeybinds_ActionMaps.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(200 * $script:ScaleMultiplier))
+$listKeybinds_ActionMaps.View = 'Details'
+$listKeybinds_ActionMaps.FullRowSelect = $true
+$listKeybinds_ActionMaps.GridLines = $true
 
-$listDefaults = New-Object Windows.Forms.ListView
-#$listDefaults.Location = "370,220"
-$listDefaults.Top = (220 * $script:ScaleMultiplier)
-$listDefaults.Left = (370 * $script:ScaleMultiplier)
-#$listDefaults.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
-$listDefaults.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(180 * $script:ScaleMultiplier))
-$listDefaults.View = 'Details'
-$listDefaults.FullRowSelect = $true
-$listDefaults.GridLines = $true
-$listDefaults.Visible = $false
+$listKeybinds_Defaults = New-Object Windows.Forms.ListView
+#$listKeybinds_Defaults.Location = "370,220"
+$listKeybinds_Defaults.Top = (220 * $script:ScaleMultiplier)
+$listKeybinds_Defaults.Left = (370 * $script:ScaleMultiplier)
+#$listKeybinds_Defaults.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$listKeybinds_Defaults.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(180 * $script:ScaleMultiplier))
+$listKeybinds_Defaults.View = 'Details'
+$listKeybinds_Defaults.FullRowSelect = $true
+$listKeybinds_Defaults.GridLines = $true
+$listKeybinds_Defaults.Visible = $false
 
 # --- Tab 2: Device ---
-$tabDevice = New-Object System.Windows.Forms.TabPage
-$tabDevice.Text = "Device"
+$tabKeybinds_Device = New-Object System.Windows.Forms.TabPage
+$tabKeybinds_Device.Text = "Device"
 
-$treeDevice = New-Object Windows.Forms.TreeView
-#$treeDevice.Location = "10,10"
-$treeDevice.Top = (10 * $script:ScaleMultiplier)
-$treeDevice.Left = (10 * $script:ScaleMultiplier)
-$treeDevice.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
-$treeDevice.HideSelection = $false
+$treeKeybinds_Device = New-Object Windows.Forms.TreeView
+#$treeKeybinds_Device.Location = "10,10"
+$treeKeybinds_Device.Top = (10 * $script:ScaleMultiplier)
+$treeKeybinds_Device.Left = (10 * $script:ScaleMultiplier)
+$treeKeybinds_Device.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$treeKeybinds_Device.HideSelection = $false
 
-$listDevice = New-Object Windows.Forms.ListView
-#$listDevice.Location = "370,10"
-$listDevice.Top = (10 * $script:ScaleMultiplier)
-$listDevice.Left = (370 * $script:ScaleMultiplier)
-$listDevice.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
-$listDevice.View = 'Details'
-$listDevice.FullRowSelect = $true
-$listDevice.GridLines = $true
+$listKeybinds_Device = New-Object Windows.Forms.ListView
+#$listKeybinds_Device.Location = "370,10"
+$listKeybinds_Device.Top = (10 * $script:ScaleMultiplier)
+$listKeybinds_Device.Left = (370 * $script:ScaleMultiplier)
+$listKeybinds_Device.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$listKeybinds_Device.View = 'Details'
+$listKeybinds_Device.FullRowSelect = $true
+$listKeybinds_Device.GridLines = $true
 
 # --- Tab 3: Options ---
-$tabOptions = New-Object System.Windows.Forms.TabPage
-$tabOptions.Text = "Options"
+$tabKeybinds_Options = New-Object System.Windows.Forms.TabPage
+$tabKeybinds_Options.Text = "Options"
 
-$treeOptions = New-Object Windows.Forms.TreeView
-#$treeOptions.Location = "10,10"
-$treeOptions.Top = (10 * $script:ScaleMultiplier)
-$treeOptions.Left = (10 * $script:ScaleMultiplier)
-$treeOptions.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
-$treeOptions.HideSelection = $false
+$treeKeybinds_Options = New-Object Windows.Forms.TreeView
+#$treeKeybinds_Options.Location = "10,10"
+$treeKeybinds_Options.Top = (10 * $script:ScaleMultiplier)
+$treeKeybinds_Options.Left = (10 * $script:ScaleMultiplier)
+$treeKeybinds_Options.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$treeKeybinds_Options.HideSelection = $false
 
-$listOptions = New-Object Windows.Forms.ListView
-#$listOptions.Location = "370,10"
-$listOptions.Top = (10 * $script:ScaleMultiplier)
-$listOptions.Left = (370 * $script:ScaleMultiplier)
-$listOptions.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
-$listOptions.View = 'Details'
-$listOptions.FullRowSelect = $true
-$listOptions.GridLines = $true
+$listKeybinds_Options = New-Object Windows.Forms.ListView
+#$listKeybinds_Options.Location = "370,10"
+$listKeybinds_Options.Top = (10 * $script:ScaleMultiplier)
+$listKeybinds_Options.Left = (370 * $script:ScaleMultiplier)
+$listKeybinds_Options.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$listKeybinds_Options.View = 'Details'
+$listKeybinds_Options.FullRowSelect = $true
+$listKeybinds_Options.GridLines = $true
 
 # Add tabs to TabControl
-#$tabControl.TabPages.Add($tabDefaults)
-$tabControl.TabPages.Add($tabActionMaps)
-$tabControl.TabPages.Add($tabDevice)
-$tabControl.TabPages.Add($tabOptions)
-$keyBindsForm.Controls.Add($tabControl)
+#$tabControl_Keybinds.TabPages.Add($tabDefaults)
+$tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
+$tabControl_Keybinds.TabPages.Add($tabKeybinds_Device)
+$tabControl_Keybinds.TabPages.Add($tabKeybinds_Options)
+$keyBindsForm.Controls.Add($tabControl_Keybinds)
 
 # Load default action maps XML
 $ActionMapDefaults = $null
@@ -2986,17 +2972,17 @@ if (![string]::IsNullOrEmpty($PSScriptRoot)) {
 
 function Populate-KeyBindsViewer {
     # Clear all nodes and items
-    $treeActionMaps.Nodes.Clear()
-    $listActionMaps.Items.Clear()
-    $treeDevice.Nodes.Clear()
-    $listDevice.Items.Clear()
-    $treeOptions.Nodes.Clear()
-    $listOptions.Items.Clear()
+    $treeKeybinds_ActionMaps.Nodes.Clear()
+    $listKeybinds_ActionMaps.Items.Clear()
+    $treeKeybinds_Device.Nodes.Clear()
+    $listKeybinds_Device.Items.Clear()
+    $treeKeybinds_Options.Nodes.Clear()
+    $listKeybinds_Options.Items.Clear()
 
     if (-not $script:keyBindsProfiles) { return }
     $defaultsXml = [xml](Get-Content $ActionMapDefaults) #$defaultActionMapsXml)
     # --- ActionMaps ---
-    $actionProfileNode = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    $actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
         $amNode = $actionProfileNode.Nodes.Add("ActionMap: $($actionmap.name)")
         foreach ($action in $actionmap.action) {
@@ -3014,19 +3000,19 @@ function Populate-KeyBindsViewer {
             }
         }
     }
-    $treeActionMaps.Add_AfterSelect({
-        $listActionMaps.Items.Clear()
-        $node = $treeActionMaps.SelectedNode
+    $treeKeybinds_ActionMaps.Add_AfterSelect({
+        $listKeybinds_ActionMaps.Items.Clear()
+        $node = $treeKeybinds_ActionMaps.SelectedNode
         if ($node -eq $null) { return }
         if ($node.Text -like "Action: *") {
             $actionName = $node.Text.Substring(8)
             $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
             if ($action) {
-                Add-Column $listActionMaps @("Rebind Input", "MultiTap")
+                Add-Column $listKeybinds_ActionMaps @("Rebind Input", "MultiTap")
                 #defaults 
                 foreach ($default in $action.default) {
                     if ($default.input) {
-                        $item = $listActionMaps.Items.Add($default.input)
+                        $item = $listKeybinds_ActionMaps.Items.Add($default.input)
                         if ($null -ne $item) {
                             $multiTapValue = if ($default.multiTap) { $default.multiTap } else { "" }
                             $item.SubItems.Add($multiTapValue)| Out-Null
@@ -3035,7 +3021,7 @@ function Populate-KeyBindsViewer {
                 }
                 foreach ($rebind in $action.rebind) {
                     if ($rebind.input) {
-                        $item = $listActionMaps.Items.Add($rebind.input)
+                        $item = $listKeybinds_ActionMaps.Items.Add($rebind.input)
                         if ($null -ne $item) {
                             $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
                             $item.SubItems.Add($multiTapValue)| Out-Null
@@ -3045,7 +3031,7 @@ function Populate-KeyBindsViewer {
             }
         }
 
-        # Populate $listDefaults with the relevant actionmap from defaultactionmaps.xml
+        # Populate $listKeybinds_Defaults with the relevant actionmap from defaultactionmaps.xml
         if ($node.Text -like "Action: *") {
             $actionName = $node.Text.Substring(8)
             # Load defaultactionmaps.xml if not already loaded
@@ -3059,17 +3045,17 @@ function Populate-KeyBindsViewer {
                 }
             }
             if ($script:defaultActionMapsXml) {
-                $listDefaults.Items.Clear()
-                $listDefaults.Columns.Clear()
-                #$listDefaults.Columns.Add("Rebind Input",120)
-                #$listDefaults.Columns.Add("MultiTap",120)
-                Add-Column $listDefaults @("Default Input", "MultiTap")
+                $listKeybinds_Defaults.Items.Clear()
+                $listKeybinds_Defaults.Columns.Clear()
+                #$listKeybinds_Defaults.Columns.Add("Rebind Input",120)
+                #$listKeybinds_Defaults.Columns.Add("MultiTap",120)
+                Add-Column $listKeybinds_Defaults @("Default Input", "MultiTap")
                 # Find the action in defaultactionmaps.xml
                 foreach ($actionmap in $script:defaultActionMapsXml.actionmap) {
                     foreach ($action in $actionmap.action) {
                         if ($action.name -eq $actionName) {
                             foreach ($rebind in $action.rebind) {
-                                $item = $listDefaults.Items.Add($rebind.input)
+                                $item = $listKeybinds_Defaults.Items.Add($rebind.input)
                                 $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
                                 $item.SubItems.Add($multiTapValue) | Out-Null
                             }
@@ -3082,31 +3068,31 @@ function Populate-KeyBindsViewer {
 
 
 
-    $tabActionMaps.Controls.Clear()
-    $tabActionMaps.Controls.Add($treeActionMaps)
-    $tabActionMaps.Controls.Add($listActionMaps)
-    $tabActionMaps.Controls.Add($listDefaults)
+    $tabKeybinds_ActionMaps.Controls.Clear()
+    $tabKeybinds_ActionMaps.Controls.Add($treeKeybinds_ActionMaps)
+    $tabKeybinds_ActionMaps.Controls.Add($listKeybinds_ActionMaps)
+    $tabKeybinds_ActionMaps.Controls.Add($listKeybinds_Defaults)
 
     # --- Device ---
-    $deviceProfileNode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    $deviceProfileNode = $treeKeybinds_Device.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
         $devNode = $deviceProfileNode.Nodes.Add("Device: $($devopt.name)")
         foreach ($opt in $devopt.option) {
             $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
         }
     }
-    $treeDevice.Add_AfterSelect({
-        $listDevice.Items.Clear()
-        $node = $treeDevice.SelectedNode
+    $treeKeybinds_Device.Add_AfterSelect({
+        $listKeybinds_Device.Items.Clear()
+        $node = $treeKeybinds_Device.SelectedNode
         if ($node -eq $null) { return }
         if ($node.Text -like "Device: *") {
             $devName = $node.Text.Substring(8)
             $dev = $script:keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
             if ($dev) {
-                Add-Column $listDevice @("Input", "Saturation", "Deadzone")
+                Add-Column $listKeybinds_Device @("Input", "Saturation", "Deadzone")
                 foreach ($opt in $dev.option) {
                     if ($opt.input) {
-                        $item = $listDevice.Items.Add($opt.input)
+                        $item = $listKeybinds_Device.Items.Add($opt.input)
                         if ($null -ne $item -or $item -eq 0) {
                             try {
                                 $item.SubItems.Add($opt.saturation) | Out-Null
@@ -3124,30 +3110,30 @@ function Populate-KeyBindsViewer {
             }
         }
     })
-    $tabDevice.Controls.Clear()
-    $tabDevice.Controls.Add($treeDevice)
-    $tabDevice.Controls.Add($listDevice)
+    $tabKeybinds_Device.Controls.Clear()
+    $tabKeybinds_Device.Controls.Add($treeKeybinds_Device)
+    $tabKeybinds_Device.Controls.Add($listKeybinds_Device)
 
     # --- Options ---
-    $optionsProfileNode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    $optionsProfileNode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     foreach ($opt in $script:keyBindsProfiles.options) {
         $optNode = $optionsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
         foreach ($child in $opt.ChildNodes) {
             $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
         }
     }
-    $treeOptions.Add_AfterSelect({
-        $listOptions.Items.Clear()
-        $node = $treeOptions.SelectedNode
+    $treeKeybinds_Options.Add_AfterSelect({
+        $listKeybinds_Options.Items.Clear()
+        $node = $treeKeybinds_Options.SelectedNode
         if ($node -eq $null) { return }
         if ($node.Text -like "Options: *") {
             $optType = $node.Text.Split(" ")[1]
             $opt = $script:keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
             if ($opt) {
-                Add-Column $listOptions @("Property", "Value")
+                Add-Column $listKeybinds_Options @("Property", "Value")
                 foreach ($attr in $opt.Attributes) {
                     if ($attr.Name) {
-                        $item = $listOptions.Items.Add($attr.Name)
+                        $item = $listKeybinds_Options.Items.Add($attr.Name)
                         if ($null -ne $item) {
                             $item.SubItems.Add($attr.Value)| Out-Null
                         }
@@ -3155,7 +3141,7 @@ function Populate-KeyBindsViewer {
                 }
                 foreach ($child in $opt.ChildNodes) {
                     if ($child.Name) {
-                        $item = $listOptions.Items.Add($child.Name)
+                        $item = $listKeybinds_Options.Items.Add($child.Name)
                         if ($null -ne $item) {
                             $item.SubItems.Add($child.OuterXml)| Out-Null
                         }
@@ -3164,21 +3150,21 @@ function Populate-KeyBindsViewer {
             }
         }
     })
-    $tabOptions.Controls.Clear()
-    $tabOptions.Controls.Add($treeOptions)
-    $tabOptions.Controls.Add($listOptions)
+    $tabKeybinds_Options.Controls.Clear()
+    $tabKeybinds_Options.Controls.Add($treeKeybinds_Options)
+    $tabKeybinds_Options.Controls.Add($listKeybinds_Options)
 }
 
 # Search logic: filter all tabs' treeviews
 $keybindSearchField.Add_TextChanged({
     $searchText = $keybindSearchField.Text
-    foreach ($tree in @($treeActionMaps, $treeDevice, $treeOptions)) {
+    foreach ($tree in @($treeKeybinds_ActionMaps, $treeKeybinds_Device, $treeKeybinds_Options)) {
         $tree.BeginUpdate()
         $tree.Nodes.Clear()
     }
     if (![string]::IsNullOrWhiteSpace($searchText) -and $searchText -ne "Search Keybinds") {
         # ActionMaps
-        $node = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        $node = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
             $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
             foreach ($action in $actionmap.action) {
@@ -3191,7 +3177,7 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Device
-        $dnode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        $dnode = $treeKeybinds_Device.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             if ($devopt.name -like "*$searchText*") {
                 $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
@@ -3201,7 +3187,7 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Options
-        $onode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        $onode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($opt in $script:keyBindsProfiles.options) {
             if ($opt.type -like "*$searchText*" -or $opt.Product -like "*$searchText*") {
                 $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
@@ -3213,7 +3199,7 @@ $keybindSearchField.Add_TextChanged({
     } else {
         # Show all
         # ActionMaps
-        $node = $treeActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        $node = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
             $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
             foreach ($action in $actionmap.action) {
@@ -3224,7 +3210,7 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Device
-        $dnode = $treeDevice.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        $dnode = $treeKeybinds_Device.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
             foreach ($opt in $devopt.option) {
@@ -3232,7 +3218,7 @@ $keybindSearchField.Add_TextChanged({
             }
         }
         # Options
-        $onode = $treeOptions.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        $onode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($opt in $script:keyBindsProfiles.options) {
             $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
             foreach ($child in $opt.ChildNodes) {
@@ -3240,7 +3226,7 @@ $keybindSearchField.Add_TextChanged({
             }
         }
     }
-    foreach ($tree in @($treeActionMaps, $treeDevice, $treeOptions)) {
+    foreach ($tree in @($treeKeybinds_ActionMaps, $treeKeybinds_Device, $treeKeybinds_Options)) {
         $tree.EndUpdate()
     }
 })
@@ -3326,15 +3312,15 @@ $labelDevices.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultipli
 $formHIDLookup.Controls.Add($labelDevices)
 
 # Devices listbox
-$listDevices = New-Object System.Windows.Forms.ListBox
-#$listDevices.Location = (10 * $script:ScaleMultiplier),(85 * $script:ScaleMultiplier)
-#$listDevices.Location = "10,85"
-$listDevices.Top = (105 * $script:ScaleMultiplier)
-$listDevices.Left = (10 * $script:ScaleMultiplier)
-$listDevices.Font = New-Object System.Drawing.Font($listDevices.Font.FontFamily, [math]::Round($listDevices.Font.Size * $script:ScaleMultiplier))
-$listDevices.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(100 * $script:ScaleMultiplier))
-$listDevices.TabIndex = 2
-$formHIDLookup.Controls.Add($listDevices)
+$listKeybinds_Devices = New-Object System.Windows.Forms.ListBox
+#$listKeybinds_Devices.Location = (10 * $script:ScaleMultiplier),(85 * $script:ScaleMultiplier)
+#$listKeybinds_Devices.Location = "10,85"
+$listKeybinds_Devices.Top = (105 * $script:ScaleMultiplier)
+$listKeybinds_Devices.Left = (10 * $script:ScaleMultiplier)
+$listKeybinds_Devices.Font = New-Object System.Drawing.Font($listKeybinds_Devices.Font.FontFamily, [math]::Round($listKeybinds_Devices.Font.Size * $script:ScaleMultiplier))
+$listKeybinds_Devices.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(100 * $script:ScaleMultiplier))
+$listKeybinds_Devices.TabIndex = 2
+$formHIDLookup.Controls.Add($listKeybinds_Devices)
 
 # Order label
 $labelOrder = New-Object System.Windows.Forms.Label
@@ -3387,7 +3373,7 @@ $devices = @()
 
 function LoadDevices {
     $oemName = ""
-    $listDevices.Items.Clear()
+    $listKeybinds_Devices.Items.Clear()
     $devices = Get-PnpDevice -Class "HIDClass" | Where-Object {
         $_.FriendlyName -like "*HID-compliant game controller*" -and $_.Status -eq "OK"
     }
@@ -3412,7 +3398,7 @@ function LoadDevices {
             } else {
                 Write-Host "OEM registry path not found for device: $($instanceIdShort)"
             }
-            $listDevices.Items.Add("$i. $oemName - $($d.InstanceId)")
+            $listKeybinds_Devices.Items.Add("$i. $oemName - $($d.InstanceId)")
             $i++
         }
         $buttonAction.Enabled = $true
