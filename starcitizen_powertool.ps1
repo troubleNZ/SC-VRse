@@ -9,7 +9,7 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.5.1"
+$scriptVersion = "0.5.2"
 
 $scbuild = "4.6"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
@@ -1680,6 +1680,7 @@ $fovLabel.Text = "FOV"
 $fovLabel.Top = (70 * $script:ScaleMultiplier)
 $fovLabel.Left = (150 * $script:ScaleMultiplier)
 $fovLabel.Width = (30 * $script:ScaleMultiplier)
+$fovLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($fovLabel)
 
 $fovTextBox = New-Object System.Windows.Forms.TextBox
@@ -1697,6 +1698,7 @@ $widthLabel.Text = "Width"
 $widthLabel.Top = (70 * $script:ScaleMultiplier)
 $widthLabel.Left = (215 * $script:ScaleMultiplier)
 $widthLabel.Width = (50 * $script:ScaleMultiplier)
+$widthLabel.Height = (20 * $script:ScaleMultiplier)
 $widthLabel.TextAlign = 'MiddleRight'
 $groupLegacyVRSettings.Controls.Add($widthLabel)
 
@@ -1714,6 +1716,7 @@ $heightLabel.Text = "Height"
 $heightLabel.Top = (70 * $script:ScaleMultiplier)
 $heightLabel.Left = (330 * $script:ScaleMultiplier)
 $heightLabel.Width = (50 * $script:ScaleMultiplier)
+$heightLabel.Height = (20 * $script:ScaleMultiplier)
 $heightLabel.TextAlign = 'MiddleRight'
 $groupLegacyVRSettings.Controls.Add($heightLabel)
 
@@ -1731,6 +1734,7 @@ $HeadtrackingLabel.Text = "Headtracking Toggle"
 $HeadtrackingLabel.Top = (110 * $script:ScaleMultiplier)
 $HeadtrackingLabel.Left = (10 * $script:ScaleMultiplier)
 $HeadtrackingLabel.Width = (150 * $script:ScaleMultiplier)
+$HeadtrackingLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($HeadtrackingLabel)
 
 $headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1751,6 +1755,7 @@ $HeadtrackingSourceLabel.Text = "Headtracking Source"
 $HeadtrackingSourceLabel.Top = (110 * $script:ScaleMultiplier)
 $HeadtrackingSourceLabel.Left = (290 * $script:ScaleMultiplier)
 $HeadtrackingSourceLabel.Width = (150 * $script:ScaleMultiplier)
+$HeadtrackingSourceLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($HeadtrackingSourceLabel)
 
 $HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1775,6 +1780,7 @@ $chromaticAberrationLabel.Text = "Chromatic Aberration"
 $chromaticAberrationLabel.Top = (260 * $script:ScaleMultiplier)
 $chromaticAberrationLabel.Left = (10 * $script:ScaleMultiplier)
 $chromaticAberrationLabel.Width = (150 * $script:ScaleMultiplier)
+$chromaticAberrationLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
@@ -1791,6 +1797,7 @@ $AutoZoomLabel.Text = "Auto Zoom"
 $AutoZoomLabel.Top = (260 * $script:ScaleMultiplier)
 $AutoZoomLabel.Left = (290 * $script:ScaleMultiplier)
 $AutoZoomLabel.Width = (80 * $script:ScaleMultiplier)
+$AutoZoomLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($AutoZoomLabel)
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1810,6 +1817,7 @@ $MotionBlurLabel.Text = "Motion Blur"
 $MotionBlurLabel.Top = (290 * $script:ScaleMultiplier)
 $MotionBlurLabel.Left = (70 * $script:ScaleMultiplier)
 $MotionBlurLabel.Width = (80 * $script:ScaleMultiplier)
+$MotionBlurLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($MotionBlurLabel)
 
 #$MotionBlurTextBox = New-Object System.Windows.Forms.TextBox
@@ -1840,6 +1848,7 @@ $ShakeScaleLabel.Text = "Shake Scale"
 $ShakeScaleLabel.Top = (170 * $script:ScaleMultiplier)
 $ShakeScaleLabel.Left = (290 * $script:ScaleMultiplier)
 $ShakeScaleLabel.Width = (80 * $script:ScaleMultiplier)
+$ShakeScaleLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
@@ -1856,6 +1865,7 @@ $CameraSpringMovementLabel.Text = "Camera Spring Movement"
 $CameraSpringMovementLabel.Top = (200 * $script:ScaleMultiplier)
 $CameraSpringMovementLabel.Left = (10 * $script:ScaleMultiplier)
 $CameraSpringMovementLabel.Width = (180 * $script:ScaleMultiplier)
+$CameraSpringMovementLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($CameraSpringMovementLabel)
 
 $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
@@ -1872,6 +1882,7 @@ $FilmGrainLabel.Text = "Film Grain"
 $FilmGrainLabel.Top = (200 * $script:ScaleMultiplier)
 $FilmGrainLabel.Left = (290 * $script:ScaleMultiplier)
 $FilmGrainLabel.Width = (80 * $script:ScaleMultiplier)
+$FilmGrainLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($FilmGrainLabel)
 
 #$FilmGrainTextBox = New-Object System.Windows.Forms.TextBox
@@ -1899,6 +1910,7 @@ $GForceBoostZoomScaleLabel.Text = "G-Force Boost Zoom Scale"
 $GForceBoostZoomScaleLabel.Top = (230 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleLabel.Left = (10 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleLabel.Width = (180 * $script:ScaleMultiplier)
+$GForceBoostZoomScaleLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($GForceBoostZoomScaleLabel)
 
 $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
@@ -1915,6 +1927,7 @@ $GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
 $GForceHeadBobScaleLabel.Top = (230 * $script:ScaleMultiplier)
 $GForceHeadBobScaleLabel.Left = (290 * $script:ScaleMultiplier)
 $GForceHeadBobScaleLabel.Width = (170 * $script:ScaleMultiplier)
+$GForceHeadBobScaleLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
@@ -1931,6 +1944,7 @@ $HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
 $HeadtrackingEnableRollFPSLabel.Top = (140 * $script:ScaleMultiplier)
 $HeadtrackingEnableRollFPSLabel.Left = (10 * $script:ScaleMultiplier)
 $HeadtrackingEnableRollFPSLabel.Width = (180 * $script:ScaleMultiplier)
+$HeadtrackingEnableRollFPSLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($HeadtrackingEnableRollFPSLabel)
 
 $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1950,6 +1964,7 @@ $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
 $HeadtrackingDisableDuringWalkingLabel.Top = (140 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Left = (290 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Width = (150 * $script:ScaleMultiplier)
+$HeadtrackingDisableDuringWalkingLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1969,6 +1984,7 @@ $HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
 $HeadtrackingThirdPersonCameraToggleLabel.Top = (170 * $script:ScaleMultiplier)
 $HeadtrackingThirdPersonCameraToggleLabel.Left = (10 * $script:ScaleMultiplier)
 $HeadtrackingThirdPersonCameraToggleLabel.Width = (180 * $script:ScaleMultiplier)
+$HeadtrackingThirdPersonCameraToggleLabel.Height = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
@@ -1992,7 +2008,7 @@ $applySaveButton.Font = New-Object System.Drawing.Font($applySaveButton.Font.Fon
 $applySaveButton.Width = (150 * $script:ScaleMultiplier)
 $applySaveButton.Height = (30 * $script:ScaleMultiplier)
 $applySaveButton.Top = (385 * $script:ScaleMultiplier)
-$applySaveButton.Left = (280 * $script:ScaleMultiplier)
+$applySaveButton.Left = (250 * $script:ScaleMultiplier)
 $applySaveButton.TabIndex = 22
 $applySaveButton.Enabled = $false  # Initially disabled
 $applySaveButton.Add_Click({
@@ -2011,7 +2027,7 @@ $saveAndCloseButton.Width = (150 * $script:ScaleMultiplier)
 $saveAndCloseButton.Font = New-Object System.Drawing.Font($saveAndCloseButton.Font.FontFamily, [math]::Round($saveAndCloseButton.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
 $saveAndCloseButton.Height = (30 * $script:ScaleMultiplier)
 $saveAndCloseButton.Top = (385 * $script:ScaleMultiplier)
-$saveAndCloseButton.Left = (450 * $script:ScaleMultiplier)
+$saveAndCloseButton.Left = (420 * $script:ScaleMultiplier)
 $saveAndCloseButton.TabIndex = 23
 $saveAndCloseButton.Enabled = $false  # Initially disabled
 $saveAndCloseButton.Add_Click({
@@ -2033,7 +2049,7 @@ $buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font("Segoe UI", 12, [
 #$buttonOpenExpVRSettings.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
 #$buttonOpenExpVRSettings.Location = "10,310"
 $buttonOpenExpVRSettings.Top = (385 * $script:ScaleMultiplier)
-$buttonOpenExpVRSettings.Left = (30 * $script:ScaleMultiplier)
+$buttonOpenExpVRSettings.Left = (20 * $script:ScaleMultiplier)
 $buttonOpenExpVRSettings.Width = (200 * $script:ScaleMultiplier)
 $buttonOpenExpVRSettings.Height = (30  * $script:ScaleMultiplier)
 #$buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font($buttonOpenExpVRSettings.Font.FontFamily, [math]::Round($buttonOpenExpVRSettings.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
@@ -2049,7 +2065,7 @@ $buttonGoBacktoMain.Font = New-Object System.Drawing.Font("Segoe UI", 12, [Syste
 #$buttonGoBacktoMain.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
 #$buttonGoBacktoMain.Location = "10,310"
 $buttonGoBacktoMain.Top = (385 * $script:ScaleMultiplier)
-$buttonGoBacktoMain.Left = (30 * $script:ScaleMultiplier)
+$buttonGoBacktoMain.Left = (20 * $script:ScaleMultiplier)
 $buttonGoBacktoMain.Width = (200 * $script:ScaleMultiplier)
 $buttonGoBacktoMain.Height = (30  * $script:ScaleMultiplier)
 #$buttonGoBacktoMain.Font = New-Object System.Drawing.Font($buttonGoBacktoMain.Font.FontFamily, [math]::Round($buttonGoBacktoMain.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
@@ -2483,32 +2499,10 @@ $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.items.Add("Enabled")
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = 0
 $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch)
 
-
-
-# -- Console --
-#r_StereoCursorScale
-$labelExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.Label           #r_StereoCursorScale  <Attr name="HmdCursorSize" cvar="g_headtracking_hmd_cursorSize" value="1.0" />
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Text = "Stereo Cursor Scale"
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Top = (215 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Height = (20 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Left = (300 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorScale.Width = (149 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorScale)
-
-$textboxExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.TextBox         #   HmdCursorSize
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Name = "HmdCursorSize"
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Top = (215 * $script:ScaleMultiplier)
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Left = (450 * $script:ScaleMultiplier)
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.Width = (40 * $script:ScaleMultiplier)
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.TextAlign = 'Left'
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.AcceptsTab = $true
-$textboxExpCategory_ConsoleSettings_StereoCursorScale.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_ConsoleSettings_StereoCursorScale)
-
 #r_StereoDebugDrawing                                                                                       # ; Draws the ` Console in 3d space or not. (0: flat, 1: in stereo space)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.Label           #r_StereoDebugDrawing
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Text = "Display Stereo Console"
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Top = (240 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorToggle.Top = (215 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Width = (149 * $script:ScaleMultiplier)
@@ -2516,7 +2510,7 @@ $groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_Ster
 
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Name = "r_StereoDebugDrawing"
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Top = (240 * $script:ScaleMultiplier)
+$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Top = (215 * $script:ScaleMultiplier)
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Left = (450 * $script:ScaleMultiplier)
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
@@ -2526,24 +2520,43 @@ $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.items.Add("Enabled")
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.SelectedIndex = 0
 $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_ConsoleSettings_StereoCursorToggle)
 
+# -- Console --
+#r_StereoCursorScale
+$labelExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.Label           #r_StereoCursorScale  <Attr name="HmdCursorSize" cvar="g_headtracking_hmd_cursorSize" value="1.0" />
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Text = "Stereo Cursor Scale"
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Top = (240 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_ConsoleSettings_StereoCursorScale.Width = (140 * $script:ScaleMultiplier)
+$groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorScale)
+
+$textboxExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.TextBox         #   HmdCursorSize
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Name = "HmdCursorSize"
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Top = (240 * $script:ScaleMultiplier)
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Left = (450 * $script:ScaleMultiplier)
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.Width = (40 * $script:ScaleMultiplier)
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.TextAlign = 'Left'
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.AcceptsTab = $true
+$textboxExpCategory_ConsoleSettings_StereoCursorScale.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
+$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_ConsoleSettings_StereoCursorScale)
 
 #;g_headtracking_hmd_fpsMovementMode            ; HmdActorControlMode (default: value="1")  
 $labelExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.Label           #HmdActorControlMode
-$labelExpCategory_EscMenuSettings_HmdActorControlMode.Text = "FPS Movement Mode"
+$labelExpCategory_EscMenuSettings_HmdActorControlMode.Text = "FPS Control Mode"
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Top = (265 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Left = (300 * $script:ScaleMultiplier)
-$labelExpCategory_EscMenuSettings_HmdActorControlMode.Width = (150 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_HmdActorControlMode.Width = (130 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_HmdActorControlMode)
 
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Name = "HmdActorControlMode"
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Top = (265 * $script:ScaleMultiplier)
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Left = (450 * $script:ScaleMultiplier)
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Left = (430 * $script:ScaleMultiplier)
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Width = (100 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 #$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Items.AddRange(@(0, 1))
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Disabled")
-$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Enabled")
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Direct Offset")
+$ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Grounded Look")
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = 0
 $groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdActorControlMode)
 
