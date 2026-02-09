@@ -9,7 +9,7 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.5.2"
+$scriptVersion = "0.5.3"
 
 $scbuild = "4.6"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
@@ -40,8 +40,8 @@ $widthTextBox = $null
 $headtrackerEnabledComboBox = $null
 $HeadtrackingSourceComboBox = $null
 $dataTableGroupBox = $null
-$groupLegacyVRSettings = $null
-$groupExperimentalVRSettings = $null
+#$groupLegacyVRSettings = $null
+#$groupExperimentalVRSettings = $null
 $darkModeMenuItem = $null
 
 $textboxExpCategory_EscMenuSettings_EscMenuDistance = $null
@@ -143,7 +143,7 @@ $form = New-Object System.Windows.Forms.Form
 
 $form.Text = "SC/VR Powertools (Attribute Editor "+$scriptVersion+")"
 $form.Width = (620 * $script:ScaleMultiplier)
-$form.Height = (535 * $script:ScaleMultiplier)
+$form.Height = (500 * $script:ScaleMultiplier)
 $form.StartPosition = 'CenterScreen'
 $form.Size = New-Object System.Drawing.Size($form.Width,$form.Height)
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
@@ -163,6 +163,43 @@ $fileMenuItem = New-Object System.Windows.Forms.MenuItem
 $fileMenuItem.Text = "&File"    # The & character indicates the shortcut key
 $mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main menu
 
+
+# new TabControl here to replace the parent groups below #>
+
+$tabControl_VRSettings = New-Object System.Windows.Forms.TabControl
+# Create TabControl
+$tabControl_VRSettings.Top = (10 * $script:ScaleMultiplier)
+$tabControl_VRSettings.Left = (10 * $script:ScaleMultiplier)
+#$tabControl_VRSettings.Width = (550 * $script:ScaleMultiplier)
+#$tabControl_VRSettings.Height = (330 * $script:ScaleMultiplier)
+$tabControl_VRSettings.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$tabControl_VRSettings.Size = New-Object Drawing.Size((580 * $script:ScaleMultiplier),(370 * $script:ScaleMultiplier))
+#$tabControl_VRSettings.Anchor = "Top, Left, Right"
+$tabControl_VRSettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$form.Controls.Add($tabControl_VRSettings)
+#tabs instead of parent groups
+
+# --- Tab 1: Experimental VR Settings ---
+$tabVRSettings_Experimental = New-Object System.Windows.Forms.TabPage
+$tabVRSettings_Experimental.Text = "Experimental VR"
+$tabVRSettings_Experimental.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabVRSettings_Experimental.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
+# --- Tab 2: Legacy Headtracking ---
+$tabVRSettings_LegacySettings = New-Object System.Windows.Forms.TabPage
+$tabVRSettings_LegacySettings.Text = "Legacy Headtracking"
+$tabVRSettings_LegacySettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabVRSettings_LegacySettings.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
+# --- Tab 2: Legacy Headtracking ---
+$tabVRSettings_Keybinds = New-Object System.Windows.Forms.TabPage
+$tabVRSettings_Keybinds.Text = "Keybind Viewer"
+$tabVRSettings_Keybinds.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabVRSettings_Keybinds.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
+$tabControl_VRSettings.TabPages.Add($tabVRSettings_Experimental)
+$tabControl_VRSettings.TabPages.Add($tabVRSettings_LegacySettings)
+$tabControl_VRSettings.TabPages.Add($tabVRSettings_Keybinds)
 function Update-ButtonState {                           # used to grey out buttons when no XML file is loaded
     [CmdletBinding(SupportsShouldProcess=$true)]
     param ()
@@ -197,16 +234,15 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $control.ForeColor = [System.Drawing.Color]::White
         #$control.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
         
-        
-        $buttonOpenExpVRSettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
-        $buttonOpenExpVRSettings.ForeColor = [System.Drawing.Color]::White
-        $buttonOpenExpVRSettings.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-        $buttonOpenExpVRSettings.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        #$buttonOpenExpVRSettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+        #$buttonOpenExpVRSettings.ForeColor = [System.Drawing.Color]::White
+        #$buttonOpenExpVRSettings.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        #$buttonOpenExpVRSettings.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
 
-        $buttonGoBacktoMain.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
-        $buttonGoBacktoMain.ForeColor = [System.Drawing.Color]::White
-        $buttonGoBacktoMain.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-        $buttonGoBacktoMain.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+        #$buttonGoBacktoMain.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+        #$buttonGoBacktoMain.ForeColor = [System.Drawing.Color]::White
+        #$buttonGoBacktoMain.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        #$buttonGoBacktoMain.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
 
         $applySaveButton.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
         $applySaveButton.ForeColor = [System.Drawing.Color]::White
@@ -222,11 +258,9 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $fovTextBox.ForeColor = [System.Drawing.Color]::White
         $fovTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
         
-        
         $widthTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $widthTextBox.ForeColor = [System.Drawing.Color]::White
         $widthTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-        
         
         $heightTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $heightTextBox.ForeColor = [System.Drawing.Color]::White
@@ -247,10 +281,10 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $MotionBlurComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$MotionBlurComboBox.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
         
-        $closeKeyBindsButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
-        $closeKeyBindsButton.ForeColor = [System.Drawing.Color]::White
-        $closeKeyBindsButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-        $closeKeyBindsButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$closeKeyBindsButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$closeKeyBindsButton.ForeColor = [System.Drawing.Color]::White
+        #$closeKeyBindsButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+        #$closeKeyBindsButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
 
         $textboxExpCategory_EscMenuSettings_EscMenuDistance.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_EscMenuSettings_EscMenuDistance.ForeColor = [System.Drawing.Color]::White
@@ -445,210 +479,173 @@ function Open-XMLViewer {
 
                 # Populate the input boxes with the first row values
 
-                if ($null -ne $script:profileArray.FOV) {
-                    $fovTextBox.Text = $script:profileArray.FOV
-                }else {
-                    $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.Height) {
-                    $heightTextBox.Text = $script:profileArray.Height
+                    if ($null -ne $script:profileArray.FOV) {
+                        $fovTextBox.Text = $script:profileArray.FOV
+                    }else {
+                        $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.Height) {
+                        $heightTextBox.Text = $script:profileArray.Height
+                    } else {
+                        $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.Width) {
+                        $widthTextBox.Text = $script:profileArray.Width
+                    } else {
+                        $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.Headtracking) {
+                        $headtrackerEnabledComboBox.SelectedIndex = $script:profileArray.Headtracking
+                    } else {
+                        $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HeadtrackingSource) {
+                        $HeadtrackingSourceComboBox.SelectedIndex = $script:profileArray.HeadtrackingSource
+                    } else {
+                        $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.ChromaticAberration) {
+                        $chromaticAberrationTextBox.Text = $script:profileArray.ChromaticAberration
+                    } else {
+                        $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.AutoZoomOnSelectedTarget) {
+                        #$AutoZoomTextBox.Text = $script:profileArray.AutoZoomOnSelectedTarget
+                        $AutoZoomComboBox.SelectedIndex = $script:profileArray.AutoZoomOnSelectedTarget
+                    } else {
+                        #$AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                        $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.MotionBlur) {
+                        #$MotionBlurTextBox.Text = $script:profileArray.MotionBlur
+                        $MotionBlurComboBox.SelectedIndex = $script:profileArray.MotionBlur
+                    } else {
+                        #$MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                        $MotionBlurComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.ShakeScale) {
+                        $ShakeScaleTextBox.Text = $script:profileArray.ShakeScale
+                    } else {
+                        $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.CameraSpringMovement) {
+                        $CameraSpringMovementTextBox.Text = $script:profileArray.CameraSpringMovement
+                    } else {
+                        $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.FilmGrain) {
+                        #$FilmGrainTextBox.Text = $script:profileArray.FilmGrain
+                        $FilmGrainComboBox.SelectedIndex = $script:profileArray.FilmGrain
+                    } else {
+                        #$FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                        $FilmGrainComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.GForceBoostZoomScale) {
+                        $GForceBoostZoomScaleTextBox.Text = $script:profileArray.GForceBoostZoomScale
+                    } else {
+                        $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.GForceHeadBobScale) {
+                        $GForceHeadBobScaleTextBox.Text = $script:profileArray.GForceHeadBobScale
+                    } else {
+                        $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HeadtrackingEnableRollFPS) {
+                        $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingEnableRollFPS
+                    } else {
+                        $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HeadtrackingDisableDuringWalking) {
+                        $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingDisableDuringWalking
+                    } else {
+                        $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HeadtrackingThirdPersonCameraToggle) {
+                        $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:profileArray.HeadtrackingThirdPersonCameraToggle
+                    } else {
+                        $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdUIDistance) {
+                        $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:profileArray.HmdUIDistance
+                    } else {
+                        $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdUIHeight) {
+                        $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = $script:profileArray.HmdUIHeight
+                    } else {
+                        $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIHeight" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdUIScale) {
+                        $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = $script:profileArray.HmdUIScale
+                    } else {
+                        $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdVisorDistance) {
+                        $textboxExpCategory_HelmetVisorLensDepth.Text = $script:profileArray.HmdVisorDistance
+                    } else {
+                        $textboxExpCategory_HelmetVisorLensDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdVisorAspectModifier) {
+                        $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:profileArray.HmdVisorAspectModifier
+                    } else {
+                        $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdVisorHeight) {
+                        $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text= $script:profileArray.HmdVisorHeight
+                    } else {
+                        $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorHeight" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdVisorScale) {
+                        $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:profileArray.HmdVisorScale
+                    } else {
+                        $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdTheaterMode) {
+                        $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex; = $script:profileArray.HmdTheaterMode
+                    } else {
+                        $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex; = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterMode" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdTheaterModeScale) {
+                        $textboxExpCategory_TheatreMode_Scale.Text; = $script:profileArray.HmdTheaterModeScale
+                    } else {
+                        $textboxExpCategory_TheatreMode_Scale.Text; = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdTheaterModeCurvature) {
+                        $textboxExpCategory_TheatreMode_Curvature.Text = $script:profileArray.HmdTheaterModeCurvature
+                    } else {
+                        $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeCurvature" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdTheaterModeDistance) {
+                        $textboxExpCategory_TheatreMode_Curvature.Text = $script:profileArray.HmdTheaterModeDistance
+                    } else {
+                        $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeDistance" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdIPDScale) {
+                        $textboxExpCategory_UserSettings_StereoStrength.Text = $script:profileArray.HmdIPDScale
+                    } else {
+                        $textboxExpCategory_UserSettings_StereoStrength.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdIPDScale" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdCursorSize) {
+                        $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:profileArray.HmdCursorSize
+                    } else {
+                        $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdCursorSize" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdAutomaticSwitching) {
+                        $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:profileArray.HmdAutomaticSwitching
+                    } else {
+                        $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdActorControlMode) {
+                        $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:profileArray.HmdActorControlMode
+                    } else {
+                        $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" } | Select-Object -ExpandProperty value
+                    }
+                    if ($null -ne $script:profileArray.HmdfpsAdsDominantEye) {
+                        $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:profileArray.HmdfpsAdsDominantEye
+                    } else {
+                        $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
+                    }
 
-                } else {
-                    $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.Width) {
-                    $widthTextBox.Text = $script:profileArray.Width
-                } else {
-                    $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.Headtracking) {
-                    $headtrackerEnabledComboBox.SelectedIndex = $script:profileArray.Headtracking
-               } else {
-                    $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HeadtrackingSource) {
-                    $HeadtrackingSourceComboBox.SelectedIndex = $script:profileArray.HeadtrackingSource
-                } else {
-                    $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.ChromaticAberration) {
-                    $chromaticAberrationTextBox.Text = $script:profileArray.ChromaticAberration
-                } else {
-                    $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.AutoZoomOnSelectedTarget) {
-                    #$AutoZoomTextBox.Text = $script:profileArray.AutoZoomOnSelectedTarget
-                    $AutoZoomComboBox.SelectedIndex = $script:profileArray.AutoZoomOnSelectedTarget
-                } else {
-                    #$AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
-                    $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.MotionBlur) {
-                    #$MotionBlurTextBox.Text = $script:profileArray.MotionBlur
-                    $MotionBlurComboBox.SelectedIndex = $script:profileArray.MotionBlur
-                } else {
-                    #$MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
-                    $MotionBlurComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.ShakeScale) {
-                    $ShakeScaleTextBox.Text = $script:profileArray.ShakeScale
-                } else {
-                    $ShakeScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ShakeScale" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.CameraSpringMovement) {
-                    $CameraSpringMovementTextBox.Text = $script:profileArray.CameraSpringMovement
-                } else {
-                    $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.FilmGrain) {
-                    #$FilmGrainTextBox.Text = $script:profileArray.FilmGrain
-                    $FilmGrainComboBox.SelectedIndex = $script:profileArray.FilmGrain
-                } else {
-                    #$FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
-                    $FilmGrainComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.GForceBoostZoomScale) {
-                    $GForceBoostZoomScaleTextBox.Text = $script:profileArray.GForceBoostZoomScale
-                } else {
-                    $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.GForceHeadBobScale) {
-                    $GForceHeadBobScaleTextBox.Text = $script:profileArray.GForceHeadBobScale
-                } else {
-                    $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HeadtrackingEnableRollFPS) {
-                    $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingEnableRollFPS
-                } else {
-                    $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HeadtrackingDisableDuringWalking) {
-                    $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingDisableDuringWalking
-                } else {
-                    $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HeadtrackingThirdPersonCameraToggle) {
-                    $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:profileArray.HeadtrackingThirdPersonCameraToggle
-                } else {
-                    $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" } | Select-Object -ExpandProperty value
-                }
-
-
-                <#
-                HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
-                HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text;
-                HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text;
-                HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text;
-                HmdVisorAspectModifier = $textboxExpCategory_HelmetVisorLens_AspectModifier.Text;
-                HmdVisorHeight = $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text;
-                HmdVisorScale = $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text;
-                HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex;
-                HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text;
-                HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text;
-                HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text;
-                HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text;
-                HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text;
-                HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
-                HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex;
-                HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
-                HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex;
-                #>
-                if ($null -ne $script:profileArray.HmdUIDistance) {
-                    $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:profileArray.HmdUIDistance
-                } else {
-                    $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdUIHeight) {
-                    $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = $script:profileArray.HmdUIHeight
-                } else {
-                    $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIHeight" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdUIScale) {
-                    $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = $script:profileArray.HmdUIScale
-                } else {
-                    $textboxExpCategory_EscMenuSettings_EscMenuScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIScale" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdVisorDistance) {
-                    $textboxExpCategory_HelmetVisorLensDepth.Text = $script:profileArray.HmdVisorDistance
-                } else {
-                    $textboxExpCategory_HelmetVisorLensDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorDistance" } | Select-Object -ExpandProperty value
-                }
-
-                if ($null -ne $script:profileArray.HmdVisorAspectModifier) {
-                    $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:profileArray.HmdVisorAspectModifier
-                } else {
-                    $textboxExpCategory_HelmetVisorLens_AspectModifier.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorAspectModifier" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdVisorHeight) {
-                    $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text= $script:profileArray.HmdVisorHeight
-                } else {
-                    $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorHeight" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdVisorScale) {
-                    $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:profileArray.HmdVisorScale
-                } else {
-                    $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdVisorScale" } | Select-Object -ExpandProperty value
-                }
-
-
-
-                if ($null -ne $script:profileArray.HmdTheaterMode) {
-                    $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex; = $script:profileArray.HmdTheaterMode
-                } else {
-                    $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex; = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterMode" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdTheaterModeScale) {
-                    $textboxExpCategory_TheatreMode_Scale.Text; = $script:profileArray.HmdTheaterModeScale
-                } else {
-                    $textboxExpCategory_TheatreMode_Scale.Text; = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeScale" } | Select-Object -ExpandProperty value
-                }
-
-
-                if ($null -ne $script:profileArray.HmdTheaterModeCurvature) {
-                    $textboxExpCategory_TheatreMode_Curvature.Text = $script:profileArray.HmdTheaterModeCurvature
-                } else {
-                    $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeCurvature" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdTheaterModeDistance) {
-                    $textboxExpCategory_TheatreMode_Curvature.Text = $script:profileArray.HmdTheaterModeDistance
-                } else {
-                    $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeDistance" } | Select-Object -ExpandProperty value
-                }
-                <# if ($null -ne $script:profileArray.HmdVisorDistance) {
-                    $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:profileArray.HmdUIDistance
-                } else {
-                    $textboxExpCategory_UserSettings_StereoScaleformDepth.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
-                }#>
-
-
-                
-                if ($null -ne $script:profileArray.HmdIPDScale) {
-                    $textboxExpCategory_UserSettings_StereoStrength.Text = $script:profileArray.HmdIPDScale
-                } else {
-                    $textboxExpCategory_UserSettings_StereoStrength.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdIPDScale" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdCursorSize) {
-                    $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:profileArray.HmdCursorSize
-                } else {
-                    $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdCursorSize" } | Select-Object -ExpandProperty value
-                }
-                
-                if ($null -ne $script:profileArray.HmdAutomaticSwitching) {
-                    $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:profileArray.HmdAutomaticSwitching
-                } else {
-                    $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdActorControlMode) {
-                    $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:profileArray.HmdActorControlMode
-                } else {
-                    $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" } | Select-Object -ExpandProperty value
-                }
-                if ($null -ne $script:profileArray.HmdfpsAdsDominantEye) {
-                    $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:profileArray.HmdfpsAdsDominantEye
-                } else {
-                    $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
-                }
-                
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray
@@ -1240,9 +1237,9 @@ $actionsMenuItem = New-Object System.Windows.Forms.MenuItem
 $actionsMenuItem.Text = "&Actions"
 $mainMenu.MenuItems.Add($actionsMenuItem)
 
-$toolsMenuItem = New-Object System.Windows.Forms.MenuItem
-$toolsMenuItem.Text = "&Tools"
-$mainMenu.MenuItems.Add($toolsMenuItem)
+#$toolsMenuItem = New-Object System.Windows.Forms.MenuItem
+#$toolsMenuItem.Text = "&Tools"
+#$mainMenu.MenuItems.Add($toolsMenuItem)
 
 $helpMenuItem = New-Object System.Windows.Forms.MenuItem
 $helpMenuItem.Text = "&Help"
@@ -1520,7 +1517,7 @@ $dataTableGroupBox.Height = (220 * $script:ScaleMultiplier)  # Adjust height to 
 $dataTableGroupBox.Visible = $false  # Initially hide the group box
 
 #$form.Controls.Add($dataTableGroupBox)
-
+<#
 # Legacy VR Settings
 $groupLegacyVRSettings = New-Object System.Windows.Forms.GroupBox
 $groupLegacyVRSettings.Text = "Legacy VR Settings"
@@ -1529,7 +1526,7 @@ $groupLegacyVRSettings.Height = (330 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Top = (20 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
 $groupLegacyVRSettings.Left = (20 * $script:ScaleMultiplier)
 $groupLegacyVRSettings.Visible = $true
-
+#>
 $loadFromProfileButton = New-Object System.Windows.Forms.Button
 $loadFromProfileButton.Name = "LoadFromProfileButton"
 $loadFromProfileButton.Text = "Import settings from profile"
@@ -1540,7 +1537,7 @@ $loadFromProfileButton.Left = (20 * $script:ScaleMultiplier)
 $loadFromProfileButton.TabIndex = 4
 $loadFromProfileButton.Enabled = $loadedProfile                 #$false  # Initially disabled
 $loadFromProfileButton.Visible = $loadedProfile
-$groupLegacyVRSettings.Controls.Add($loadFromProfileButton)
+#$tabVRSettings_LegacySettings.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
     $script:xmlPath = $($script:profileArray.AttributesXmlPath)
@@ -1654,6 +1651,8 @@ function Import-SettingsFromGame {
     }
 }
 
+
+
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import settings from Game"
 $importButton.Name = "ImportButton"
@@ -1673,7 +1672,7 @@ $importButton.Add_Click({
 
 # Initially disable the import and save buttons
 $importButton.Enabled = $false
-$groupLegacyVRSettings.Controls.Add($importButton)
+#$tabVRSettings_LegacySettings.Controls.Add($importButton)
 
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
@@ -1681,7 +1680,7 @@ $fovLabel.Top = (70 * $script:ScaleMultiplier)
 $fovLabel.Left = (150 * $script:ScaleMultiplier)
 $fovLabel.Width = (30 * $script:ScaleMultiplier)
 $fovLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($fovLabel)
+$tabVRSettings_LegacySettings.Controls.Add($fovLabel)
 
 $fovTextBox = New-Object System.Windows.Forms.TextBox
 $fovTextBox.Name = "FOVTextBox"
@@ -1691,7 +1690,7 @@ $fovTextBox.Width = (40 * $script:ScaleMultiplier)
 $fovTextBox.TextAlign = 'Left'
 $fovTextBox.AcceptsTab = $true
 $fovTextBox.TabIndex = 6
-$groupLegacyVRSettings.Controls.Add($fovTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($fovTextBox)
 
 $widthLabel = New-Object System.Windows.Forms.Label
 $widthLabel.Text = "Width"
@@ -1700,7 +1699,7 @@ $widthLabel.Left = (215 * $script:ScaleMultiplier)
 $widthLabel.Width = (50 * $script:ScaleMultiplier)
 $widthLabel.Height = (20 * $script:ScaleMultiplier)
 $widthLabel.TextAlign = 'MiddleRight'
-$groupLegacyVRSettings.Controls.Add($widthLabel)
+$tabVRSettings_LegacySettings.Controls.Add($widthLabel)
 
 $widthTextBox = New-Object System.Windows.Forms.TextBox
 $widthTextBox.Name = "WidthTextBox"
@@ -1709,7 +1708,7 @@ $widthTextBox.Left = (280 * $script:ScaleMultiplier)
 $widthTextBox.Width = (40 * $script:ScaleMultiplier)
 $widthTextBox.TextAlign = 'Left'
 $widthTextBox.TabIndex = 7
-$groupLegacyVRSettings.Controls.Add($widthTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($widthTextBox)
 
 $heightLabel = New-Object System.Windows.Forms.Label
 $heightLabel.Text = "Height"
@@ -1718,7 +1717,7 @@ $heightLabel.Left = (330 * $script:ScaleMultiplier)
 $heightLabel.Width = (50 * $script:ScaleMultiplier)
 $heightLabel.Height = (20 * $script:ScaleMultiplier)
 $heightLabel.TextAlign = 'MiddleRight'
-$groupLegacyVRSettings.Controls.Add($heightLabel)
+$tabVRSettings_LegacySettings.Controls.Add($heightLabel)
 
 $heightTextBox = New-Object System.Windows.Forms.TextBox
 $heightTextBox.Name = "HeightTextBox"
@@ -1727,7 +1726,7 @@ $heightTextBox.Left = (390 * $script:ScaleMultiplier)
 $heightTextBox.Width = (40 * $script:ScaleMultiplier)
 $heightTextBox.TextAlign = 'Left'
 $heightTextBox.TabIndex = 8
-$groupLegacyVRSettings.Controls.Add($heightTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($heightTextBox)
 
 $HeadtrackingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingLabel.Text = "Headtracking Toggle"
@@ -1735,7 +1734,7 @@ $HeadtrackingLabel.Top = (110 * $script:ScaleMultiplier)
 $HeadtrackingLabel.Left = (10 * $script:ScaleMultiplier)
 $HeadtrackingLabel.Width = (150 * $script:ScaleMultiplier)
 $HeadtrackingLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($HeadtrackingLabel)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingLabel)
 
 $headtrackerEnabledComboBox = New-Object System.Windows.Forms.ComboBox
 $headtrackerEnabledComboBox.Name = "headtrackerEnabledComboBox"
@@ -1748,7 +1747,7 @@ $headtrackerEnabledComboBox.items.Add("Disabled")
 $headtrackerEnabledComboBox.items.Add("Enabled")
 $headtrackerEnabledComboBox.TabIndex = 9
 $headtrackerEnabledComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($headtrackerEnabledComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($headtrackerEnabledComboBox)
 
 $HeadtrackingSourceLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingSourceLabel.Text = "Headtracking Source"
@@ -1756,7 +1755,7 @@ $HeadtrackingSourceLabel.Top = (110 * $script:ScaleMultiplier)
 $HeadtrackingSourceLabel.Left = (290 * $script:ScaleMultiplier)
 $HeadtrackingSourceLabel.Width = (150 * $script:ScaleMultiplier)
 $HeadtrackingSourceLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($HeadtrackingSourceLabel)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingSourceLabel)
 
 $HeadtrackingSourceComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingSourceComboBox.Name = "HeadtrackingSourceComboBox"
@@ -1773,7 +1772,7 @@ $HeadtrackingSourceComboBox.Items.Add("HMD")
 
 $HeadtrackingSourceComboBox.TabIndex = 10
 $HeadtrackingSourceComboBox.SelectedItem = $HeadtrackingSourceComboBox.Items[0]  # Set the default selected item to the first one
-$groupLegacyVRSettings.Controls.Add($HeadtrackingSourceComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingSourceComboBox)
 
 $chromaticAberrationLabel = New-Object System.Windows.Forms.Label
 $chromaticAberrationLabel.Text = "Chromatic Aberration"
@@ -1781,7 +1780,7 @@ $chromaticAberrationLabel.Top = (260 * $script:ScaleMultiplier)
 $chromaticAberrationLabel.Left = (10 * $script:ScaleMultiplier)
 $chromaticAberrationLabel.Width = (150 * $script:ScaleMultiplier)
 $chromaticAberrationLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($chromaticAberrationLabel)
+$tabVRSettings_LegacySettings.Controls.Add($chromaticAberrationLabel)
 
 $chromaticAberrationTextBox = New-Object System.Windows.Forms.TextBox
 $chromaticAberrationTextBox.Name = "ChromaticAberrationTextBox"
@@ -1790,7 +1789,7 @@ $chromaticAberrationTextBox.Left = (230 * $script:ScaleMultiplier)
 $chromaticAberrationTextBox.Width = (50 * $script:ScaleMultiplier)
 $chromaticAberrationTextBox.TextAlign = 'Left'
 $chromaticAberrationTextBox.TabIndex = 19
-$groupLegacyVRSettings.Controls.Add($chromaticAberrationTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($chromaticAberrationTextBox)
 
 $AutoZoomLabel = New-Object System.Windows.Forms.Label
 $AutoZoomLabel.Text = "Auto Zoom"
@@ -1798,7 +1797,7 @@ $AutoZoomLabel.Top = (260 * $script:ScaleMultiplier)
 $AutoZoomLabel.Left = (290 * $script:ScaleMultiplier)
 $AutoZoomLabel.Width = (80 * $script:ScaleMultiplier)
 $AutoZoomLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($AutoZoomLabel)
+$tabVRSettings_LegacySettings.Controls.Add($AutoZoomLabel)
 
 $AutoZoomComboBox = New-Object System.Windows.Forms.ComboBox
 $AutoZoomComboBox.Name = "AutoZoomComboBox"
@@ -1810,7 +1809,7 @@ $AutoZoomComboBox.Items.Add("Disabled")
 $AutoZoomComboBox.Items.Add("Enabled")
 $AutoZoomComboBox.TabIndex = 20
 $AutoZoomComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($AutoZoomComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($AutoZoomComboBox)
 
 $MotionBlurLabel = New-Object System.Windows.Forms.Label
 $MotionBlurLabel.Text = "Motion Blur"
@@ -1818,7 +1817,7 @@ $MotionBlurLabel.Top = (290 * $script:ScaleMultiplier)
 $MotionBlurLabel.Left = (70 * $script:ScaleMultiplier)
 $MotionBlurLabel.Width = (80 * $script:ScaleMultiplier)
 $MotionBlurLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($MotionBlurLabel)
+$tabVRSettings_LegacySettings.Controls.Add($MotionBlurLabel)
 
 $MotionBlurComboBox = New-Object System.Windows.Forms.ComboBox
 $MotionBlurComboBox.Name = "MotionBlurComboBox"
@@ -1832,7 +1831,7 @@ $MotionBlurComboBox.Items.Add("Ship Only")
 $MotionBlurComboBox.Items.Add("Debug Mode")
 $MotionBlurComboBox.TabIndex = 21
 $MotionBlurComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($MotionBlurComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($MotionBlurComboBox)
 
 $ShakeScaleLabel = New-Object System.Windows.Forms.Label
 $ShakeScaleLabel.Text = "Shake Scale"
@@ -1840,7 +1839,7 @@ $ShakeScaleLabel.Top = (170 * $script:ScaleMultiplier)
 $ShakeScaleLabel.Left = (290 * $script:ScaleMultiplier)
 $ShakeScaleLabel.Width = (80 * $script:ScaleMultiplier)
 $ShakeScaleLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($ShakeScaleLabel)
+$tabVRSettings_LegacySettings.Controls.Add($ShakeScaleLabel)
 
 $ShakeScaleTextBox = New-Object System.Windows.Forms.TextBox
 $ShakeScaleTextBox.Name = "ShakeScaleTextBox"
@@ -1849,7 +1848,7 @@ $ShakeScaleTextBox.Left = (480 * $script:ScaleMultiplier)
 $ShakeScaleTextBox.Width = (50 * $script:ScaleMultiplier)
 $ShakeScaleTextBox.TextAlign = 'Left'
 $ShakeScaleTextBox.TabIndex = 14
-$groupLegacyVRSettings.Controls.Add($ShakeScaleTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($ShakeScaleTextBox)
 
 $CameraSpringMovementLabel = New-Object System.Windows.Forms.Label
 $CameraSpringMovementLabel.Text = "Camera Spring Movement"
@@ -1857,7 +1856,7 @@ $CameraSpringMovementLabel.Top = (200 * $script:ScaleMultiplier)
 $CameraSpringMovementLabel.Left = (10 * $script:ScaleMultiplier)
 $CameraSpringMovementLabel.Width = (180 * $script:ScaleMultiplier)
 $CameraSpringMovementLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($CameraSpringMovementLabel)
+$tabVRSettings_LegacySettings.Controls.Add($CameraSpringMovementLabel)
 
 $CameraSpringMovementTextBox = New-Object System.Windows.Forms.TextBox
 $CameraSpringMovementTextBox.Name = "CameraSpringMovementTextBox"
@@ -1866,7 +1865,7 @@ $CameraSpringMovementTextBox.Left = (230 * $script:ScaleMultiplier)
 $CameraSpringMovementTextBox.Width = (50 * $script:ScaleMultiplier)
 $CameraSpringMovementTextBox.TextAlign = 'Left'
 $CameraSpringMovementTextBox.TabIndex = 15
-$groupLegacyVRSettings.Controls.Add($CameraSpringMovementTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($CameraSpringMovementTextBox)
 
 $FilmGrainLabel = New-Object System.Windows.Forms.Label
 $FilmGrainLabel.Text = "Film Grain"
@@ -1874,7 +1873,7 @@ $FilmGrainLabel.Top = (200 * $script:ScaleMultiplier)
 $FilmGrainLabel.Left = (290 * $script:ScaleMultiplier)
 $FilmGrainLabel.Width = (80 * $script:ScaleMultiplier)
 $FilmGrainLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($FilmGrainLabel)
+$tabVRSettings_LegacySettings.Controls.Add($FilmGrainLabel)
 
 $FilmGrainComboBox = New-Object System.Windows.Forms.ComboBox
 $FilmGrainComboBox.Name = "FilmGrainComboBox"
@@ -1886,7 +1885,7 @@ $FilmGrainComboBox.Items.Add("Disabled")
 $FilmGrainComboBox.Items.Add("Enabled")
 $FilmGrainComboBox.TabIndex = 16
 $FilmGrainComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($FilmGrainComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($FilmGrainComboBox)
 
 $GForceBoostZoomScaleLabel = New-Object System.Windows.Forms.Label
 $GForceBoostZoomScaleLabel.Text = "G-Force Boost Zoom Scale"
@@ -1894,7 +1893,7 @@ $GForceBoostZoomScaleLabel.Top = (230 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleLabel.Left = (10 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleLabel.Width = (180 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($GForceBoostZoomScaleLabel)
+$tabVRSettings_LegacySettings.Controls.Add($GForceBoostZoomScaleLabel)
 
 $GForceBoostZoomScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceBoostZoomScaleTextBox.Name = "GForceBoostZoomScaleTextBox"
@@ -1903,7 +1902,7 @@ $GForceBoostZoomScaleTextBox.Left = (230 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleTextBox.Width = (50 * $script:ScaleMultiplier)
 $GForceBoostZoomScaleTextBox.TextAlign = 'Left'
 $GForceBoostZoomScaleTextBox.TabIndex = 17
-$groupLegacyVRSettings.Controls.Add($GForceBoostZoomScaleTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($GForceBoostZoomScaleTextBox)
 
 $GForceHeadBobScaleLabel = New-Object System.Windows.Forms.Label
 $GForceHeadBobScaleLabel.Text = "G-Force Head Bob Scale"
@@ -1911,7 +1910,7 @@ $GForceHeadBobScaleLabel.Top = (230 * $script:ScaleMultiplier)
 $GForceHeadBobScaleLabel.Left = (290 * $script:ScaleMultiplier)
 $GForceHeadBobScaleLabel.Width = (170 * $script:ScaleMultiplier)
 $GForceHeadBobScaleLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($GForceHeadBobScaleLabel)
+$tabVRSettings_LegacySettings.Controls.Add($GForceHeadBobScaleLabel)
 
 $GForceHeadBobScaleTextBox = New-Object System.Windows.Forms.TextBox
 $GForceHeadBobScaleTextBox.Name = "GForceHeadBobScaleTextBox"
@@ -1920,7 +1919,7 @@ $GForceHeadBobScaleTextBox.Left = (480 * $script:ScaleMultiplier)
 $GForceHeadBobScaleTextBox.Width = (50 * $script:ScaleMultiplier)
 $GForceHeadBobScaleTextBox.TextAlign = 'Left'
 $GForceHeadBobScaleTextBox.TabIndex = 18
-$groupLegacyVRSettings.Controls.Add($GForceHeadBobScaleTextBox)
+$tabVRSettings_LegacySettings.Controls.Add($GForceHeadBobScaleTextBox)
 
 $HeadtrackingEnableRollFPSLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingEnableRollFPSLabel.Text = "Headtracking FPS Head Roll"
@@ -1928,7 +1927,7 @@ $HeadtrackingEnableRollFPSLabel.Top = (140 * $script:ScaleMultiplier)
 $HeadtrackingEnableRollFPSLabel.Left = (10 * $script:ScaleMultiplier)
 $HeadtrackingEnableRollFPSLabel.Width = (180 * $script:ScaleMultiplier)
 $HeadtrackingEnableRollFPSLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($HeadtrackingEnableRollFPSLabel)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingEnableRollFPSLabel)
 
 $HeadtrackingEnableRollFPSComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingEnableRollFPSComboBox.Name = "HeadtrackingEnableRollFPSComboBox"
@@ -1940,7 +1939,7 @@ $HeadtrackingEnableRollFPSComboBox.Items.Add("Disabled")
 $HeadtrackingEnableRollFPSComboBox.Items.Add("Enabled")
 $HeadtrackingEnableRollFPSComboBox.TabIndex = 11
 $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($HeadtrackingEnableRollFPSComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
@@ -1948,7 +1947,7 @@ $HeadtrackingDisableDuringWalkingLabel.Top = (140 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Left = (290 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Width = (150 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingDisableDuringWalkingLabel)
 
 $HeadtrackingDisableDuringWalkingComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingDisableDuringWalkingComboBox.Name = "HeadtrackingDisableDuringWalkingComboBox"
@@ -1960,7 +1959,7 @@ $HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
 $HeadtrackingDisableDuringWalkingComboBox.TabIndex = 12
 $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
 
 $HeadtrackingThirdPersonCameraToggleLabel = New-Object System.Windows.Forms.Label
 $HeadtrackingThirdPersonCameraToggleLabel.Text = "Headtracking in Third Person"
@@ -1968,7 +1967,7 @@ $HeadtrackingThirdPersonCameraToggleLabel.Top = (170 * $script:ScaleMultiplier)
 $HeadtrackingThirdPersonCameraToggleLabel.Left = (10 * $script:ScaleMultiplier)
 $HeadtrackingThirdPersonCameraToggleLabel.Width = (180 * $script:ScaleMultiplier)
 $HeadtrackingThirdPersonCameraToggleLabel.Height = (20 * $script:ScaleMultiplier)
-$groupLegacyVRSettings.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingThirdPersonCameraToggleLabel)
 
 $HeadtrackingThirdPersonCameraToggleComboBox = New-Object System.Windows.Forms.ComboBox
 $HeadtrackingThirdPersonCameraToggleComboBox.Name = "HeadtrackingThirdPersonCameraToggleComboBox"
@@ -1980,7 +1979,7 @@ $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("Off")
 $HeadtrackingThirdPersonCameraToggleComboBox.Items.Add("On")
 $HeadtrackingThirdPersonCameraToggleComboBox.TabIndex = 13
 $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = 0
-$groupLegacyVRSettings.Controls.Add($HeadtrackingThirdPersonCameraToggleComboBox)
+$tabVRSettings_LegacySettings.Controls.Add($HeadtrackingThirdPersonCameraToggleComboBox)
 
 # Update the state of the buttons after loading the XML content
 
@@ -2000,7 +1999,7 @@ $applySaveButton.Add_Click({
 })
 # Initially disable the import and save buttons
 $applySaveButton.Enabled = $false
-#$groupLegacyVRSettings.Controls.Add($applySaveButton)
+#$tabVRSettings_LegacySettings.Controls.Add($applySaveButton)
 $form.Controls.Add($applySaveButton)
 
 $saveAndCloseButton = New-Object System.Windows.Forms.Button
@@ -2017,51 +2016,52 @@ $saveAndCloseButton.Add_Click({
     Save-SettingsToGame
     $form.Close()
 })
-#$groupLegacyVRSettings.Controls.Add($saveAndCloseButton)
+#$tabVRSettings_LegacySettings.Controls.Add($saveAndCloseButton)
 $form.Controls.Add($saveAndCloseButton)
+
+
+
 
 
 # Experimental VR Settings -------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
 # needed a quick way to contain the new stuff so tucked it into its own group panel, accessed via button off $form
 
-$buttonOpenExpVRSettings = New-Object System.Windows.Forms.Button
-$buttonOpenExpVRSettings.Name = "buttonNewVRSettings"
-$buttonOpenExpVRSettings.Text = "Experimental VR Settings >>"
-$buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=bold
-#$buttonOpenExpVRSettings.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
-#$buttonOpenExpVRSettings.Location = "10,310"
-$buttonOpenExpVRSettings.Top = (385 * $script:ScaleMultiplier)
-$buttonOpenExpVRSettings.Left = (20 * $script:ScaleMultiplier)
-$buttonOpenExpVRSettings.Width = (200 * $script:ScaleMultiplier)
-$buttonOpenExpVRSettings.Height = (30  * $script:ScaleMultiplier)
-#$buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font($buttonOpenExpVRSettings.Font.FontFamily, [math]::Round($buttonOpenExpVRSettings.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
-#$buttonOpenExpVRSettings.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
-$buttonOpenExpVRSettings.Enabled = $true
-$buttonOpenExpVRSettings.TabIndex = 4
-$form.Controls.Add($buttonOpenExpVRSettings)
+    $buttonOpenExpVRSettings = New-Object System.Windows.Forms.Button
+    $buttonOpenExpVRSettings.Name = "buttonNewVRSettings"
+    $buttonOpenExpVRSettings.Text = "Experimental VR Settings >>"
+    $buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=bold
+    #$buttonOpenExpVRSettings.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
+    #$buttonOpenExpVRSettings.Location = "10,310"
+    $buttonOpenExpVRSettings.Top = (385 * $script:ScaleMultiplier)
+    $buttonOpenExpVRSettings.Left = (20 * $script:ScaleMultiplier)
+    $buttonOpenExpVRSettings.Width = (200 * $script:ScaleMultiplier)
+    $buttonOpenExpVRSettings.Height = (30  * $script:ScaleMultiplier)
+    #$buttonOpenExpVRSettings.Font = New-Object System.Drawing.Font($buttonOpenExpVRSettings.Font.FontFamily, [math]::Round($buttonOpenExpVRSettings.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+    #$buttonOpenExpVRSettings.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
+    $buttonOpenExpVRSettings.Enabled = $true
+    $buttonOpenExpVRSettings.TabIndex = 4
+    #$form.Controls.Add($buttonOpenExpVRSettings)
 
-$buttonGoBacktoMain = New-Object System.Windows.Forms.Button
-$buttonGoBacktoMain.Name = "buttonBacktoMain"
-$buttonGoBacktoMain.Text = "<< Back to Legacy Settings"
-$buttonGoBacktoMain.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=bold
-#$buttonGoBacktoMain.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
-#$buttonGoBacktoMain.Location = "10,310"
-$buttonGoBacktoMain.Top = (385 * $script:ScaleMultiplier)
-$buttonGoBacktoMain.Left = (20 * $script:ScaleMultiplier)
-$buttonGoBacktoMain.Width = (200 * $script:ScaleMultiplier)
-$buttonGoBacktoMain.Height = (30  * $script:ScaleMultiplier)
-#$buttonGoBacktoMain.Font = New-Object System.Drawing.Font($buttonGoBacktoMain.Font.FontFamily, [math]::Round($buttonGoBacktoMain.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
-#$buttonGoBacktoMain.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
-$buttonGoBacktoMain.Enabled = $true
-$buttonGoBacktoMain.Visible = $false
-$buttonGoBacktoMain.TabIndex = 4
-
-$form.Controls.Add($buttonGoBacktoMain)
-
+    $buttonGoBacktoMain = New-Object System.Windows.Forms.Button
+    $buttonGoBacktoMain.Name = "buttonBacktoMain"
+    $buttonGoBacktoMain.Text = "<< Back to Legacy Settings"
+    $buttonGoBacktoMain.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold) #segoia UI, 12pt, style=bold
+    #$buttonGoBacktoMain.Location = ((10 * $script:ScaleMultiplier),(310 * $script:ScaleMultiplier))
+    #$buttonGoBacktoMain.Location = "10,310"
+    $buttonGoBacktoMain.Top = (385 * $script:ScaleMultiplier)
+    $buttonGoBacktoMain.Left = (20 * $script:ScaleMultiplier)
+    $buttonGoBacktoMain.Width = (200 * $script:ScaleMultiplier)
+    $buttonGoBacktoMain.Height = (30  * $script:ScaleMultiplier)
+    #$buttonGoBacktoMain.Font = New-Object System.Drawing.Font($buttonGoBacktoMain.Font.FontFamily, [math]::Round($buttonGoBacktoMain.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Bold)
+    #$buttonGoBacktoMain.Size = New-Object System.Drawing.Size((100 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
+    $buttonGoBacktoMain.Enabled = $true
+    $buttonGoBacktoMain.Visible = $false
+    $buttonGoBacktoMain.TabIndex = 4
+    #$form.Controls.Add($buttonGoBacktoMain)
 
 #temporarily staging the new parameters below
-
+<#
 #Experimental group box
 $groupExperimentalVRSettings = New-Object System.Windows.Forms.GroupBox
 $groupExperimentalVRSettings.Text = "Experimental VR Settings"
@@ -2071,14 +2071,14 @@ $groupExperimentalVRSettings.Top = (20 * $script:ScaleMultiplier)         ## Adj
 $groupExperimentalVRSettings.Left = (20 * $script:ScaleMultiplier)
 $groupExperimentalVRSettings.Visible = $false
 $form.Controls.Add($groupExperimentalVRSettings)
-
+#>
 $buttonOpenExpVRSettings.Add_Click({
     #$form.Hide()
     #$formExpVRSettings.ShowDialog()
     $buttonGoBacktoMain.Visible = $true
     $buttonOpenExpVRSettings.Visible = $false
-    $groupExperimentalVRSettings.Visible = $true
-    $groupLegacyVRSettings.Visible = $false
+    #$groupExperimentalVRSettings.Visible = $true
+    #$groupLegacyVRSettings.Visible = $false
     })
 
 $buttonGoBacktoMain.Add_Click({
@@ -2086,8 +2086,8 @@ $buttonGoBacktoMain.Add_Click({
     #$formExpVRSettings.ShowDialog()
     $buttonGoBacktoMain.Visible = $false
     $buttonOpenExpVRSettings.Visible = $true
-    $groupExperimentalVRSettings.Visible = $false
-    $groupLegacyVRSettings.Visible = $true
+    #$groupExperimentalVRSettings.Visible = $false
+    #$groupLegacyVRSettings.Visible = $true
     })
 
 #"Experimental VR Settings"
@@ -2100,7 +2100,7 @@ $groupExp_UISettings.Height = (100 * $script:ScaleMultiplier)
 $groupExp_UISettings.Top = (20 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
 $groupExp_UISettings.Left = (5 * $script:ScaleMultiplier)
 $groupExp_UISettings.Visible = $true
-$groupExperimentalVRSettings.Controls.Add($groupExp_UISettings)
+$tabVRSettings_Experimental.Controls.Add($groupExp_UISettings)
 
 
 #r_StereoUILayerZPos = 3.1               ; the escape menu distance
@@ -2171,7 +2171,7 @@ $groupTheatremode.Height = (125 * $script:ScaleMultiplier)
 $groupTheatremode.Top = (115 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
 $groupTheatremode.Left = (5 * $script:ScaleMultiplier)
 $groupTheatremode.Visible = $true
-$groupExperimentalVRSettings.Controls.Add($groupTheatremode)
+$tabVRSettings_Experimental.Controls.Add($groupTheatremode)
 
 #theatre mode (spelt properly)
 <#
@@ -2266,7 +2266,7 @@ $groupMirrorMode.Height = (85 * $script:ScaleMultiplier)
 $groupMirrorMode.Top = (240 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
 $groupMirrorMode.Left = (5 * $script:ScaleMultiplier)
 $groupMirrorMode.Visible = $true
-$groupExperimentalVRSettings.Controls.Add($groupMirrorMode)
+$tabVRSettings_Experimental.Controls.Add($groupMirrorMode)
 
 
 #; -- Mirror Mode --                     ; r_StereoScreenOutput renamed to r_StereoMirrorMode in a4.6
@@ -2335,7 +2335,7 @@ $labelExpCategory_UserSettings_StereoScaleformDepth.Top = (40 * $script:ScaleMul
 $labelExpCategory_UserSettings_StereoScaleformDepth.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_UserSettings_StereoScaleformDepth.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_UserSettings_StereoScaleformDepth.Width = (149 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_UserSettings_StereoScaleformDepth)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_UserSettings_StereoScaleformDepth)
 
 $textboxExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.TextBox         #HmdUIDistance
 $textboxExpCategory_UserSettings_StereoScaleformDepth.Name = "HmdUIDistance"
@@ -2345,7 +2345,7 @@ $textboxExpCategory_UserSettings_StereoScaleformDepth.Width = (40 * $script:Scal
 $textboxExpCategory_UserSettings_StereoScaleformDepth.TextAlign = 'Left'
 $textboxExpCategory_UserSettings_StereoScaleformDepth.AcceptsTab = $true
 $textboxExpCategory_UserSettings_StereoScaleformDepth.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_UserSettings_StereoScaleformDepth)#>
+$tabVRSettings_Experimental.Controls.Add($textboxExpCategory_UserSettings_StereoScaleformDepth)#>
 
 
 #Group
@@ -2356,7 +2356,7 @@ $groupExp_HelmetVisorSettings.Height = (130 * $script:ScaleMultiplier)
 $groupExp_HelmetVisorSettings.Top = (20 * $script:ScaleMultiplier)         ## Adjusted the Top property to move the group box up
 $groupExp_HelmetVisorSettings.Left = (295 * $script:ScaleMultiplier)
 $groupExp_HelmetVisorSettings.Visible = $true
-$groupExperimentalVRSettings.Controls.Add($groupExp_HelmetVisorSettings)
+$tabVRSettings_Experimental.Controls.Add($groupExp_HelmetVisorSettings)
 
 
 #r_StereoUILensDepth = 3                 ; helmet vr lens / markers convergence distance
@@ -2447,7 +2447,7 @@ $labelExpCategory_UserSettings_StereoStrength.Top = (165 * $script:ScaleMultipli
 $labelExpCategory_UserSettings_StereoStrength.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_UserSettings_StereoStrength.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_UserSettings_StereoStrength.Width = (149 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_UserSettings_StereoStrength)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_UserSettings_StereoStrength)
 
 $textboxExpCategory_UserSettings_StereoStrength = New-Object System.Windows.Forms.TextBox                               #HmdIPDScale
 $textboxExpCategory_UserSettings_StereoStrength.Name = "HmdIPDScale"
@@ -2457,7 +2457,7 @@ $textboxExpCategory_UserSettings_StereoStrength.Width = (40 * $script:ScaleMulti
 $textboxExpCategory_UserSettings_StereoStrength.TextAlign = 'Left'
 $textboxExpCategory_UserSettings_StereoStrength.AcceptsTab = $true
 $textboxExpCategory_UserSettings_StereoStrength.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_UserSettings_StereoStrength)
+$tabVRSettings_Experimental.Controls.Add($textboxExpCategory_UserSettings_StereoStrength)
 $textboxExpCategory_UserSettings_StereoStrength.Text = "1"
 
 #-- HMD specific settings --
@@ -2468,7 +2468,7 @@ $labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Top = (190 * $script:Scale
 $labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_HMDSettings_StereoDynamicModeSwitch.Width = (149 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_HMDSettings_StereoDynamicModeSwitch)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_HMDSettings_StereoDynamicModeSwitch)
 
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.Name = "HmdAutomaticSwitching"
@@ -2480,7 +2480,7 @@ $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.DropDownStyle = [System
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.items.Add("Disabled")
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.items.Add("Enabled")
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = 0
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch)
+$tabVRSettings_Experimental.Controls.Add($ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch)
 
 #r_StereoDebugDrawing                                                                                       # ; Draws the ` Console in 3d space or not. (0: flat, 1: in stereo space)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.Label           #r_StereoDebugDrawing
@@ -2489,7 +2489,7 @@ $labelExpCategory_ConsoleSettings_StereoCursorToggle.Top = (215 * $script:ScaleM
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorToggle.Width = (149 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorToggle)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorToggle)
 
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Name = "r_StereoDebugDrawing"
@@ -2501,7 +2501,7 @@ $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.DropDownStyle = [System.
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.items.Add("Disabled")
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.items.Add("Enabled")
 $ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.SelectedIndex = 0
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_ConsoleSettings_StereoCursorToggle)
+$tabVRSettings_Experimental.Controls.Add($ComboboxExpCategory_ConsoleSettings_StereoCursorToggle)
 
 # -- Console --
 #r_StereoCursorScale
@@ -2511,7 +2511,7 @@ $labelExpCategory_ConsoleSettings_StereoCursorScale.Top = (240 * $script:ScaleMu
 $labelExpCategory_ConsoleSettings_StereoCursorScale.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorScale.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_ConsoleSettings_StereoCursorScale.Width = (140 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorScale)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorScale)
 
 $textboxExpCategory_ConsoleSettings_StereoCursorScale = New-Object System.Windows.Forms.TextBox         #   HmdCursorSize
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.Name = "HmdCursorSize"
@@ -2521,7 +2521,7 @@ $textboxExpCategory_ConsoleSettings_StereoCursorScale.Width = (40 * $script:Scal
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.TextAlign = 'Left'
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.AcceptsTab = $true
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$groupExperimentalVRSettings.Controls.Add($textboxExpCategory_ConsoleSettings_StereoCursorScale)
+$tabVRSettings_Experimental.Controls.Add($textboxExpCategory_ConsoleSettings_StereoCursorScale)
 
 #;g_headtracking_hmd_fpsMovementMode            ; HmdActorControlMode (default: value="1")  
 $labelExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.Label           #HmdActorControlMode
@@ -2529,7 +2529,7 @@ $labelExpCategory_EscMenuSettings_HmdActorControlMode.Text = "FPS Control Mode"
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Top = (265 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Width = (130 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_HmdActorControlMode)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_EscMenuSettings_HmdActorControlMode)
 
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.Name = "HmdActorControlMode"
@@ -2541,7 +2541,7 @@ $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.DropDownStyle = [System
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Direct Offset")
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.items.Add("Grounded Look")
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = 0
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdActorControlMode)
+$tabVRSettings_Experimental.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdActorControlMode)
 
 
 #;g_headtracking_hmd_fpsAdsDominantEye            ; HmdFpsAdsDominantEye (default: value="1")
@@ -2551,7 +2551,7 @@ $labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Top = (295 * $script:Scal
 $labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Left = (300 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Width = (150 * $script:ScaleMultiplier)
-$groupExperimentalVRSettings.Controls.Add($labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_EscMenuSettings_HmdfpsAdsDominantEye)
 
 $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye = New-Object System.Windows.Forms.ComboBox
 $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Name = "HmdFpsAdsDominantEye"
@@ -2563,7 +2563,7 @@ $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.DropDownStyle = [Syste
 $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.items.Add("Left")
 $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.items.Add("Right")
 $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = 1
-$groupExperimentalVRSettings.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye)
+$tabVRSettings_Experimental.Controls.Add($ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye)
 
 
 # Experimental VR Settings -------------------------------------------------------------------------------------------------
@@ -2748,27 +2748,27 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
 
 
 
-$form.Controls.Add($groupLegacyVRSettings)
+#$form.Controls.Add($groupLegacyVRSettings)
 #$form.Controls.Add($groupExperimentalVRSettings)
 
 
 # Add "View KeyBindings" menu item under Actions
-$viewKeyBindingsMenuItem = New-Object System.Windows.Forms.MenuItem
-$viewKeyBindingsMenuItem.Text = "View KeyBindings"
-$toolsMenuItem.MenuItems.Add($viewKeyBindingsMenuItem)
+#$viewKeyBindingsMenuItem = New-Object System.Windows.Forms.MenuItem
+#$viewKeyBindingsMenuItem.Text = "View KeyBindings"
+#$toolsMenuItem.MenuItems.Add($viewKeyBindingsMenuItem)
 
 # Create the KeyBinds Viewer form/panel
 $keyBindsForm = New-Object System.Windows.Forms.Form
 $keyBindsForm.Text = "KeyBinds Viewer"
-$keyBindsForm.Width = (650 * $script:ScaleMultiplier)
-$keyBindsForm.Height = (580 * $script:ScaleMultiplier)
+$keyBindsForm.Width = (580 * $script:ScaleMultiplier)
+$keyBindsForm.Height = (370 * $script:ScaleMultiplier)
 $keyBindsForm.StartPosition = 'CenterScreen'
 $keyBindsForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $keyBindsForm.MaximizeBox = $false
 $keyBindsForm.MinimizeBox = $false
 # --- KeyBinds Viewer Initialization ---
 
-# Add a button to close KeyBinds Viewer and return to main form
+<# Add a button to close KeyBinds Viewer and return to main form
 $closeKeyBindsButton = New-Object System.Windows.Forms.Button
 $closeKeyBindsButton.Text = "< Back"
 $closeKeyBindsButton.Width = (80 * $script:ScaleMultiplier)
@@ -2783,23 +2783,25 @@ $closeKeyBindsButton.Add_Click({
     $form.Show()
 })
 $keyBindsForm.Controls.Add($closeKeyBindsButton)
+#>
 
 $keybindSearchField = New-Object System.Windows.Forms.TextBox
 $keybindSearchField.Name = "KeybindSearchField"
-$keybindSearchField.Top = (20 * $script:ScaleMultiplier)
-$keybindSearchField.Left = (370 * $script:ScaleMultiplier)
+$keybindSearchField.Top = (8 * $script:ScaleMultiplier)
+$keybindSearchField.Left = (305 * $script:ScaleMultiplier)
+#$keybindSearchField.Right = $keybindSearchField.Width
 $keybindSearchField.Font = New-Object System.Drawing.Font($keybindSearchField.Font.FontFamily, [math]::Round($keybindSearchField.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
 $keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
 $keybindSearchField.BackColor = [System.Drawing.Color]::White
 $keybindSearchField.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
 $keybindSearchField.Multiline = $false
 $keybindSearchField.ScrollBars = [System.Windows.Forms.ScrollBars]::None
-
 $keybindSearchField.TextAlign = 'Left'
 $keybindSearchField.TabIndex = 26
 $keybindSearchField.Text = "Search Keybinds"
-$keybindSearchField.Size = New-Object Drawing.Size((260 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
-$keybindSearchField.Anchor = "Top, Right"
+$keybindSearchField.Width = (160 * $script:ScaleMultiplier)
+$keybindSearchField.Size = New-Object Drawing.Size((160 * $script:ScaleMultiplier), (30 * $script:ScaleMultiplier))
+#$keybindSearchField.Anchor = "Top, Right"
 $keybindSearchField.Add_Enter({
     $keybindSearchField.Text = ""
     $keybindSearchField.ForeColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
@@ -2810,18 +2812,20 @@ $keybindSearchField.Add_Leave({
         $keybindSearchField.ForeColor = [System.Drawing.Color]::Gray
     }
 })
-$keyBindsForm.Controls.Add($keybindSearchField)
+$tabVRSettings_Keybinds.Controls.Add($keybindSearchField)
 
 # Add a dropdown (ComboBox) under the keybindSearchField for device selection
 $keybindDeviceComboBox = New-Object System.Windows.Forms.ComboBox
 $keybindDeviceComboBox.Name = "KeybindDeviceComboBox"
-$keybindDeviceComboBox.Top = ($keybindSearchField.Top + $keybindSearchField.Height + 10)
-$keybindDeviceComboBox.Left = $keybindSearchField.Left
-$keybindDeviceComboBox.Width = $keybindSearchField.Width
+$keybindDeviceComboBox.Top = (9 * $script:ScaleMultiplier) #($keybindSearchField.Top + $keybindSearchField.Height + 10)
+#$keybindDeviceComboBox.Anchor = "Top, Left"
+$keybindDeviceComboBox.Left = (240 * $script:ScaleMultiplier)
+#$keybindDeviceComboBox.Size = (60 * $script:ScaleMultiplier)
+$keybindDeviceComboBox.Width = (60 * $script:ScaleMultiplier)
 $keybindDeviceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $keybindDeviceComboBox.Items.AddRange(@("kb1", "mouse", "gamepad", "js1", "js2", "js3", "js4"))
 $keybindDeviceComboBox.SelectedIndex = 0
-$keyBindsForm.Controls.Add($keybindDeviceComboBox)
+$tabVRSettings_Keybinds.Controls.Add($keybindDeviceComboBox)
 
 # Handler function for device dropdown selection
 function On-KeybindDeviceComboBox-Changed {
@@ -2862,7 +2866,7 @@ function Add-Column($listView, $columns) {
 # Create TabControl
 $tabControl_Keybinds = New-Object System.Windows.Forms.TabControl
 #$tabControl_Keybinds.Location = '10,60'
-$tabControl_Keybinds.Top = (60 * $script:ScaleMultiplier)
+$tabControl_Keybinds.Top = (10 * $script:ScaleMultiplier)
 $tabControl_Keybinds.Left = (10 * $script:ScaleMultiplier)
 $tabControl_Keybinds.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
 $tabControl_Keybinds.Size = New-Object Drawing.Size((620 * $script:ScaleMultiplier),(470 * $script:ScaleMultiplier))
@@ -2886,7 +2890,7 @@ $treeKeybinds_ActionMaps.Left = (10 * $script:ScaleMultiplier)
 $treeKeybinds_ActionMaps.BackColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
 $treeKeybinds_ActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(0, 0, 0)
 $treeKeybinds_ActionMaps.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-$treeKeybinds_ActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$treeKeybinds_ActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(300 * $script:ScaleMultiplier))
 $treeKeybinds_ActionMaps.HideSelection = $false
 
 $listKeybinds_ActionMaps = New-Object Windows.Forms.ListView
@@ -2955,7 +2959,7 @@ $listKeybinds_Options.GridLines = $true
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Device)
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Options)
-$keyBindsForm.Controls.Add($tabControl_Keybinds)
+$tabVRSettings_Keybinds.Controls.Add($tabControl_Keybinds)
 
 # Load default action maps XML
 $ActionMapDefaults = $null
@@ -3003,7 +3007,7 @@ function Populate-KeyBindsViewer {
     $treeKeybinds_ActionMaps.Add_AfterSelect({
         $listKeybinds_ActionMaps.Items.Clear()
         $node = $treeKeybinds_ActionMaps.SelectedNode
-        if ($node -eq $null) { return }
+        if ($null -eq $node) { return }
         if ($node.Text -like "Action: *") {
             $actionName = $node.Text.Substring(8)
             $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
@@ -3038,7 +3042,7 @@ function Populate-KeyBindsViewer {
             if (-not $script:defaultActionMapsXml) {
                 #$defaultActionMapsPath = Join-Path $PSScriptRoot "defaultactionmaps.xml"
                 $defaultActionMapsPath = Join-Path $PSScriptRoot $ActionMapDefaults
-                
+
                 if (Test-Path $defaultActionMapsPath) {
                     $script:defaultActionMapsXml = [xml](Get-Content $defaultActionMapsPath)
                     if ($debug) {Write-Host "debug:defaultActionMapsPath: $defaultActionMapsPath" -BackgroundColor White -ForegroundColor Black}
@@ -3084,7 +3088,7 @@ function Populate-KeyBindsViewer {
     $treeKeybinds_Device.Add_AfterSelect({
         $listKeybinds_Device.Items.Clear()
         $node = $treeKeybinds_Device.SelectedNode
-        if ($node -eq $null) { return }
+        if ($null -eq $node) { return }
         if ($node.Text -like "Device: *") {
             $devName = $node.Text.Substring(8)
             $dev = $script:keyBindsProfiles.deviceoptions | Where-Object { $_.name -eq $devName }
@@ -3125,7 +3129,7 @@ function Populate-KeyBindsViewer {
     $treeKeybinds_Options.Add_AfterSelect({
         $listKeybinds_Options.Items.Clear()
         $node = $treeKeybinds_Options.SelectedNode
-        if ($node -eq $null) { return }
+        if ($null -eq $node) { return }
         if ($node.Text -like "Options: *") {
             $optType = $node.Text.Split(" ")[1]
             $opt = $script:keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
@@ -3232,8 +3236,10 @@ $keybindSearchField.Add_TextChanged({
 })
 
 # Show KeyBinds Viewer and hide main form when menu item is clicked
-$viewKeyBindingsMenuItem.Add_Click({
-    $form.Hide()
+
+#$tabVRSettings_Keybinds.Add_Click({
+#$viewKeyBindingsMenuItem.Add_Click({
+    #$form.Hide()
     $script:ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
     if (-not (Test-Path $script:ActionMapsxmlPath)) {
         Write-Host "XML file not found at $script:ActionMapsxmlPath"
@@ -3241,12 +3247,11 @@ $viewKeyBindingsMenuItem.Add_Click({
     }
     $script:BindsXML = [xml](Get-Content $script:ActionMapsxmlPath)
     $script:keyBindsProfiles = $script:BindsXML.ActionMaps.ActionProfiles
-    
 
     Populate-KeyBindsViewer
 
-    $keyBindsForm.ShowDialog()
-})
+    #$keyBindsForm.ShowDialog()
+#})
 
 #$keyBindsForm.Controls.Add($keyBindsTreeView)
 #$keyBindsForm.Controls.Add($keyBindsList)
@@ -3485,9 +3490,10 @@ $splashbuttonLoadMainForm.Add_Click({
 
 Set-DefaultFont -control $form
 Set-DefaultFont -control $formHIDLookup
-Set-DefaultFont -control $groupLegacyVRSettings
-Set-DefaultFont -control $groupExperimentalVRSettings
+#Set-DefaultFont -control $groupLegacyVRSettings
+#Set-DefaultFont -control $groupExperimentalVRSettings
 Set-DefaultFont -control $keyBindsForm
+Set-DefaultFont -control $splash
 Switch-DarkMode
 
 $splash.ShowDialog()
