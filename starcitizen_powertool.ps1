@@ -9,7 +9,7 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.5.4"
+$scriptVersion = "0.5.5"
 
 $scbuild = "4.6"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
@@ -375,41 +375,6 @@ function Switch-DarkMode {
         #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
     }
 }
-
-
-# Helper – update a single attribute value in the XML file.
-function Update-XMLAttribute {
-    param(
-        [string]$XmlPath,   # Full path to attributes.xml
-        [string]$AttrName,  # e.g. 'FOV', 'Height', etc.
-        [string]$NewValue   # New string to store in the `value` attribute
-    )
-
-    if (-not (Test-Path $XmlPath)) { return }
-
-    try {
-        # Load XML once
-        $xml = [xml](Get-Content $XmlPath)
-
-        # Find the <Attr> element that has name="$AttrName"
-        $node = $xml.Attributes.SelectSingleNode("Attr[@name='$AttrName']")
-
-        if ($null -ne $node) {
-            # Replace its `value` attribute
-            $node.SetAttribute('value', $NewValue)
-
-            # Write back to disk
-            $xml.Save($XmlPath)
-        } else {
-            Write-Host "Warning: Attribute '$AttrName' not found in $XmlPath" -ForegroundColor Yellow
-        }
-
-    } catch {
-        Write-Host "[Error 104] Failed to update attribute '$AttrName': $_" -ForegroundColor Red
-    }
-}
-
-
 
 function Set-ProfileArray {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -1073,7 +1038,7 @@ function Save-SettingsToGame {
             }
             $HmdUIHeightNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIHeight" }
             if ($null -ne $HmdUIHeightNode) {
-                $HmdUIHeightNode.SetAttribute("value", $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text)  # HmdUIHeight
+                $HmdUIHeightNode.SetAttribute("value", $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text)  # HmdUIHeight
             }
             $HmdUIScaleNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIScale" }
             if ($null -ne $HmdUIScaleNode) {
@@ -2018,153 +1983,19 @@ $applySaveButton.TabIndex = 22
 $applySaveButton.Enabled = $false  # Initially disabled
 #$applySaveButton.Add_Click({Save-SettingsToGame})
 $applySaveButton.Add_Click({
-    # Validate that we have a loaded XML file
+
+    <# Validate that we have a loaded XML file
     if (-not $script:attributesXmlPath) { return }
-
-    # Update every mapped attribute in the XML file
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "FOV" `
-                        -NewValue $fovTextBox.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "Height" `
-                        -NewValue $heightTextBox.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "Width" `
-                        -NewValue $widthTextBox.Text
-
-    # Headtracking
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HeadtrackingToggle" `
-                        -NewValue ($headtrackerEnabledComboBox.SelectedIndex)
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HeadtrackingSource" `
-                        -NewValue ($HeadtrackingSourceComboBox.SelectedIndex)
-
-    # Chromatic Aberration
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "ChromaticAberration" `
-                        -NewValue $chromaticAberrationTextBox.Text
-
-    # Auto‑Zoom (store index, not text)
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "AutoZoomOnSelectedTarget" `
-                        -NewValue ($AutoZoomComboBox.SelectedIndex)
-
-    # MotionBlur
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "MotionBlur" `
-                        -NewValue ($MotionBlurComboBox.SelectedIndex)
-
-    # ShakeScale, CameraSpringMovement, FilmGrain, G‑Force scales
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "ShakeScale" `
-                        -NewValue $ShakeScaleTextBox.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "CameraSpringMovement" `
-                        -NewValue $CameraSpringMovementTextBox.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "FilmGrain" `
-                        -NewValue ($FilmGrainComboBox.SelectedIndex)
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "GForceBoostZoomScale" `
-                        -NewValue $GForceBoostZoomScaleTextBox.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "GForceHeadBobScale" `
-                        -NewValue $GForceHeadBobScaleTextBox.Text
-
-    # Headtracking advanced options
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HeadtrackingEnableRollFPS" `
-                        -NewValue ($HeadtrackingEnableRollFPSComboBox.SelectedIndex)
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HeadtrackingDisableDuringWalking" `
-                        -NewValue ($HeadtrackingDuringFPSComboBox.SelectedIndex)
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HeadtrackingThirdPersonCameraToggle" `
-                        -NewValue ($HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex)
-
-    # Experimental VR – all textboxes (store the string values)
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdUIDistance" `
-                        -NewValue $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdUIHeight" `
-                        -NewValue $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdUIScale" `
-                        -NewValue $textboxExpCategory_EscMenuSettings_EscMenuScale.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdVisorDistance" `
-                        -NewValue $textboxExpCategory_HelmetVisorLensDepth.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdVisorAspectModifier" `
-                        -NewValue $textboxExpCategory_HelmetVisorLens_AspectModifier.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdVisorHeight" `
-                        -NewValue $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdVisorScale" `
-                        -NewValue $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text
-
-    # Mirror mode (store index)
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdTheaterMode" `
-                        -NewValue ($ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex)
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdTheaterModeScale" `
-                        -NewValue $textboxExpCategory_TheatreMode_Scale.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdTheaterModeCurvature" `
-                        -NewValue $textboxExpCategory_TheatreMode_Curvature.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdTheaterModeDistance" `
-                        -NewValue $textboxExpCategory_TheatreMode_Distance.Text
-
-    # User Settings – IPD scale, Cursor size
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdIPDScale" `
-                        -NewValue $textboxExpCategory_UserSettings_StereoStrength.Text
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdCursorSize" `
-                        -NewValue $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text
-
-    # HMD dynamic mode
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdAutomaticSwitching" `
-                        -NewValue ($ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex)
-
-    # Actor control and dominant eye
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdActorControlMode" `
-                        -NewValue ($ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex)
-
-    Update-XMLAttribute -XmlPath $script:attributesXmlPath `
-                        -AttrName "HmdfpsAdsDominantEye" `
-                        -NewValue ($ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex)
-
-    # After all writes – refresh the UI
-    Open-XMLViewer $script:attributesXmlPath
-
+    #>
+    try {
+            Save-SettingsToGame
+        } catch {
+            if ($debug) {Write-Host "[Error200] Error trying to Save-SettingsToGame: $($_.Exception.Message)" -ForegroundColor Red}
+            return
+        }
     if ($debug) { Write-Host "Applied changes to XML." }
+    
+    Open-XMLViewer($($script:profileArray.AttributesXmlPath))
 })
 # Initially disable the import and save buttons
 $applySaveButton.Enabled = $false
@@ -2220,7 +2051,7 @@ $tabVRSettings_Experimental.Controls.Add($groupExp_UISettings)
 
 #r_StereoUILayerZPos = 3.1               ; the escape menu distance
 $labelExpCategory_EscMenuSettings_EscMenuDistance = New-Object System.Windows.Forms.Label           #r_StereoUILayerZPos        HmdUIDistance
-$labelExpCategory_EscMenuSettings_EscMenuDistance.Text = "Escape Menu Distance"
+$labelExpCategory_EscMenuSettings_EscMenuDistance.Text = "Menu Distance"
 $labelExpCategory_EscMenuSettings_EscMenuDistance.Top = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuDistance.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuDistance.Left = (10 * $script:ScaleMultiplier)
@@ -2239,7 +2070,7 @@ $groupExp_UISettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuDis
 
 #r_StereoUILayerYPos = 0.5               ; the escape menu height
 $labelExpCategory_EscMenuSettings_EscMenuYPos = New-Object System.Windows.Forms.Label           #r_StereoUILayerYPos        HmdUIHeight
-$labelExpCategory_EscMenuSettings_EscMenuYPos.Text = "Escape Menu Height"
+$labelExpCategory_EscMenuSettings_EscMenuYPos.Text = "Menu Height"
 $labelExpCategory_EscMenuSettings_EscMenuYPos.Top = (45 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuYPos.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuYPos.Left = (10 * $script:ScaleMultiplier)
@@ -2260,7 +2091,7 @@ $groupExp_UISettings.Controls.Add($textboxExpCategory_EscMenuSettings_EscMenuYPo
 
 #r_StereoUILayerScale = 4                ; how big the menu is in 3d space
 $labelExpCategory_EscMenuSettings_EscMenuScale = New-Object System.Windows.Forms.Label           #r_StereoUILayerScale              HmdUIScale
-$labelExpCategory_EscMenuSettings_EscMenuScale.Text = "Escape Menu Scale"
+$labelExpCategory_EscMenuSettings_EscMenuScale.Text = "Menu Scale"
 $labelExpCategory_EscMenuSettings_EscMenuScale.Top = (70 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuScale.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_EscMenuSettings_EscMenuScale.Left = (10 * $script:ScaleMultiplier)
@@ -3033,7 +2864,7 @@ $listKeybinds_Options.Size = New-Object Drawing.Size((220 * $script:ScaleMultipl
 $listKeybinds_Options.View = 'Details'
 $listKeybinds_Options.FullRowSelect = $true
 $listKeybinds_Options.GridLines = $true
-$listKeybinds_Options.Scrollbars =  = [System.Windows.Forms.ScrollBars]::Both
+$listKeybinds_Options.Scrollbars = [System.Windows.Forms.ScrollBars]::Both
 
 # Add tabs to TabControl
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
