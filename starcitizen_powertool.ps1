@@ -9,7 +9,7 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.5.6"
+$scriptVersion = "0.5.7"
 
 $scbuild = "4.7"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
@@ -19,7 +19,7 @@ $debug = $false
 $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
-$loadedProfile = $false
+$script:loadedProfile = $false
 
 $commonChildPath = "user\client\0\Profiles\default"
 
@@ -224,8 +224,8 @@ function Update-ButtonState {                           # used to grey out butto
         if ($null -ne $script:xmlContent) {
             $importButton.Enabled = $true
             $applySaveButton.Enabled = $true
-            
-            if ($loadedProfile -eq $true) {
+
+            if ($script:loadedProfile -eq $true) {
                 $loadFromProfileButton.Enabled = $true
             } else {
                 $loadFromProfileButton.Enabled = $false
@@ -234,7 +234,7 @@ function Update-ButtonState {                           # used to grey out butto
             $importButton.Enabled = $false
             $applySaveButton.Enabled = $false
             $loadFromProfileButton.Enabled = $false
-            
+
         }
     }
 }
@@ -254,24 +254,24 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $applySaveButton.ForeColor = [System.Drawing.Color]::White
         $applySaveButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
         $applySaveButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
-        
+
         $saveAndCloseButton.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
         $saveAndCloseButton.ForeColor = [System.Drawing.Color]::White
         $saveAndCloseButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
         $saveAndCloseButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
-        
+
         $fovTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $fovTextBox.ForeColor = [System.Drawing.Color]::White
         $fovTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-        
+
         $widthTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $widthTextBox.ForeColor = [System.Drawing.Color]::White
         $widthTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-        
+
         $heightTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $heightTextBox.ForeColor = [System.Drawing.Color]::White
         $heightTextBox.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-        
+
         $chromaticAberrationTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $ShakeScaleTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $CameraSpringMovementTextBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
@@ -286,7 +286,7 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $FilmGrainComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $MotionBlurComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$MotionBlurComboBox.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-        
+
         #$closeKeyBindsButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$closeKeyBindsButton.ForeColor = [System.Drawing.Color]::White
         #$closeKeyBindsButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
@@ -313,7 +313,7 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
 
         $textboxExpCategory_TheatreMode_Curvature.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_TheatreMode_Curvature.ForeColor = [System.Drawing.Color]::White
-        
+
         $textboxExpCategory_TheatreMode_Distance.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_TheatreMode_Distance.ForeColor = [System.Drawing.Color]::White
         #$textboxExpCategory_UserSettings_StereoScaleformDepth.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
@@ -323,7 +323,7 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
 
         $textboxExpCategory_ConsoleSettings_StereoCursorScale.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_ConsoleSettings_StereoCursorScale.ForeColor = [System.Drawing.Color]::White
-        
+
         foreach ($child in $control.Controls) {
             if ($null -eq $child.BackColor) { return }
             elseif($null -eq $child.ForeColor) { return }
@@ -486,7 +486,7 @@ function Open-XMLViewer {
                 Update-ButtonState
 
                 # Populate the input boxes with the first row values
-                
+
                     if ($null -ne $script:profileArray.FOV) {
                         $fovTextBox.Text = $script:profileArray.FOV
                     }else {
@@ -769,7 +769,7 @@ function Open-Profile {
                                 Write-Host "Item: $item" -BackgroundColor White -ForegroundColor Black
                             }
                         }
-                        $loadedProfile = $true
+                        $script:loadedProfile = $true
                         $script:liveFolderPath = $script:profileArray.SCPath
                         $script:attributesXmlPath = if ($null -ne $script:profileArray.AttributesXmlPath) { $script:profileArray.AttributesXmlPath } else { $script:xmlPath }
                         $script:xmlPath = $script:attributesXmlPath
@@ -828,13 +828,13 @@ function Get-GameRootDirFromRegistry {
 
 function Open-LiveFolder {
     $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    if ($AutoDetectSCPath -ne $null -and (Test-Path -Path $AutoDetectSCPath)) {
+    if ($null -ne $AutoDetectSCPath -and (Test-Path -Path $AutoDetectSCPath)) {
         $folderBrowserDialog.SelectedPath = $AutoDetectSCPath
     }
     $statusBar.Text = "Opening SC Folder..."
     $folderBrowserDialog.Description = "Select the 'Star Citizen' folder containing 'Live'"
     if ($script:profileArray -and ($null -ne $script:profileArray.SCPath)) {
-        if ($folderBrowserDialog -ne $null) {
+        if ($null -ne $folderBrowserDialog) {
             $folderBrowserDialog.SelectedPath = [System.IO.Path]::GetDirectoryName($script:profileArray.SCPath)
         } else {
             Write-Error "Error: FolderBrowserDialog is not initialized." -ForegroundColor Red
@@ -883,6 +883,7 @@ function Open-LiveFolder {
 
 function Save-SettingsToGame {
     [CmdletBinding(SupportsShouldProcess=$true)]
+    [OutputType([System.Windows.Forms.DialogResult])]
     param ()
 
     if ($PSCmdlet.ShouldProcess("Game", "Save settings to game")) {
@@ -891,25 +892,25 @@ function Save-SettingsToGame {
                 if ($debug) {[System.Windows.Forms.MessageBox]::Show("XML content is null. Please load a valid XML file before saving.")}
                 return
             }
-    
+
             #$fovNode = $script:xmlContent.SelectSingleNode("//attribute[@name='FOV']")
             $fovNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" }
             if ($null -ne $fovNode) {
                 $fovNode.SetAttribute("value", $fovTextBox.Text)  # FOV
             }
-    
+
             #$heightNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Height']")
             $heightNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" }
             if ($null -ne $heightNode) {
                 $heightNode.SetAttribute("value", $heightTextBox.Text)  # HEIGHT
             }
-    
+
             #$widthNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Width']")
             $widthNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" }
             if ($null -ne $widthNode) {
                 $widthNode.SetAttribute("value", $widthTextBox.Text)  # WIDTH
             }
-    
+
             #$headtrackingNode = $script:xmlContent.SelectSingleNode("//attribute[@name='Headtracking']")
             $headtrackingNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" }
             if ($null -ne $headtrackingNode) {
@@ -925,11 +926,11 @@ function Save-SettingsToGame {
                 $newElement.SetAttribute("value", $headtrackerEnabledComboBox.SelectedIndex.ToString())
                 $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
             }
-    
+
             #$headtrackingSourceNode = $script:xmlContent.SelectSingleNode("//attribute[@name='HeadtrackingSource']")
             $headtrackingSourceNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" }
             if ($null -ne $headtrackingSourceNode) {
-    
+
                 if ($HeadtrackingSourceComboBox.SelectedItem -eq "None") {
                     $HeadtrackingSourceComboBox.SelectedIndex = 0
                 } elseif ($HeadtrackingSourceComboBox.SelectedItem -eq "TrackIR") {
@@ -951,7 +952,7 @@ function Save-SettingsToGame {
                 $newElement.SetAttribute("value", $HeadtrackingSourceComboBox.SelectedIndex.ToString())
                 $script:xmlContent.DocumentElement.AppendChild($newElement) | Out-Null
             }
-    
+
             $chromaticAberrationNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" }
             if ($null -ne $chromaticAberrationNode) {
                 $chromaticAberrationNode.SetAttribute("value", $chromaticAberrationTextBox.Text)  # CHROMATICABERRATION
@@ -1123,11 +1124,11 @@ function Save-SettingsToGame {
                 [System.Windows.Forms.MessageBox]::Show("An error occurred while saving the XML file to $script:xmlPath: $_")
             }
                 #$script:xmlContent.Save($script:xmlPath)
-    
+
         } catch {
             [System.Windows.Forms.MessageBox]::Show("Failed to save the XML file: $_")
         }
-    
+
         # Refresh and update the dataTable with the new data
         $script:dataTable.Clear()
         if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
@@ -1146,7 +1147,7 @@ function Save-SettingsToGame {
                     }
                 }
             }
-    
+
             # Add rows to the DataTable
             foreach ($node in $script:xmlContent.SelectNodes("//*")) {
                 $row = $script:dataTable.NewRow()
@@ -1158,33 +1159,33 @@ function Save-SettingsToGame {
                 $script:dataTable.Rows.Add($row) | Out-Null
                 #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
             }
-    
+
             # Bind the DataTable to the DataGridView
             #$script:dataGridView.DataSource = $script:dataTable
-    
+
             #$gridGroup.Controls.Add($script:dataGridView)
-    
+
             # Show the dataTableGroupBox and set its text to the XML path
             #dataTableGroupBox.Text = $xmlPath
             #$dataTableGroupBox.Visible = $true
             #$fileTextBox.Text = $xmlPath
             #$fileTextBox.Visible = $true
             Update-ButtonState
-    
+
             # Populate the input boxes with the first row values
             $script:xmlContent = [xml](Get-Content $script:xmlPath)
             #if ($script:xmlContent.DocumentElement.ChildNodes.Count -gt 0) {
             if ($script:xmlContent.Attributes -and $script:xmlContent.Attributes.Attr) {
-    
-    
+
+
                 $fovTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FOV" } | Select-Object -ExpandProperty value
                 $heightTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Height" } | Select-Object -ExpandProperty value
                 $widthTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "Width" } | Select-Object -ExpandProperty value
                 $headtrackerEnabledComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingToggle" } | Select-Object -ExpandProperty value
                 $HeadtrackingSourceComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingSource" } | Select-Object -ExpandProperty value
-    
+
                     if ($debug) {Write-Host "debug: try to Populate the input boxes with the first row values" -BackgroundColor White -ForegroundColor Black}
-    
+
                 Set-ProfileArray
 
             }
@@ -1354,7 +1355,7 @@ $openXmlMenuItem.Add_Click({
                         $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
                         $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" } | Select-Object -ExpandProperty value
                         $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
-                        
+
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
 
@@ -1516,8 +1517,8 @@ $loadFromProfileButton.Height = (30 * $script:ScaleMultiplier)
 $loadFromProfileButton.Top = (30 * $script:ScaleMultiplier)
 $loadFromProfileButton.Left = (20 * $script:ScaleMultiplier)
 $loadFromProfileButton.TabIndex = 4
-$loadFromProfileButton.Enabled = $loadedProfile                 #$false  # Initially disabled
-$loadFromProfileButton.Visible = $loadedProfile
+$loadFromProfileButton.Enabled = $script:loadedProfile                 #$false  # Initially disabled
+$loadFromProfileButton.Visible = $script:loadedProfile
 #$tabVRSettings_LegacySettings.Controls.Add($loadFromProfileButton)
 
 $loadFromProfileButton.Add_Click({
@@ -1996,7 +1997,7 @@ $applySaveButton.Add_Click({
             return
         }
     if ($debug) { Write-Host "Applied changes to XML." }
-    
+
     Open-XMLViewer($($script:profileArray.AttributesXmlPath))
 })
 # Initially disable the import and save buttons
@@ -2276,7 +2277,7 @@ $groupMirrorMode.Controls.Add($ComboboxExpCategory_MirrorMode_Smoothing)
 #r_StereoScaleformDepth = 1.0            ; convergence distance of marker icons etc - varies between headsets and users
 #r_StereoStrength    = 1.0               ; Hmd IPD Scale (floating value from 0.0 - 1.5 [ie 150%], default 100% ie. 1.0) - varies between users
 
-# StereoScaleformDepth 
+# StereoScaleformDepth
 <#$labelExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.Label           #r_StereoScaleformDepth HmdUIDistance
 $labelExpCategory_UserSettings_StereoScaleformDepth.Text = "Stereo Scaleform Depth"
 $labelExpCategory_UserSettings_StereoScaleformDepth.Top = (40 * $script:ScaleMultiplier)
@@ -2472,7 +2473,7 @@ $textboxExpCategory_ConsoleSettings_StereoCursorScale.AcceptsTab = $true
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
 $tabVRSettings_Experimental.Controls.Add($textboxExpCategory_ConsoleSettings_StereoCursorScale)
 
-#;g_headtracking_hmd_fpsMovementMode            ; HmdActorControlMode (default: value="1")  
+#;g_headtracking_hmd_fpsMovementMode            ; HmdActorControlMode (default: value="1")
 $labelExpCategory_EscMenuSettings_HmdActorControlMode = New-Object System.Windows.Forms.Label           #HmdActorControlMode
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Text = "FPS Control Mode"
 $labelExpCategory_EscMenuSettings_HmdActorControlMode.Top = (265 * $script:ScaleMultiplier)
@@ -2866,7 +2867,7 @@ $listKeybinds_Options.Size = New-Object Drawing.Size((220 * $script:ScaleMultipl
 $listKeybinds_Options.View = 'Details'
 $listKeybinds_Options.FullRowSelect = $true
 $listKeybinds_Options.GridLines = $true
-$listKeybinds_Options.Scrollbars = [System.Windows.Forms.ScrollBars]::Both
+#$listKeybinds_Options.Scrollbars = [System.Windows.Forms.ScrollBars]::Both
 
 # Add tabs to TabControl
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
@@ -2923,7 +2924,7 @@ function Populate-KeyBindsViewer {
             $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
             if ($action) {
                 Add-Column $listKeybinds_ActionMaps @("Rebound Input", "MultiTap")
-                #defaults 
+                #defaults
                 foreach ($default in $action.default) {
                     if ($default.input) {
                         $item = $listKeybinds_ActionMaps.Items.Add($default.input)
