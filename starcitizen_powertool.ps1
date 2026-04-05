@@ -9,9 +9,9 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troubleshooternz
 #>
 
-$scriptVersion = "0.5.5"
+$scriptVersion = "0.5.6"
 
-$scbuild = "4.6"
+$scbuild = "4.7"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
 
 $debug = $false
@@ -20,6 +20,8 @@ $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
 $loadedProfile = $false
+
+$commonChildPath = "user\client\0\Profiles\default"
 
 [Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
 [Reflection.Assembly]::LoadWithPartialName('System.Data')          | Out-Null
@@ -844,7 +846,7 @@ function Open-LiveFolder {
         if (Test-Path -Path $script:liveFolderPath -PathType Container) {
             $statusBar.Text = "SC Folder found at: $script:liveFolderPath"
             #[System.Windows.Forms.MessageBox]::Show("Found 'Live' folder at: $script:liveFolderPath")
-            $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default"
+            $defaultProfilePath = Join-Path -Path $script:liveFolderPath -ChildPath $commonChildPath
             if (-not (Test-Path -Path $defaultProfilePath -PathType Container)) {
                 $statusBar.Text = "'default' folder not found."
                 [System.Windows.Forms.MessageBox]::Show("'default' folder not found.")
@@ -2676,7 +2678,7 @@ $form.Controls.Add($statusBar)
 
 if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     $script:liveFolderPath = Join-Path -Path $AutoDetectSCPath -ChildPath $branch
-    $script:xmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\attributes.xml"
+    $script:xmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "$commonChildPath\attributes.xml"
     Set-ProfileArray
     #$script:profileArray.Add([PSCustomObject]@{ AttributesXmlPath = $script:xmlPath }) | Out-Null
     if ($debug) {Write-Host "debug:xmlPath $script:xmlPath" -BackgroundColor White -ForegroundColor Black}
@@ -2731,7 +2733,7 @@ $keybindDeviceComboBox.Left = (240 * $script:ScaleMultiplier)
 #$keybindDeviceComboBox.Size = (60 * $script:ScaleMultiplier)
 $keybindDeviceComboBox.Width = (60 * $script:ScaleMultiplier)
 $keybindDeviceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$keybindDeviceComboBox.Items.AddRange(@("kb1", "mouse", "gamepad", "js1", "js2", "js3", "js4"))
+$keybindDeviceComboBox.Items.AddRange(@("kb1", "gamepad", "js1", "js2", "js3", "js4"))
 $keybindDeviceComboBox.SelectedIndex = 0
 $tabVRSettings_Keybinds.Controls.Add($keybindDeviceComboBox)
 
@@ -3143,10 +3145,8 @@ $keybindSearchField.Add_TextChanged({
     }
 })
 
-# Show KeyBinds Viewer and hide main form when menu item is clicked
-
 function Initialise_KeyBindTab {
-    $script:ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "user\client\0\Profiles\default\ActionMaps.xml"
+    $script:ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "$commonChildPath\ActionMaps.xml"
     if (-not (Test-Path $script:ActionMapsxmlPath)) {
         Write-Host "XML file not found at $script:ActionMapsxmlPath"
         exit
