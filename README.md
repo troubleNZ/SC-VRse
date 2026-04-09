@@ -21,7 +21,8 @@ https://discord.gg/g2jn2vzju3
 
 ###### _What does this script do then?_
 
-This tool is a work in progress, and intended as a one stop shop Powertool for managing your Star Citizen VR configuration focused on integrating the new Experimental VR Settings introduced in alpha 4.5 and updated for alpha 4.6.
+This tool is a work in progress, and intended as a one stop shop Powertool for managing your Star Citizen VR configuration focused on integrating the new Experimental VR Settings introduced in alpha 4.5. 
+As of Star Citizen Alpha 4.7, all relevant configurations have been exposed via this tool.
 
 - Easily configure your game for VR HeadTracking, Theater Mode, Mirror Mode, etc.
 
@@ -42,7 +43,7 @@ This tool is a work in progress, and intended as a one stop shop Powertool for m
 
 ### Screenshot
 
-![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot.jpg)
+![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot.png)
 
   
   
@@ -65,20 +66,16 @@ The tool should automatically detect your Star Citizen Live Install, and populat
 
 Many settings that a VR Citizen might want exposed are available to configure, from Filmgrain and Motion Blur, to Head Bob and Autozoom
 
-The new Experimental VR Settings are all currently contained off a submenu, accessed via the button at the bottom of the screen.
-This will likely be made the primary VR panel in a future iteration of this script.
+The new Experimental VR Settings are presented first, as they will be the most applicable to users. the legacy HMD settings are still available on the second tab.
 
 Also find the handy Keybinds viewer under the Actions Menu, where you can easily see all your controller buttons and any settings that have changed from the defaults.
-
   
 
 ### current issues
 
   
 
-- no major issues reported
-- not all of the new experimental vr settings have been integrated yet. this is a work in progress, and i welcome git pushrequests to help keep the momentum up on script updates.
-  
+- no major issues reported  
 
 ### future plans
 
@@ -91,5 +88,5 @@ Also find the handy Keybinds viewer under the Actions Menu, where you can easily
 **0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references
 **0.5.1** + Experimental VR settings introduced from alpha 4.6
 
-**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.5.1
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.5.7
 
