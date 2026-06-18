@@ -87,7 +87,8 @@ $tabControl_Keybinds.Size = New-Object Drawing.Size((620 * $script:ScaleMultipli
 $tabControl_Keybinds.Anchor = "Top, Left, Right, Bottom"
 $tabControl_Keybinds.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 
-
+$radius = 5
+$tabControl_Keybinds.Region = New-RoundedRegion -width $tabControl_Keybinds.Width -height $tabControl_Keybinds.Height -radius $radius
 
 # --- Tab 1: ActionMaps ---
 $tabKeybinds_ActionMaps = New-Object System.Windows.Forms.TabPage
@@ -98,19 +99,19 @@ $tabKeybinds_ActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 2
 $treeKeybinds_ActionMaps = New-Object Windows.Forms.TreeView
 #$treeKeybinds_ActionMaps.Location = (10 * $script:ScaleMultiplier),(10 * $script:ScaleMultiplier)
 #$treeKeybinds_ActionMaps.Location = "10,10"
-$treeKeybinds_ActionMaps.Top = (10 * $script:ScaleMultiplier)
-$treeKeybinds_ActionMaps.Left = (10 * $script:ScaleMultiplier)
+$treeKeybinds_ActionMaps.Top = (0 * $script:ScaleMultiplier)
+$treeKeybinds_ActionMaps.Left = (0 * $script:ScaleMultiplier)
 #$treeKeybinds_ActionMaps.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
 $treeKeybinds_ActionMaps.BackColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
 $treeKeybinds_ActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(0, 0, 0)
 $treeKeybinds_ActionMaps.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-$treeKeybinds_ActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(300 * $script:ScaleMultiplier))
+$treeKeybinds_ActionMaps.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $treeKeybinds_ActionMaps.HideSelection = $false
 
 $listKeybinds_ActionMaps = New-Object Windows.Forms.ListView
 #$listKeybinds_ActionMaps.Location = "370,10"
-$listKeybinds_ActionMaps.Top = (10 * $script:ScaleMultiplier)
-$listKeybinds_ActionMaps.Left = (370 * $script:ScaleMultiplier)
+$listKeybinds_ActionMaps.Top = (0 * $script:ScaleMultiplier)
+$listKeybinds_ActionMaps.Left = (350 * $script:ScaleMultiplier)
 
 $listKeybinds_ActionMaps.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(200 * $script:ScaleMultiplier))
 $listKeybinds_ActionMaps.View = 'Details'

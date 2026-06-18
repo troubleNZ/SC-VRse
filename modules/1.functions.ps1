@@ -1,3 +1,175 @@
+[Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
+[Reflection.Assembly]::LoadWithPartialName('System.Data')          | Out-Null
+[Reflection.Assembly]::LoadWithPartialName('System.Drawing')       | Out-Null
+[System.Windows.Forms.Application]::EnableVisualStyles()
+
+$script:xmlPath = $null
+$script:xmlContent = @()
+$script:dataTable = New-Object System.Data.DataTable
+$script:xmlArray = @()
+
+$script:liveFolderPath = $null
+$script:attributesXmlPath = $null
+$fovTextBox = $null
+$heightTextBox = $null
+$widthTextBox = $null
+$headtrackerEnabledComboBox = $null
+$HeadtrackingSourceComboBox = $null
+
+$darkModeMenuItem = $null
+
+$keybind_column_width = 150 #(100 * $script:ScaleMultiplier)                         #pixels
+
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -TypeDefinition '
+public class DPIAware
+{
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+'
+
+[System.Windows.Forms.Application]::EnableVisualStyles()
+[void] [DPIAware]::SetProcessDPIAware()
+$defaultFont = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular) #segoia UI, 12pt, style=Regular
+
+function Set-DefaultFont {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param (
+        [System.Windows.Forms.Control]$control
+    )
+    if ($PSCmdlet.ShouldProcess("Control", "Set default font")) {
+        $control.Font = $defaultFont
+        foreach ($child in $control.Controls) {
+            Set-DefaultFont -control $child
+        }
+    }
+}
+if ($debug) {Write-Host "PSscriptRoot:`n" $PSScriptRoot -BackgroundColor White -ForegroundColor Black}
+
+
+$script:ScaleMultiplier = 1.0
+<#       We'll use the screen dimensions below for suggesting a max window size                   #>
+function Get-MaxScreenResolution {
+    Add-Type -AssemblyName System.Windows.Forms
+    $screenWidth = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
+    $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
+    return "$screenWidth x $screenHeight"
+}
+function Get-DesktopResolutionScale {
+    Add-Type -AssemblyName System.Windows.Forms
+    $graphics = [System.Drawing.Graphics]::FromHwnd([System.IntPtr]::Zero)
+    $desktopDpiX = $graphics.DpiX
+    $scaleFactor = $desktopDpiX / 96  # 96 DPI is the default scale (100%)
+    switch ($scaleFactor) {
+        1 { $script:ScaleMultiplier = 1.0; return "100%" }
+        1.25 { $script:ScaleMultiplier = 1.25; return "125%" }
+        1.5 { $script:ScaleMultiplier = 1.5; return "150%" }
+        1.75 { $script:ScaleMultiplier = 1.75; return "175%" }
+        2 { $script:ScaleMultiplier = 2.0; return "200%" }
+        default { $script:ScaleMultiplier = [math]::Round($scaleFactor * 100) / 100; return "$([math]::Round($scaleFactor * 100))%" }
+    }
+}Get-DesktopResolutionScale | Out-Null
+if ($debug) {
+    write-host "Resolution Scale: " (Get-DesktopResolutionScale)
+    Write-Host "Scale Multiplier: " $script:ScaleMultiplier -BackgroundColor White -ForegroundColor Black
+    Write-Host "Max Screen Resolution: " (Get-MaxScreenResolution) -BackgroundColor White -ForegroundColor Black
+}
+
+function New-RoundedRegion {
+    param(
+        [int]$width,
+        [int]$height,
+        [int]$radius = 5
+    )
+
+    $gp = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $diameter = $radius * 2
+
+    # Top-left arc
+    $gp.AddArc(0, 0, $diameter, $diameter, 180, 90)
+    # Top edge
+    $gp.AddLine($radius, 0, $width - $radius, 0)
+    # Top-right arc
+    $gp.AddArc($width - $diameter, 0, $diameter, $diameter, 270, 90)
+    # Right edge
+    $gp.AddLine($width, $radius, $width, $height - $radius)
+    # Bottom-right arc
+    $gp.AddArc($width - $diameter, $height - $diameter, $diameter, $diameter, 0, 90)
+    # Bottom edge
+    $gp.AddLine($width - $radius, $height, $radius, $height)
+    # Bottom-left arc
+    $gp.AddArc(0, $height - $diameter, $diameter, $diameter, 90, 90)
+    # Left edge
+    $gp.AddLine(0, $height - $radius, 0, $radius)
+
+    $gp.CloseFigure()
+    return New-Object System.Drawing.Region($gp)
+}
+
+
+$form = New-Object System.Windows.Forms.Form
+
+$form.Text = "SC/VR Powertools (Attribute Editor "+$scriptVersion+")"
+$form.Width = (620 * $script:ScaleMultiplier)
+$form.Height = (600 * $script:ScaleMultiplier)
+$form.StartPosition = 'CenterScreen'
+$form.Size = New-Object System.Drawing.Size($form.Width,$form.Height)
+$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
+$form.MinimizeBox = $true
+$form.Add_Shown({
+    $form.Activate()
+    $form.TopMost = $true
+    $form.TopMost = $false
+})
+
+# add a menu toolbar with one option called "File"
+$mainMenu = New-Object System.Windows.Forms.MainMenu
+
+$fileMenuItem = New-Object System.Windows.Forms.MenuItem
+$fileMenuItem.Text = "&File"    # The & character indicates the shortcut key
+$mainMenu.MenuItems.Add($fileMenuItem)  # Add the File menu item to the main menu
+
+
+# new TabControl here to replace the parent groups below #>
+
+$tabControl_VRSettings = New-Object System.Windows.Forms.TabControl
+# Create TabControl
+$tabControl_VRSettings.Top = (10 * $script:ScaleMultiplier)
+$tabControl_VRSettings.Left = (10 * $script:ScaleMultiplier)
+$tabControl_VRSettings.Font = New-Object System.Drawing.Font("Segoe UI", [math]::Round(10 * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
+$tabControl_VRSettings.Size = New-Object Drawing.Size((580 * $script:ScaleMultiplier),(470 * $script:ScaleMultiplier))
+#$tabControl_VRSettings.Anchor = "Top, Left, Right"
+$tabControl_VRSettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$radius = 5
+$tabControl_VRSettings.Region = New-RoundedRegion -width $tabControl_VRSettings.Width -height $tabControl_VRSettings.Height -radius $radius
+$form.Controls.Add($tabControl_VRSettings)
+#tabs instead of parent groups
+
+# --- Tab 1: Experimental VR Settings ---
+$tabVRSettings_Experimental = New-Object System.Windows.Forms.TabPage
+$tabVRSettings_Experimental.Text = "Experimental VR"
+$tabVRSettings_Experimental.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabVRSettings_Experimental.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
+# --- Tab 2: Legacy Headtracking ---
+$tabVRSettings_LegacySettings = New-Object System.Windows.Forms.TabPage
+$tabVRSettings_LegacySettings.Text = "Legacy Headtracking"
+$tabVRSettings_LegacySettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabVRSettings_LegacySettings.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
+# --- Tab 3: Keybind Viewer ---
+$tabVRSettings_Keybinds = New-Object System.Windows.Forms.TabPage
+$tabVRSettings_Keybinds.Text = "Keybind Viewer"
+$tabVRSettings_Keybinds.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$tabVRSettings_Keybinds.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
+$tabControl_VRSettings.TabPages.Add($tabVRSettings_Experimental)
+$tabControl_VRSettings.TabPages.Add($tabVRSettings_LegacySettings)
+$tabControl_VRSettings.TabPages.Add($tabVRSettings_Keybinds)
+
 function Update-ButtonState {                           # used to grey out buttons when no XML file is loaded
     [CmdletBinding(SupportsShouldProcess=$true)]
     param ()
@@ -69,11 +241,6 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $MotionBlurComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$MotionBlurComboBox.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
 
-        #$closeKeyBindsButton.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
-        #$closeKeyBindsButton.ForeColor = [System.Drawing.Color]::White
-        #$closeKeyBindsButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-        #$closeKeyBindsButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
-
         $textboxExpCategory_EscMenuSettings_EscMenuDistance.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         #$textboxExpCategory_EscMenuSettings_EscMenuDistance.ForeColor = [System.Drawing.Color]::White
         #$textboxExpCategory_EscMenuSettings_EscMenuDistance.borderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
@@ -142,24 +309,12 @@ function Switch-DarkMode {
         #Set-LightMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Enable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
-        # Set light mode for the dataTable
-        #$script:dataGridView.BackgroundColor = [System.Drawing.Color]::White
-        #$script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::White
-        #$script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
-        #$script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::White
-        #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::Black
     } else {
         Set-DarkMode -control $form
         Set-DarkMode -control $formHIDLookup
         #Set-DarkMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Disable Dark Mode"
         $script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
-        # Set dark mode for the dataTable
-        #$script:dataGridView.BackgroundColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        #$script:dataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        #$script:dataGridView.DefaultCellStyle.ForeColor = [System.Drawing.Color]::White
-        #$script:dataGridView.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-        #$script:dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
     }
 }
 
@@ -226,14 +381,7 @@ function Open-XMLViewer {
     if (Test-Path $Path) {
         try {
             $script:xmlContent = [xml](Get-Content $Path)
-            $gridGroup.Controls.Clear()
-
-            #$script:dataGridView = New-Object System.Windows.Forms.DataGridView
-            #$script:dataGridView.Width = 550
-            #$script:dataGridView.Height = 200
-            #$script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
-            #$script:dataGridView.Visible = $false       # grid hidden now. maybe put on another panel later
-
+            
             $script:dataTable = New-Object System.Data.DataTable
 
             # Add columns to the DataTable
@@ -260,14 +408,6 @@ function Open-XMLViewer {
                     #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
                 }
 
-                # Bind the DataTable to the DataGridView
-                #$script:dataGridView.DataSource = $script:dataTable
-
-                #$gridGroup.Controls.Add($script:dataGridView)
-
-                # Show the dataTableGroupBox and set its text to the XML path
-                #$dataTableGroupBox.Text = $Path
-                #$dataTableGroupBox.Visible = $true
                 Update-ButtonState
 
                 # Populate the input boxes with the first row values
@@ -945,16 +1085,6 @@ function Save-SettingsToGame {
                 #Write-Host "func:XMLViewer .Rows.Add : " + "$($attribute.Name): $($attribute.Value)"
             }
 
-            # Bind the DataTable to the DataGridView
-            #$script:dataGridView.DataSource = $script:dataTable
-
-            #$gridGroup.Controls.Add($script:dataGridView)
-
-            # Show the dataTableGroupBox and set its text to the XML path
-            #dataTableGroupBox.Text = $xmlPath
-            #$dataTableGroupBox.Visible = $true
-            #$fileTextBox.Text = $xmlPath
-            #$fileTextBox.Visible = $true
             Update-ButtonState
 
             # Populate the input boxes with the first row values

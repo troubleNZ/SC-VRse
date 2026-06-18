@@ -79,12 +79,6 @@ $openXmlMenuItem.Add_Click({
         if (Test-Path $script:xmlPath) {
             try {
                 $script:xmlContent = [xml](Get-Content $script:xmlPath)
-                $gridGroup.Controls.Clear()
-
-                #$script:dataGridView = New-Object System.Windows.Forms.DataGridView
-                #$script:dataGridView.Width = 550
-                #$script:dataGridView.Height = 200
-                #$script:dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
 
                 $script:dataTable = New-Object System.Data.DataTable
 
@@ -103,14 +97,6 @@ $openXmlMenuItem.Add_Click({
                         $script:dataTable.Rows.Add($row)
                     }
 
-                    # Bind the DataTable to the DataGridView
-                    #$script:dataGridView.DataSource = $script:dataTable
-
-                    #$gridGroup.Controls.Add($script:dataGridView)
-
-                    # Show the dataTableGroupBox and set its text to the XML path
-                    $dataTableGroupBox.Text = $xmlPath
-                    $dataTableGroupBox.Visible = $true
                     Update-ButtonState
 
                     # Populate the input boxes with the first row values
@@ -287,24 +273,6 @@ $fileMenuItem.MenuItems.Add($exitMenuItem)  # Add the Exit menu item to the File
 
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
-$gridGroup = New-Object System.Windows.Forms.Panel
-$gridGroup.Width = (550 * $script:ScaleMultiplier)
-$gridGroup.Height = (300 * $script:ScaleMultiplier)
-$gridGroup.Top = (200 * $script:ScaleMultiplier)  # Adjusted the Top property to move the panel up
-$gridGroup.Left = (20 * $script:ScaleMultiplier)
-#$gridGroup.Visible = $false
-
-#$form.Controls.Add($gridGroup)
-
-# Add a group box for the DataTable
-$dataTableGroupBox = New-Object System.Windows.Forms.GroupBox
-$dataTableGroupBox.Top = (180 * $script:ScaleMultiplier)  # Position it above the DataTable
-$dataTableGroupBox.Left = (20 * $script:ScaleMultiplier)
-$dataTableGroupBox.Width = (550 * $script:ScaleMultiplier)
-$dataTableGroupBox.Height = (220 * $script:ScaleMultiplier)  # Adjust height to fit the DataTable
-$dataTableGroupBox.Visible = $false  # Initially hide the group box
-
-#$form.Controls.Add($dataTableGroupBox)
 
 $loadFromProfileButton = New-Object System.Windows.Forms.Button
 $loadFromProfileButton.Name = "LoadFromProfileButton"

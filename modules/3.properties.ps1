@@ -352,9 +352,7 @@ $applySaveButton.Enabled = $false  # Initially disabled
 #$applySaveButton.Add_Click({Save-SettingsToGame})
 $applySaveButton.Add_Click({
 
-    <# Validate that we have a loaded XML file
-    if (-not $script:attributesXmlPath) { return }
-    #>
+    # Validate that we have a loaded XML file
     try {
             Save-SettingsToGame
         } catch {
@@ -367,7 +365,6 @@ $applySaveButton.Add_Click({
 })
 # Initially disable the import and save buttons
 $applySaveButton.Enabled = $false
-#$tabVRSettings_LegacySettings.Controls.Add($applySaveButton)
 $form.Controls.Add($applySaveButton)
 
 $saveAndCloseButton = New-Object System.Windows.Forms.Button
@@ -380,10 +377,7 @@ $saveAndCloseButton.Top = (485 * $script:ScaleMultiplier)
 $saveAndCloseButton.Left = (420 * $script:ScaleMultiplier)
 $saveAndCloseButton.TabIndex = 23
 $saveAndCloseButton.Enabled = $false  # Initially disabled
-<#$saveAndCloseButton.Add_Click({
-    Save-SettingsToGame
-    $form.Close()
-})#>
+
 # --- Save & Close -------------------------------------------------
 $saveAndCloseButton.Add_Click({
     # Re‑use the Apply logic – we’ll call it then close.
@@ -392,7 +386,6 @@ $saveAndCloseButton.Add_Click({
     # Close the form after saving
     $form.Close()
 })
-#$tabVRSettings_LegacySettings.Controls.Add($saveAndCloseButton)
 $form.Controls.Add($saveAndCloseButton)
 
 
@@ -415,6 +408,8 @@ $groupExp_UISettings.Top = (20 * $script:ScaleMultiplier)         ## Adjusted th
 $groupExp_UISettings.Left = (5 * $script:ScaleMultiplier)
 $groupExp_UISettings.Visible = $true
 $tabVRSettings_Experimental.Controls.Add($groupExp_UISettings)
+
+$groupExp_UISettings.Region = New-RoundedRegion -width $groupExp_UISettings.Width -height $groupExp_UISettings.Height -radius $radius
 
 
 #r_StereoUILayerZPos = 3.1               ; the escape menu distance
@@ -684,28 +679,6 @@ $textboxExpCategory_UIResolution_Vertical.TabIndex = 6
 $groupUIResolution.Controls.Add($textboxExpCategory_UIResolution_Vertical)
 
 #-- User specific settings --
-#r_StereoScaleformDepth = 1.0            ; convergence distance of marker icons etc - varies between headsets and users
-#r_StereoStrength    = 1.0               ; Hmd IPD Scale (floating value from 0.0 - 1.5 [ie 150%], default 100% ie. 1.0) - varies between users
-
-# StereoScaleformDepth
-<#$labelExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.Label           #r_StereoScaleformDepth HmdUIDistance
-$labelExpCategory_UserSettings_StereoScaleformDepth.Text = "Stereo Scaleform Depth"
-$labelExpCategory_UserSettings_StereoScaleformDepth.Top = (40 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoScaleformDepth.Height = (20 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoScaleformDepth.Left = (300 * $script:ScaleMultiplier)
-$labelExpCategory_UserSettings_StereoScaleformDepth.Width = (149 * $script:ScaleMultiplier)
-$tabVRSettings_Experimental.Controls.Add($labelExpCategory_UserSettings_StereoScaleformDepth)
-
-$textboxExpCategory_UserSettings_StereoScaleformDepth = New-Object System.Windows.Forms.TextBox         #HmdUIDistance
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Name = "HmdUIDistance"
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Top = (40 * $script:ScaleMultiplier)
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Left = (450 * $script:ScaleMultiplier)
-$textboxExpCategory_UserSettings_StereoScaleformDepth.Width = (40 * $script:ScaleMultiplier)
-$textboxExpCategory_UserSettings_StereoScaleformDepth.TextAlign = 'Left'
-$textboxExpCategory_UserSettings_StereoScaleformDepth.AcceptsTab = $true
-$textboxExpCategory_UserSettings_StereoScaleformDepth.TabIndex = 6                                            # remember to fix/set tab indexes for this new stuff.
-$tabVRSettings_Experimental.Controls.Add($textboxExpCategory_UserSettings_StereoScaleformDepth)#>
-
 
 #Group
 $groupExp_HelmetVisorSettings = New-Object System.Windows.Forms.GroupBox
