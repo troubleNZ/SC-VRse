@@ -14,10 +14,12 @@ $splash.Add_Shown({
     $splash.TopMost = $true
     $splash.TopMost = $false
 })
+$splash.BackColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+
 #$splash.Icon = $scriptIcon
 #$splash.Icon = [System.Drawing.Icon]::FromHandle(([System.Drawing.Bitmap]::new($stream).GetHIcon()))
 
-$splashWarrantyBlurb = "Thanks for trying out this tool. Please understand that the user acknowledges and agrees that the use of the Software is at user's sole risk. The Software and related documentation are provided 'AS IS' and without any warranty of any kind and Seller EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
+$splashWarrantyBlurb = "Thanks for trying out this tool. Please understand that the user acknowledges and agrees that the use of the Software is at user's sole risk. The Software and related documentation are provided 'AS IS' and without any warranty of any kind and the Author EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
 
 #$splashLabel
 $splashLabel = New-Object System.Windows.Forms.Label
@@ -28,6 +30,8 @@ $splashLabel.Height = (200 * $script:ScaleMultiplier)
 $splashLabel.Width = ($splash.Width - $splashLabel.Left)
 $splashLabel.Font = New-Object System.Drawing.Font($splashLabel.Font.FontFamily, [math]::Round($splashLabel.Font.Size * $script:ScaleMultiplier), [System.Drawing.FontStyle]::Regular)
 $splashLabel.Size = New-Object System.Drawing.Size((550 * $script:ScaleMultiplier),(200 * $script:ScaleMultiplier))
+$splashLabel.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+
 $splash.Controls.Add($splashLabel)
 
 $splashbuttonLoadMainForm = New-Object System.Windows.Forms.Button
@@ -42,6 +46,12 @@ $splashbuttonLoadMainForm.Size = New-Object System.Drawing.Size((100 * $script:S
 $splashbuttonLoadMainForm.Width = (80 * $script:ScaleMultiplier)
 $splashbuttonLoadMainForm.TabIndex = 4
 $splash.Controls.Add($splashbuttonLoadMainForm)
+
+$splashbuttonLoadMainForm.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+$splashbuttonLoadMainForm.ForeColor = [System.Drawing.Color]::White
+$splashbuttonLoadMainForm.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$splashbuttonLoadMainForm.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
+
 
 $splashbuttonLoadMainForm.Add_Click({
     $splash.Hide()

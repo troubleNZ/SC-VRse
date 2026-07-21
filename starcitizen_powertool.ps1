@@ -9,9 +9,9 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troublenz
 #>
 
-$scriptVersion = "0.5.9"
+$scriptVersion = "0.5.11"
 
-$scbuild = "4.8"
+$scbuild = "4.9"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
 
 $debug = $false

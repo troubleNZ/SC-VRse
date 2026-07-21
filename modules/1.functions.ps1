@@ -84,28 +84,28 @@ function New-RoundedRegion {
         [int]$radius = 5
     )
 
-    $gp = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $GraphicsPath = New-Object System.Drawing.Drawing2D.GraphicsPath
     $diameter = $radius * 2
 
     # Top-left arc
-    $gp.AddArc(0, 0, $diameter, $diameter, 180, 90)
+    $GraphicsPath.AddArc(0, 0, $diameter, $diameter, 180, 90)
     # Top edge
-    $gp.AddLine($radius, 0, $width - $radius, 0)
+    $GraphicsPath.AddLine($radius, 0, $width - $radius, 0)
     # Top-right arc
-    $gp.AddArc($width - $diameter, 0, $diameter, $diameter, 270, 90)
+    $GraphicsPath.AddArc($width - $diameter, 0, $diameter, $diameter, 270, 90)
     # Right edge
-    $gp.AddLine($width, $radius, $width, $height - $radius)
+    $GraphicsPath.AddLine($width, $radius, $width, $height - $radius)
     # Bottom-right arc
-    $gp.AddArc($width - $diameter, $height - $diameter, $diameter, $diameter, 0, 90)
+    $GraphicsPath.AddArc($width - $diameter, $height - $diameter, $diameter, $diameter, 0, 90)
     # Bottom edge
-    $gp.AddLine($width - $radius, $height, $radius, $height)
+    $GraphicsPath.AddLine($width - $radius, $height, $radius, $height)
     # Bottom-left arc
-    $gp.AddArc(0, $height - $diameter, $diameter, $diameter, 90, 90)
+    $GraphicsPath.AddArc(0, $height - $diameter, $diameter, $diameter, 90, 90)
     # Left edge
-    $gp.AddLine(0, $height - $radius, 0, $radius)
+    $GraphicsPath.AddLine(0, $height - $radius, 0, $radius)
 
-    $gp.CloseFigure()
-    return New-Object System.Drawing.Region($gp)
+    $GraphicsPath.CloseFigure()
+    return New-Object System.Drawing.Region($GraphicsPath)
 }
 
 
@@ -151,8 +151,9 @@ $form.Controls.Add($tabControl_VRSettings)
 # --- Tab 1: Experimental VR Settings ---
 $tabVRSettings_Experimental = New-Object System.Windows.Forms.TabPage
 $tabVRSettings_Experimental.Text = "Experimental VR"
-$tabVRSettings_Experimental.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
+#$tabVRSettings_Experimental.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 $tabVRSettings_Experimental.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+$tabVRSettings_Experimental.BackColor = [System.Drawing.Color]::FromArgb(13, 52, 56)
 
 # --- Tab 2: Legacy Headtracking ---
 $tabVRSettings_LegacySettings = New-Object System.Windows.Forms.TabPage
@@ -170,6 +171,10 @@ $tabControl_VRSettings.TabPages.Add($tabVRSettings_Experimental)
 $tabControl_VRSettings.TabPages.Add($tabVRSettings_LegacySettings)
 $tabControl_VRSettings.TabPages.Add($tabVRSettings_Keybinds)
 
+#trying to figure out how to set the back color of the tabs.
+#$tabControl_VRSettings.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105, 0)
+#$tabControl_VRSettings.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+#$tabControl_VRSettings.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(11, 29, 41)
 function Update-ButtonState {                           # used to grey out buttons when no XML file is loaded
     [CmdletBinding(SupportsShouldProcess=$true)]
     param ()
@@ -618,19 +623,15 @@ function Save-Profile {
                 $script:profileArray[0].Headtracking = $headtrackerEnabledComboBox.SelectedIndex
                 $script:profileArray[0].HeadtrackingSource = $HeadtrackingSourceComboBox.SelectedIndex
                 $script:profileArray[0].ChromaticAberration = $chromaticAberrationTextBox.Text
-                #$script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomTextBox.Text
                 $script:profileArray[0].AutoZoomOnSelectedTarget = $AutoZoomComboBox.SelectedIndex
-                #$script:profileArray[0].MotionBlur = $MotionBlurTextBox.Text
                 $script:profileArray[0].MotionBlur = $MotionBlurComboBox.SelectedIndex
                 $script:profileArray[0].ShakeScale = $ShakeScaleTextBox.Text
                 $script:profileArray[0].CameraSpringMovement = $CameraSpringMovementTextBox.Text
-                #$script:profileArray[0].FilmGrain = $FilmGrainTextBox.Text
                 $script:profileArray[0].FilmGrain = $FilmGrainComboBox.SelectedIndex
                 $script:profileArray[0].GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text
                 $script:profileArray[0].GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text
                 $script:profileArray[0].HeadtrackingEnableRollFPS = $HeadtrackingEnableRollFPSComboBox.SelectedIndex
                 $script:profileArray[0].HeadtrackingDisableDuringWalking = $HeadtrackingDuringFPSComboBox.SelectedIndex
-                #$script:profileArray[0].HeadtrackingDuringFPS = $HeadtrackingDuringFPSComboBox.SelectedIndex
                 $script:profileArray[0].HeadtrackingThirdPersonCameraToggle = $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex
                 $script:profileArray[0].HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text
                 $script:profileArray[0].HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text
@@ -643,7 +644,6 @@ function Save-Profile {
                 $script:profileArray[0].HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text
                 $script:profileArray[0].HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text
                 $script:profileArray[0].HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text
-                #$script:profileArray[0].HmdUIDistance = $textboxExpCategory_UserSettings_StereoScaleformDepth.Text
                 $script:profileArray[0].HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text
                 $script:profileArray[0].HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
                 $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex
