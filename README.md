@@ -50,19 +50,37 @@ As of Star Citizen Alpha 4.7, all relevant configurations have been exposed via 
 
 ### How to use this script
 
-  
 
-Download the release on the right hand side - >
+The easiest way is to create a folder anywhere you want it downloaded to.
+then open that folder directory in powershell. start > run > powershell.exe to open the command line interface.
 
-Unzip to a folder.
-  
-` powershell.exe -ExecutionPolicy Bypass -File "Path\To\starcitizen_powertool.ps1"`
+In the powershell CLI enter `cd <yourpath>` and when you are in the directory you created type:
 
-  or "open with" the starcitizen_powertool.ps1 file with powershell.exe
+```
+
+irm https://raw.githubusercontent.com/troubleNZ/SC-VRse/refs/heads/main/install.ps1 | iex
+
+
+```
+
+copy and paste the whole line above, press enter and it will automatically download the files needed directly into the folder you specified.
+
+now you can run the powershell script at the same command prompt with `.\starcitizen_powertool.ps1` and press enter.
+
+you can also right-click on the same starcitizen_powertool.ps1 in explorer and open with powershell.exe. 
+___
+
+Alternatively, download the release on the right hand side, and unzip to a folder , 
+you will probably have permission issues if you havent set up your powershell environment to allow untrusted code execution.
+` powershell.exe -ExecutionPolicy Bypass -File ".\Path\To\starcitizen_powertool.ps1"`
+will allow it to temporarily bypass the restrictions. i would not recommend this as the first option, if you are new to using powershell.
+
+a better method is to open the folder you unzipped with VSCode and run the main starcitizen_powertool.ps1 script that will launch the rest of the modules.
 
 ### Then what?
 
 The tool should automatically detect your Star Citizen Live Install, and populate the fields with the current values from the game.
+if it does not detect the registry values, you can manually navigate to the Live/PTU/Hotfix folder via the toolbar.
 
 Many settings that a VR Citizen might want exposed are available to configure, from Filmgrain and Motion Blur, to Head Bob and Autozoom
 
@@ -74,7 +92,6 @@ Also find the handy Keybinds viewer under the Actions Menu, where you can easily
 ### current issues
 
   
-
 - no major issues reported  
 
 ### future plans
@@ -88,5 +105,5 @@ Also find the handy Keybinds viewer under the Actions Menu, where you can easily
 **0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references
 **0.5.1** + Experimental VR settings introduced from alpha 4.6
 
-**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.5.7
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...0.5.11
 

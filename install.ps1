@@ -24,7 +24,6 @@ $files = @(
     'modules/3.properties.ps1',
     'modules/4.keybinds.ps1',
     'modules/5.splash.ps1'
-    # Add any other .ps1, .xml etc. you want to ship
 )
 
 foreach ($path in $files) {
