@@ -61,3 +61,12 @@
 **0.4.1** Dynamic Scaling on all controls
 **0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references
 **0.5.1** + Experimental VR settings introduced from alpha 4.6
+0.5.2 ~ just some label tidy up
+0.5.3 + tabbed layout , var standardization
+0.5.4 ~ typos
+0.5.5 - removed obsolete Update-XMLAttribute function
+0.5.6 + mouse/keybinds
+0.5.7 ~ layout and whitespace cleanup
+0.5.8 ~ refactor for readability as the code was getting long. + added 4.8 vr settings
+0.5.9 ~ code clean up since refactor
+0.5.11 + install script
