@@ -133,7 +133,7 @@ $files = @(
     'modules/3.properties.ps1',
     'modules/4.keybinds.ps1',
     'modules/5.splash.ps1',
-    'modules/4.9/defaultProfile.xml'
+    'modules/builds/4.9/defaultProfile.xml'
 )
 
 foreach ($path in $files) {
