@@ -14,7 +14,7 @@ param(
 function Get-InstallLocation {
     param()
     
-    Write-Host "`nSelect installation location:`" -ForegroundColor Cyan
+    Write-Host "Select installation location:`" -ForegroundColor Cyan
     
     # Display menu options
     Write-Host "  [1] Current directory (where this script is run from)" -ForegroundColor White
@@ -33,27 +33,27 @@ function Get-InstallLocation {
             return "$HOME\SC-VRse"
         }
         '3' {
-            # Custom path
-            Write-Host "`nPlease enter a full Windows path (e.g., C:\Program Files\SC-VRse or D:\Games\VRse)" -ForegroundColor Yellow
-            $customPath = Read-Host "Custom Path"
-            
-            if ([string]::IsNullOrWhiteSpace($customPath)) {
-                Write-Host "`nNo path provided, defaulting to `$HOME\SC-VRse`" -ForegroundColor DarkYellow
-                return "$HOME\SC-VRse"
-            }
-            
-            # Normalize the path (handle both forward and backward slashes)
-            $normalizedPath = $customPath.Replace('/', '\')
-            
-            # Ensure path doesn't end with backslash for consistency
-            if ($normalizedPath -match '\\$' -and $normalizedPath.Length -gt 3) {
-                $normalizedPath = $normalizedPath.TrimEnd('\')
-            }
-            
-            return $normalizedPath
+                # Custom path
+                Write-Host "Please enter a full Windows path (e.g., C:\Program Files\SC-VRse or D:\Games\VRse)" -ForegroundColor Yellow
+                $customPath = Read-Host "Custom Path"
+                
+                if ([string]::IsNullOrWhiteSpace($customPath)) {
+                    Write-Host "No path provided, defaulting to $HOME\SC-VRse" -ForegroundColor DarkYellow
+                    return "$HOME\SC-VRse"
+                }
+                
+                # Normalize the path (handle both forward and backward slashes)
+                $normalizedPath = $customPath.Replace('/', '\')
+                
+                # Ensure path doesn't end with backslash for consistency
+                if ($normalizedPath -match '\\$' -and $normalizedPath.Length -gt 3) {
+                    $normalizedPath = $normalizedPath.TrimEnd('\')
+                }
+                
+                return $normalizedPath
         }
         default {
-            Write-Host "`nInvalid selection, defaulting to `$HOME\SC-VRse`" -ForegroundColor DarkYellow
+            Write-Host "Invalid selection, defaulting to $HOME\SC-VRse" -ForegroundColor DarkYellow
             return "$HOME\SC-VRse"
         }
     }
@@ -78,7 +78,7 @@ if (-Not (Test-Path $InstallDir)) {
     }
 }
 
-Write-Host "`nInstallation directory confirmed: $InstallDir" -ForegroundColor Green
+Write-Host "Installation directory confirmed: $InstallDir" -ForegroundColor Green
 
 
 # ──────────────────────────────────────
@@ -109,4 +109,4 @@ foreach ($path in $files) {
 }
 
 # ──────────────────────────────────────
-Write-Host "`nSC-VRse installed successfully to $InstallDir"
+Write-Host "SC-VRse installed successfully to $InstallDir"
