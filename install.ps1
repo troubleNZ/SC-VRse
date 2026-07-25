@@ -14,12 +14,12 @@ param(
 function Get-InstallLocation {
     param()
     
-    Write-Host "Select installation location:`" -ForegroundColor Cyan
+    Write-Host "Select installation location:" -ForegroundColor Cyan
     
     # Display menu options
-    Write-Host "  [1] Current directory (where this script is run from)" -ForegroundColor White
-    Write-Host "  [2] `$HOME\SC-VRse (default location)" -ForegroundColor Gray
-    Write-Host "  [3] Custom path (enter your own location)`" -ForegroundColor Gray
+    Write-Host "  [1] Current directory \(where this script is run from\)" -ForegroundColor White
+    Write-Host "  [2] $HOME\SC-VRse (default location)" -ForegroundColor Gray
+    Write-Host "  [3] Custom path (enter your own location)" -ForegroundColor Gray
     
     $choice = Read-Host "Enter selection (1, 2, or 3)"
 
