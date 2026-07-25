@@ -1,9 +1,52 @@
 # install.ps1 - online installer for SC-VRse
+# ──────────────────────────────────────
+# 0. Automatic Execution Policy Check & Bypass
 
 param(
+    [switch]$NoPrompt,      # Skip prompts for automated runs
+    [switch]$Verbose,       # Enable verbose output
     [string]$Repo = 'https://raw.githubusercontent.com/troubleNZ/SC-VRse',
     [string]$BranchOrTag = 'refs/heads/main'  # change to a tag if desired
 )
+
+# Function to check and set execution policy
+function Set-ScriptExecutionPolicy {
+    param()
+    
+    $currentPolicy = Get-ExecutionPolicy -List | Where-Object Scope -eq 'CurrentUser'
+    $effectivePolicy = Get-ExecutionPolicy
+    
+    if ($effectivePolicy -match 'Restricted|Unrestricted' -and $effectivePolicy -ne 'RemoteSigned') {
+        Write-Host "Setting execution policy for current user scope..." -ForegroundColor Yellow
+        
+        try {
+            Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force -Confirm:$false | Out-Null
+            
+            # Verify the change took effect
+            $newPolicy = Get-ExecutionPolicy -List | Where-Object Scope -eq 'CurrentUser'
+            Write-Host "Execution policy set to: $($newPolicy.ExecutionPolicy)" -ForegroundColor Green
+            
+            return $true
+        } catch {
+            Write-Host "Failed to change execution policy. Attempting bypass method..." -ForegroundColor Red
+            
+            # Fallback: Try the bypass flag approach
+            if ($PSVersionTable.PSVersion.Major -ge 5) {
+                Write-Host "Consider running this script with:" -ForegroundColor Yellow
+                Write-Host "powershell.exe -ExecutionPolicy Bypass -File '$($MyInvocation.ScriptPath)'" -ForegroundColor Cyan
+            }
+            return $false
+        }
+    }
+    
+    Write-Host "Execution policy is already set to: $($effectivePolicy)" -ForegroundColor Green
+    return $true
+}
+
+# Only run the bypass if not already bypassed
+if ($env:POWERSHELL_BYPASS -ne '1' -and (-not $NoPrompt)) {
+    Set-ScriptExecutionPolicy
+}
 
 # Ensure console uses UTF-8 for proper ellipsis display
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
