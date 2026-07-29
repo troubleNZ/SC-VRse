@@ -1,4 +1,3 @@
-
 $keybindSearchField = New-Object System.Windows.Forms.TextBox
 $keybindSearchField.Name = "KeybindSearchField"
 $keybindSearchField.Top = (8 * $script:ScaleMultiplier)
@@ -48,14 +47,15 @@ function On-KeybindDeviceComboBox-Changed {
     # Filter ActionMaps tree to only show actions with rebind/input starting with the selected device prefix
     $treeKeybinds_ActionMaps.BeginUpdate()
     $treeKeybinds_ActionMaps.Nodes.Clear()
+    #$profileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     $profileNode = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds")    #Profile: "$($script:keyBindsProfiles.profileName)"
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-        $amNode = $profileNode.Nodes.Add("$($actionmap.name)")  #Category: 
+        $amNode = $profileNode.Nodes.Add("Category: $($actionmap.name)")
         foreach ($action in $actionmap.action) {
             # Check if any rebind/input starts with the selected device prefix
             $matchingRebinds = @($action.rebind | Where-Object { $_.input -like "$selectedDevice*" })
             if ($matchingRebinds.Count -gt 0) {
-                $aNode = $amNode.Nodes.Add("$($action.name)") #Action:
+                $aNode = $amNode.Nodes.Add("Action: $($action.name)")
                 foreach ($rebind in $matchingRebinds) {
                     $aNode.Nodes.Add("Rebound: $($rebind.input)") | Out-Null
                 }
@@ -93,7 +93,7 @@ $tabControl_Keybinds.Region = New-RoundedRegion -width $tabControl_Keybinds.Widt
 
 # --- Tab 1: ActionMaps ---
 $tabKeybinds_ActionMaps = New-Object System.Windows.Forms.TabPage
-$tabKeybinds_ActionMaps.Text = "Rebinds"
+$tabKeybinds_ActionMaps.Text = "ReBinds"
 $tabKeybinds_ActionMaps.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
 $tabKeybinds_ActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
 
@@ -133,15 +133,15 @@ $listKeybinds_Defaults.FullRowSelect = $true
 $listKeybinds_Defaults.GridLines = $true
 $listKeybinds_Defaults.Visible = $false
 
-
-# --- Tab 2: Default Binds ---
-$tabKeybinds_DefaultsActionMaps = New-Object System.Windows.Forms.TabPage
-$tabKeybinds_DefaultsActionMaps.Text = "Default Binds"
-$tabKeybinds_DefaultsActionMaps.BackColor = [System.Drawing.Color]::FromArgb(204, 162, 105)
-$tabKeybinds_DefaultsActionMaps.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
+# --- Tab 2: Device ---
 
 
-# --- Tab 3: Device ---
+
+
+
+
+
+
 $tabKeybinds_Device = New-Object System.Windows.Forms.TabPage
 $tabKeybinds_Device.Text = "Device Curves"
 
@@ -161,7 +161,7 @@ $listKeybinds_Device.View = 'Details'
 $listKeybinds_Device.FullRowSelect = $true
 $listKeybinds_Device.GridLines = $true
 
-# --- Tab 4: Options ---
+# --- Tab 3: Options ---
 $tabKeybinds_Options = New-Object System.Windows.Forms.TabPage
 $tabKeybinds_Options.Text = "HID Properties"
 
@@ -184,7 +184,7 @@ $listKeybinds_Options.GridLines = $true
 
 # Add tabs to TabControl
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
-$tabControl_Keybinds.TabPages.Add($tabKeybinds_DefaultsActionMaps)
+
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Device)
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Options)
 $tabVRSettings_Keybinds.Controls.Add($tabControl_Keybinds)
@@ -211,16 +211,25 @@ function Populate-KeyBindsViewer {
     if (-not $script:keyBindsProfiles) { return }
     $defaultsXml = [xml](Get-Content $ActionMapDefaults) #$defaultActionMapsXml)
     # --- ActionMaps ---
-    $actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds") #Profile: "$($script:keyBindsProfiles.profileName)"
+    #$actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+    $actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds")
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-        $amNode = $actionProfileNode.Nodes.Add("$($actionmap.name)") #ActionMap:
+        $amNode = $actionProfileNode.Nodes.Add("Category: $($actionmap.name)")
         foreach ($action in $actionmap.action) {
-            $defaultRebind = $defaultsXml.actionmap.$($action.name) | Where-Object { $_.name -eq $action.name } | Select-Object -First 1
-            $aNode = $amNode.Nodes.Add("$($action.name)") #Action:
+            $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+
             foreach ($rebind in $action.rebind) {
-                $aNode.Nodes.Add("$($rebind.input)") | Out-Null #Rebound: 
+                $aNode.Nodes.Add("Rebound: $($rebind.input)") | Out-Null
             }
         }
+        <#foreach ($action in $defaultsXml.actionmap) {         # not used for now
+            if ($actionmap.name -eq $actionmap.name) {
+                $aNode = $amNode.Nodes.Add("Default Action: $($action.name)")
+                foreach ($default in $action.default) {
+                    $aNode.Nodes.Add("Default: $($default.input)") | Out-Null
+                }
+            }
+        }#>
     }
     $actionProfileNode.Expand()
     $treeKeybinds_ActionMaps.Add_AfterSelect({
@@ -304,6 +313,7 @@ function Populate-KeyBindsViewer {
             $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
         }
     }
+    $deviceProfileNode.Expand()
     $treeKeybinds_Device.Add_AfterSelect({
         $listKeybinds_Device.Items.Clear()
         $node = $treeKeybinds_Device.SelectedNode
@@ -345,6 +355,7 @@ function Populate-KeyBindsViewer {
             $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
         }
     }
+    $optionsProfileNode.Expand()
     $treeKeybinds_Options.Add_AfterSelect({
         $listKeybinds_Options.Items.Clear()
         $node = $treeKeybinds_Options.SelectedNode
