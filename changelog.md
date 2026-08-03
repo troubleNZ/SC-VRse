@@ -70,6 +70,7 @@
 **0.5.8** ~ refactor for readability as the code was getting long. + added 4.8 vr settings      
 **0.5.9** ~ code clean up since refactor        
 **0.5.11** + install script     
+**0.5.13** ~ $HeadtrackingDisableDuringWalkingComboBox fix , dark mode fixes, profile.json fixed again, swapped obsolete r_StereoDebugDrawing for new Crosshair Opacity    
 
 
 
