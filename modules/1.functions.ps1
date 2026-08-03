@@ -16,7 +16,7 @@ $widthTextBox = $null
 $headtrackerEnabledComboBox = $null
 $HeadtrackingSourceComboBox = $null
 
-$darkModeMenuItem = $null
+#$darkModeMenuItem = $null
 
 $keybind_column_width = 150 #(100 * $script:ScaleMultiplier)                         #pixels
 
@@ -240,7 +240,7 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $HeadtrackingSourceComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $AutoZoomComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $HeadtrackingEnableRollFPSComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
-        #$HeadtrackingDuringFPSComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+        #$HeadtrackingDisableDuringWalkingComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $HeadtrackingThirdPersonCameraToggleComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $FilmGrainComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $MotionBlurComboBox.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
@@ -281,6 +281,8 @@ function Set-DarkMode {     # INVICTUS BLUE AND YELLOW
         $textboxExpCategory_UIResolution_Horizontal.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
         $textboxExpCategory_UIResolution_Vertical.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
 
+        $textboxExpCategory_EscMenuSettings_CrosshairOpacity.BackColor = [System.Drawing.Color]::FromArgb(26, 66, 116)
+
         foreach ($child in $control.Controls) {
             if ($null -eq $child.BackColor) { return }
             elseif($null -eq $child.ForeColor) { return }
@@ -298,7 +300,9 @@ function Set-LightMode {
         $control.BackColor = [System.Drawing.Color]::White
         $control.ForeColor = [System.Drawing.Color]::Black
         foreach ($child in $control.Controls) {
-            Set-LightMode -control $child
+            if ($null -ne $child.BackColor) {
+                Set-LightMode -control $child 
+            }
         }
     }
 }
@@ -310,16 +314,18 @@ function Switch-DarkMode {
     #if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(45, 45, 48)) { #black
     if ($form.BackColor -eq [System.Drawing.Color]::FromArgb(11, 29, 41)) {
         Set-LightMode -control $form
-        Set-LightMode -control $formHIDLookup
         #Set-LightMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Enable Dark Mode"
-        $script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
+        $script:darkMode = $false
+        #$script:profileArray.Add([PSCustomObject]@{ DarkMode = $false }) | Out-Null
+        $script:profileArray[0].DarkMode = $false | Out-Null
     } else {
         Set-DarkMode -control $form
-        Set-DarkMode -control $formHIDLookup
         #Set-DarkMode -control $keyBindsForm
         $darkModeMenuItem.Text = "Disable Dark Mode"
-        $script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
+        $script:darkMode = $true
+        #$script:profileArray.Add([PSCustomObject]@{ DarkMode = $true }) | Out-Null
+        $script:profileArray[0].DarkMode = $true | Out-Null
     }
 }
 
@@ -333,7 +339,7 @@ function Set-ProfileArray {
         $script:profileArray.Add([PSCustomObject]@{
             SCPath = $script:liveFolderPath;
             AttributesXmlPath = $script:xmlPath;
-            DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false };
+            DarkMode = $script:darkMode;
             FOV = $fovTextBox.Text;
             Height = $heightTextBox.Text;
             Width = $widthTextBox.Text;
@@ -351,7 +357,7 @@ function Set-ProfileArray {
             GForceBoostZoomScale = $GForceBoostZoomScaleTextBox.Text;
             GForceHeadBobScale = $GForceHeadBobScaleTextBox.Text;
             HeadtrackingEnableRollFPS = $HeadtrackingEnableRollFPSComboBox.SelectedIndex;
-            HeadtrackingDisableDuringWalking = $HeadtrackingDuringFPSComboBox.SelectedIndex;
+            HeadtrackingDisableDuringWalking = $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex;
             HeadtrackingThirdPersonCameraToggle = $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex;
             # the new stuff below here
             HmdUIDistance = $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text;
@@ -370,8 +376,8 @@ function Set-ProfileArray {
             HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text;
             HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex;
             HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex;
-            HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex
-
+            HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex;
+            CrosshairOpacity = $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text
         }) | Out-Null
     }
 
@@ -494,9 +500,9 @@ function Open-XMLViewer {
                         $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.HeadtrackingDisableDuringWalking) {
-                        $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:profileArray.HeadtrackingDisableDuringWalking
+                        $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = $script:profileArray.HeadtrackingDisableDuringWalking
                     } else {
-                        $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
+                        $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.HeadtrackingThirdPersonCameraToggle) {
                         $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:profileArray.HeadtrackingThirdPersonCameraToggle
@@ -583,6 +589,12 @@ function Open-XMLViewer {
                     } else {
                         $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
                     }
+                    if ($null -ne $script:profileArray.CrosshairOpacity) {
+                        $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text = $script:profileArray.CrosshairOpacity
+                    } else {
+                        $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CrosshairOpacity" } | Select-Object -ExpandProperty value
+                    }
+                    #CrosshairOpacity // $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text
 
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
@@ -616,7 +628,7 @@ function Save-Profile {
                 if ($debug) { Write-Host "debug: Copying values to profile array" -BackgroundColor White -ForegroundColor Black }
                 $script:profileArray[0].SCPath = $script:liveFolderPath
                 $script:profileArray[0].AttributesXmlPath = $script:xmlPath
-                $script:profileArray[0].DarkMode = if ($darkModeMenuItem.Text -eq "Disable Dark Mode") { $true } else { $false }
+                $script:profileArray[0].DarkMode = $script:darkMode
                 $script:profileArray[0].FOV = $fovTextBox.Text
                 $script:profileArray[0].Height = $heightTextBox.Text
                 $script:profileArray[0].Width = $widthTextBox.Text
@@ -637,20 +649,22 @@ function Save-Profile {
                 $script:profileArray[0].HmdUIHeight = $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text
                 $script:profileArray[0].HmdUIScale = $textboxExpCategory_EscMenuSettings_EscMenuScale.Text
                 $script:profileArray[0].HmdVisorDistance = $textboxExpCategory_HelmetVisorLensDepth.Text
-                $script:profileArray[0].HmdVisorAspectModifier = $textboxExpCategory_HelmetVisorLens_AspectModifier
-                $script:profileArray[0].HmdVisorHeight = $textboxExpCategory_HelmetVisorLens_HmdVisorHeight
-                $script:profileArray[0].HmdVisorScale = $textboxExpCategory_HelmetVisorLens_HmdVisorScale
+                $script:profileArray[0].HmdVisorAspectModifier = $textboxExpCategory_HelmetVisorLens_AspectModifier.Text
+                $script:profileArray[0].HmdVisorHeight = $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.Text
+                $script:profileArray[0].HmdVisorScale = $textboxExpCategory_HelmetVisorLens_HmdVisorScale.Text
                 $script:profileArray[0].HmdTheaterMode = $ComboboxExpCategory_MirrorMode_StereoMirrorMode.SelectedIndex
                 $script:profileArray[0].HmdTheaterModeScale = $textboxExpCategory_TheatreMode_Scale.Text
                 $script:profileArray[0].HmdTheaterModeCurvature = $textboxExpCategory_TheatreMode_Curvature.Text
                 $script:profileArray[0].HmdTheaterModeDistance = $textboxExpCategory_TheatreMode_Distance.Text
                 $script:profileArray[0].HmdIPDScale = $textboxExpCategory_UserSettings_StereoStrength.Text
-                $script:profileArray[0].HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale
+                $script:profileArray[0].HmdCursorSize = $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text
                 $script:profileArray[0].HmdAutomaticSwitching = $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex
                 $script:profileArray[0].HmdActorControlMode = $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex
                 $script:profileArray[0].HmdfpsAdsDominantEye = $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex
+                $script:profileArray[0].CrosshairOpacity = $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text
 
                 $jsonContent = $script:profileArray[0] | ConvertTo-Json -Depth 10 -ErrorAction Stop
+                if ($debug) {Write-Host "jsonContent written $($jsonContent)"}
                 if ($null -ne $jsonContent) {
                     [System.IO.File]::WriteAllText($profileJsonPath, $jsonContent)
                 } else {
@@ -687,24 +701,30 @@ function Open-Profile {
                     $parsedJson = $profileContent | ConvertFrom-Json -ErrorAction Stop
 
                     if ($parsedJson -is [PSCustomObject]) {
-                        $script:profileArray = [System.Collections.ArrayList]@($parsedJson)
+                        $script:profileArray[0] = [System.Collections.ArrayList]@($parsedJson)
                         if ($debug) { Write-Host "Parsed JSON object converted to ArrayList." -BackgroundColor White -ForegroundColor Black }
                         if ($debug) {
-                            foreach ($item in $script:profileArray) {
+                            foreach ($item in $script:profileArray[0]) {
                                 Write-Host "Item: $item" -BackgroundColor White -ForegroundColor Black
                             }
                         }
                         $script:loadedProfile = $true
-                        $script:liveFolderPath = $script:profileArray.SCPath
-                        $script:attributesXmlPath = if ($null -ne $script:profileArray.AttributesXmlPath) { $script:profileArray.AttributesXmlPath } else { $script:xmlPath }
+                        $script:liveFolderPath = $script:profileArray[0].SCPath
+                        $script:attributesXmlPath = if ($null -ne $script:profileArray[0] -and
+                               -not [System.String]::IsNullOrEmpty($script:profileArray[0].AttributesXmlPath)) {
+                                $script:profileArray[0].AttributesXmlPath
+                            } else {
+                                $script:xmlPath
+                            }
                         $script:xmlPath = $script:attributesXmlPath
-                        $script:darkMode = $script:profileArray.DarkMode
+                        $script:darkMode = $script:profileArray[0].DarkMode
                         if ($script:darkMode) {
-                            Switch-DarkMode
+                            Set-DarkMode -control $form
                         } else {
                             Set-LightMode -control $form
                         }
                         Open-XMLViewer($script:xmlPath)
+                        $statusBar.Text = "Successfully loaded saved profile"
                     } else {
                         throw "Invalid JSON structure. Expected an array or object."
                     }
@@ -1035,6 +1055,11 @@ function Save-SettingsToGame {
             if ($null -ne $HmdfpsAdsDominantEyeNode) {
                 $HmdfpsAdsDominantEyeNode.SetAttribute("value", $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.Text)  # HmdfpsAdsDominantEye
             }
+            $CrosshairOpacityNode = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CrosshairOpacity" }
+            if ($null -ne $CrosshairOpacityNode) {
+                $CrosshairOpacityNode.SetAttribute("value", $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text)  # CrosshairOpacity
+            }
+            #CrosshairOpacity // $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text
 
             # Save the XML content to the specified path
 

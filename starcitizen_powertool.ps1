@@ -9,7 +9,7 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troublenz
 #>
 
-$scriptVersion = "0.5.12"
+$scriptVersion = "0.5.13"
 
 $scbuild = "4.9"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
@@ -20,7 +20,7 @@ $BackupFolderName = "VRSE AE Backup"
 $profileContent = @()
 $script:profileArray = [System.Collections.ArrayList]@()
 $script:loadedProfile = $false
-
+$script:darkMode = $true
 $moduleDir = Join-Path $PSScriptRoot 'modules'
 $moduleFiles = @(
     '1.functions.ps1',

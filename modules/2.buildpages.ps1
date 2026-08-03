@@ -121,7 +121,9 @@ $openXmlMenuItem.Add_Click({
                         $GForceBoostZoomScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceBoostZoomScale" } | Select-Object -ExpandProperty value
                         $GForceHeadBobScaleTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "GForceHeadBobScale" } | Select-Object -ExpandProperty value
                         $HeadtrackingEnableRollFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingEnableRollFPS" } | Select-Object -ExpandProperty value
-                        $HeadtrackingDuringFPSComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
+                        #$HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = ($script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value)
+                        $value = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingDisableDuringWalking" } | Select-Object -ExpandProperty value
+                        $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = if ($null -ne $value) { [int]$value } else { 0 }
                         $HeadtrackingThirdPersonCameraToggleComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HeadtrackingThirdPersonCameraToggle" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_EscMenuSettings_EscMenuDistance.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIDistance" } | Select-Object -ExpandProperty value
                         $textboxExpCategory_EscMenuSettings_EscMenuYPos.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdUIHeight" } | Select-Object -ExpandProperty value
@@ -140,7 +142,7 @@ $openXmlMenuItem.Add_Click({
                         $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdAutomaticSwitching" } | Select-Object -ExpandProperty value
                         $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdActorControlMode" } | Select-Object -ExpandProperty value
                         $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdfpsAdsDominantEye" } | Select-Object -ExpandProperty value
-
+                        $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CrosshairOpacity" } | Select-Object -ExpandProperty value
                         if ($debug) {Write-Host "debug: try to Populate the input boxes with the xml data" -BackgroundColor White -ForegroundColor Black}
 
 
@@ -374,6 +376,7 @@ function Import-SettingsFromGame {
                 #$textboxExpCategory_UserSettings_StereoScaleformDepth.Text = Get-AttributeValue "HmdUIDistance"
                 $textboxExpCategory_UserSettings_StereoStrength.Text = Get-AttributeValue "HmdIPDScale"
                 $textboxExpCategory_ConsoleSettings_StereoCursorScale.Text = Get-AttributeValue "HmdCursorSize"
+                $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text = Get-AttributeValue "CrosshairOpacity"
                 SetComboBoxValue -comboBox $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch -value (Get-AttributeValue "HmdAutomaticSwitching")
                 SetComboBoxValue -comboBox $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode -value (Get-AttributeValue "HmdActorControlMode")
                 SetComboBoxValue -comboBox $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye -value (Get-AttributeValue "HmdfpsAdsDominantEye")

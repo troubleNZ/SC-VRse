@@ -298,7 +298,7 @@ $HeadtrackingEnableRollFPSComboBox.SelectedIndex = 0
 $tabVRSettings_LegacySettings.Controls.Add($HeadtrackingEnableRollFPSComboBox)
 
 $HeadtrackingDisableDuringWalkingLabel = New-Object System.Windows.Forms.Label
-$HeadtrackingDisableDuringWalkingLabel.Text = "Headtracking in FPS"
+$HeadtrackingDisableDuringWalkingLabel.Text = "Disable tracking in FPS"
 $HeadtrackingDisableDuringWalkingLabel.Top = (140 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Left = (290 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingLabel.Width = (150 * $script:ScaleMultiplier)
@@ -311,8 +311,8 @@ $HeadtrackingDisableDuringWalkingComboBox.Top = (140 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingComboBox.Left = (440 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingComboBox.Width = (90 * $script:ScaleMultiplier)
 $HeadtrackingDisableDuringWalkingComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.Items.Add("Off")
+$HeadtrackingDisableDuringWalkingComboBox.Items.Add("On")
 $HeadtrackingDisableDuringWalkingComboBox.TabIndex = 12
 $HeadtrackingDisableDuringWalkingComboBox.SelectedIndex = 0
 $tabVRSettings_LegacySettings.Controls.Add($HeadtrackingDisableDuringWalkingComboBox)
@@ -815,26 +815,24 @@ $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.items.Add("Enabled")
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.SelectedIndex = 0
 $tabVRSettings_Experimental.Controls.Add($ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch)
 
-#r_StereoDebugDrawing                                                                                       # ; Draws the ` Console in 3d space or not. (0: flat, 1: in stereo space)
-$labelExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.Label           #r_StereoDebugDrawing
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Text = "Display Stereo Console"
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Top = (215 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Height = (20 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Left = (300 * $script:ScaleMultiplier)
-$labelExpCategory_ConsoleSettings_StereoCursorToggle.Width = (149 * $script:ScaleMultiplier)
-$tabVRSettings_Experimental.Controls.Add($labelExpCategory_ConsoleSettings_StereoCursorToggle)
+#CrosshairOpacity // $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text
+$labelExpCategory_EscMenuSettings_CrosshairOpacity = New-Object System.Windows.Forms.Label
+$labelExpCategory_EscMenuSettings_CrosshairOpacity.Text = "Crosshair Opacity"
+$labelExpCategory_EscMenuSettings_CrosshairOpacity.Top = (215 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_CrosshairOpacity.Height = (20 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_CrosshairOpacity.Left = (300 * $script:ScaleMultiplier)
+$labelExpCategory_EscMenuSettings_CrosshairOpacity.Width = (149 * $script:ScaleMultiplier)
+$tabVRSettings_Experimental.Controls.Add($labelExpCategory_EscMenuSettings_CrosshairOpacity)
 
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle = New-Object System.Windows.Forms.ComboBox
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Name = "r_StereoDebugDrawing"
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Top = (215 * $script:ScaleMultiplier)
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Left = (450 * $script:ScaleMultiplier)
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-#$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.Items.AddRange(@(0, 1))
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.items.Add("Disabled")
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.items.Add("Enabled")
-$ComboboxExpCategory_ConsoleSettings_StereoCursorToggle.SelectedIndex = 0
-$tabVRSettings_Experimental.Controls.Add($ComboboxExpCategory_ConsoleSettings_StereoCursorToggle)
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity = New-Object System.Windows.Forms.TextBox
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.Name = "CrosshairOpacity"
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.Top = (215 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.Left = (450 * $script:ScaleMultiplier)
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.Width = (80 * $script:ScaleMultiplier)  # Adjusted width to fit the combo box
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.TextAlign = 'Left'
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.AcceptsTab = $true
+$textboxExpCategory_EscMenuSettings_CrosshairOpacity.TabIndex = 6
+$tabVRSettings_Experimental.Controls.Add($textboxExpCategory_EscMenuSettings_CrosshairOpacity)
 
 # -- Console --
 #r_StereoCursorScale

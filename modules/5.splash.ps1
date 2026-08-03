@@ -60,7 +60,6 @@ $splashbuttonLoadMainForm.Add_Click({
 
 
 Set-DefaultFont -control $form
-#Set-DefaultFont -control $formHIDLookup
 
 #Set-DefaultFont -control $groupExperimentalVRSettings
 #Set-DefaultFont -control $keyBindsForm
