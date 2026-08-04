@@ -102,8 +102,11 @@ Also find the handy Keybinds viewer under the Actions Menu, where you can easily
 
 ### What's Changed    
 
-**0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references
-**0.5.1** + Experimental VR settings introduced from alpha 4.6
+**0.5.0** + Experimental VR settings introduced from alpha 4.5, ~ Remove EACBypass references 
+**0.5.1** + Experimental VR settings introduced from alpha 4.6  
 
-**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...0.5.11
+**0.5.8** + Experimental VR settings introduced from alpha 4.8  
+**0.5.13** ~ bugfixes, darkmode memory, removed r_stereodebugdrawing and added crosshair opacity  
+
+**Full Changelog**: https://github.com/troubleNZ/SC-VRse/compare/v0.2.2...v0.5.13
 
