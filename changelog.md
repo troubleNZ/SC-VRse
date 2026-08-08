@@ -71,6 +71,6 @@
 **0.5.9** ~ code clean up since refactor        
 **0.5.11** + install script     
 **0.5.13** ~ $HeadtrackingDisableDuringWalkingComboBox fix , dark mode fixes, profile.json fixed again, swapped obsolete r_StereoDebugDrawing for new Crosshair Opacity    
-
+**0.5.14** ~ fixed some mouseover hints, added readme and changelog to installer.
 
 

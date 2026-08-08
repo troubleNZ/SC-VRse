@@ -521,7 +521,7 @@ $labelExpCategory_TheatreMode_Scale.Width = (149 * $script:ScaleMultiplier)
 $groupTheatremode.Controls.Add($labelExpCategory_TheatreMode_Scale)
 
 $textboxExpCategory_TheatreMode_Scale = New-Object System.Windows.Forms.TextBox
-$textboxExpCategory_TheatreMode_Scale.Name = "Theater Mode Scale"
+$textboxExpCategory_TheatreMode_Scale.Name = "HmdTheaterModeScale"
 $textboxExpCategory_TheatreMode_Scale.Top = (45 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Scale.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Scale.Width = (40 * $script:ScaleMultiplier)
@@ -558,7 +558,7 @@ $labelExpCategory_TheatreMode_Distance.Width = (149 * $script:ScaleMultiplier)
 $groupTheatremode.Controls.Add($labelExpCategory_TheatreMode_Distance)
 
 $textboxExpCategory_TheatreMode_Distance = New-Object System.Windows.Forms.TextBox          #HmdTheaterModeDistance
-$textboxExpCategory_TheatreMode_Distance.Name = "TheaterModeDistance"
+$textboxExpCategory_TheatreMode_Distance.Name = "HmdTheaterModeDistance"
 $textboxExpCategory_TheatreMode_Distance.Top = (95 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Distance.Left = (160 * $script:ScaleMultiplier)
 $textboxExpCategory_TheatreMode_Distance.Width = (40 * $script:ScaleMultiplier)
@@ -988,12 +988,15 @@ $textboxExpCategory_UserSettings_StereoStrength.add_MouseHover({ $ShowHelp.Invok
 $textboxExpCategory_ConsoleSettings_StereoCursorScale.add_MouseHover({ $ShowHelp.Invoke($_) })
 
 $ComboboxExpCategory_MirrorMode_StereoMirrorMode.add_MouseHover({ $ShowHelp.Invoke($_) })
+$ComboboxExpCategory_MirrorMode_Smoothing.add_MouseHover({ $ShowHelp.Invoke($_) })
 $ComboboxExpCategory_HMDSettings_StereoDynamicModeSwitch.add_MouseHover({ $ShowHelp.Invoke($_) })
 $ComboboxExpCategory_EscMenuSettings_HmdActorControlMode.add_MouseHover({ $ShowHelp.Invoke($_) })
 $ComboboxExpCategory_EscMenuSettings_HmdfpsAdsDominantEye.add_MouseHover({ $ShowHelp.Invoke($_) })
 
 $textboxExpCategory_UIResolution_Horizontal.add_MouseHover({ $ShowHelp.Invoke($_) })
 $textboxExpCategory_UIResolution_Vertical.add_MouseHover({ $ShowHelp.Invoke($_) })
+
+
 
 
 $toolTips = New-Object System.Windows.Forms.ToolTip
@@ -1014,7 +1017,6 @@ $ShowHelp={
         "headtrackerEnabledComboBox" {$tip = "Enable or disable head tracking"}
         "HeadtrackingSourceComboBox" {$tip = "Select the head tracking source"}
         "chromaticAberrationTextBox" {$tip = "Chromatic Aberration value 0.00/1.00. Recommended value 0.00"}
-        #"AutoZoomTextBox" {$tip = "Auto Zoom on selected target 0/1"}
         "AutoZoomComboBox" {$tip = "Auto Zoom on selected target. Recommended Disabled"}
         "MotionBlurTextBox" {$tip = "Motion Blur. Recommended Disabled"}
         "ShakeScaleTextBox" {$tip = "Shake Scale value. Recommended value 0"}
@@ -1025,20 +1027,19 @@ $ShowHelp={
         "HeadtrackingEnableRollFPSComboBox" {$tip = "Sets whether head-tilt to left/right is enabled in FPS mode.May also apply in vehicles"}
         "HeadtrackingDisableDuringWalkingComboBox" {$tip = "Disable Headtracking during walking On/Off"}
         "HeadtrackingThirdPersonCameraToggleComboBox" {$tip = "Enable Headtracking in Third Person On/Off"}
+        
         "saveButton" {$tip = "Save this configuration to the game"}
         "saveProfileButton" {$tip = "Save these settings to a config file for later use"}
-        "loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
-        "importButton" {$tip = "Import settings from the game"}
-        #"deleteEACTempFilesButton" {$tip = "Delete EAC TempFiles"}
-        #"hostsFileAddButton" {$tip = "Update hosts file for EAC Bypass"}
-
+        #"loadFromProfileButton" {$tip = "Load settings from the VRSE-AE profile"}
+        #"importButton" {$tip = "Import settings from the game"}
+        
         "HmdUIDistance" {$tip = "How Far away the Escape Menu is."}
         "HmdUIHeight" {$tip = "Vertical Offset of Menu."}
         "HmdUIScale" {$tip = "How large the Escape Menu is in 3d space."}
         "HmdVisorDistance" {$tip = "Helmet overlay focus distance."}
         "HmdVisorAspectModifier" {$tip = "Helmet overlay width."}
-        "HmdVisorHeight" {$tip = "Helmet overlay focus distance."}
-        "HmdVisorScale" {$tip = "Vertical Offset of Helmet overlay."}
+        "HmdVisorHeight" {$tip = "Vertical Offset of Helmet overlay."}
+        "HmdVisorScale" {$tip = "Helmet overlay overall scale"}
         "HmdTheaterModeScale" {$tip = "How large is the Theater Mode Window."}
         "HmdTheaterModeCurvature" {$tip = "[META QUEST Only] How much curve the Theater Mode Window has."}
         "HmdTheaterModeDistance" {$tip = "Focus depth of the Theater Window."}
@@ -1050,6 +1051,10 @@ $ShowHelp={
         "HmdfpsAdsDominantEye" {$tip = "Mostly for Aim Down Sights (ADS)"}
         "StereoUIResX" {$tip = "Default UI Resolution is 2560 (in pixels). Increase the number to make UI smaller"}
         "StereoUIResY" {$tip = "Default is 1440 (in pixels). Increase the number to make UI smaller"}
+        "KeybindDeviceComboBox" {$tip = "Filter"}
+        "MirrorMode" {$tip = "the Desktop Monitor view that is shown while in VR."}
+        "HmdMonitorMirrorModeSmoothing" {$tip = "Smooths out the headbob motion for the desktop view"}
+        "CrosshairOpacity" {$tip = "Crosshair Transparancy (0:invisible - 1:solid)"}
 
         Default { $tip = "No tooltip available for this control." }
       }

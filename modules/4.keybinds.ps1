@@ -38,6 +38,7 @@ $keybindDeviceComboBox.Width = (60 * $script:ScaleMultiplier)
 $keybindDeviceComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 $keybindDeviceComboBox.Items.AddRange(@("","kb1", "gamepad", "js1", "js2", "js3", "js4"))
 $keybindDeviceComboBox.SelectedIndex = 0
+$KeybindDeviceComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $tabVRSettings_Keybinds.Controls.Add($keybindDeviceComboBox)
 
 # Handler function for device dropdown selection
