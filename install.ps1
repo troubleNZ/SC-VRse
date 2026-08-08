@@ -127,7 +127,7 @@ Write-Host "Installation directory confirmed: $InstallDir" -ForegroundColor Gree
 $files = @(
     'starcitizen_powertool.ps1',
     'README.md',
-    'LICENSE.md',
+    'LICENSE',
     'changelog.md',
     'modules/1.functions.ps1',
     'modules/2.buildpages.ps1',
