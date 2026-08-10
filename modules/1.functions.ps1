@@ -392,7 +392,6 @@ function Open-XMLViewer {
     if (Test-Path $Path) {
         try {
             $script:xmlContent = [xml](Get-Content $Path)
-            
             $script:dataTable = New-Object System.Data.DataTable
 
             # Add columns to the DataTable
@@ -454,17 +453,13 @@ function Open-XMLViewer {
                         $chromaticAberrationTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "ChromaticAberration" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.AutoZoomOnSelectedTarget) {
-                        #$AutoZoomTextBox.Text = $script:profileArray.AutoZoomOnSelectedTarget
                         $AutoZoomComboBox.SelectedIndex = $script:profileArray.AutoZoomOnSelectedTarget
                     } else {
-                        #$AutoZoomTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                         $AutoZoomComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "AutoZoomOnSelectedTarget" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.MotionBlur) {
-                        #$MotionBlurTextBox.Text = $script:profileArray.MotionBlur
                         $MotionBlurComboBox.SelectedIndex = $script:profileArray.MotionBlur
                     } else {
-                        #$MotionBlurTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                         $MotionBlurComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "MotionBlur" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.ShakeScale) {
@@ -478,10 +473,8 @@ function Open-XMLViewer {
                         $CameraSpringMovementTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CameraSpringMovement" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.FilmGrain) {
-                        #$FilmGrainTextBox.Text = $script:profileArray.FilmGrain
                         $FilmGrainComboBox.SelectedIndex = $script:profileArray.FilmGrain
                     } else {
-                        #$FilmGrainTextBox.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
                         $FilmGrainComboBox.SelectedIndex = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "FilmGrain" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.GForceBoostZoomScale) {
@@ -560,9 +553,9 @@ function Open-XMLViewer {
                         $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeCurvature" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.HmdTheaterModeDistance) {
-                        $textboxExpCategory_TheatreMode_Curvature.Text = $script:profileArray.HmdTheaterModeDistance
+                        $textboxExpCategory_TheatreMode_Distance.Text = $script:profileArray.HmdTheaterModeDistance
                     } else {
-                        $textboxExpCategory_TheatreMode_Curvature.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeDistance" } | Select-Object -ExpandProperty value
+                        $textboxExpCategory_TheatreMode_Distance.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "HmdTheaterModeDistance" } | Select-Object -ExpandProperty value
                     }
                     if ($null -ne $script:profileArray.HmdIPDScale) {
                         $textboxExpCategory_UserSettings_StereoStrength.Text = $script:profileArray.HmdIPDScale
@@ -594,8 +587,6 @@ function Open-XMLViewer {
                     } else {
                         $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text = $script:xmlContent.Attributes.Attr | Where-Object { $_.name -eq "CrosshairOpacity" } | Select-Object -ExpandProperty value
                     }
-                    #CrosshairOpacity // $textboxExpCategory_EscMenuSettings_CrosshairOpacity.Text
-
 
                 if ($debug) {Write-Host "debug: try to Populate the input boxes with the profile array values" -BackgroundColor White -ForegroundColor Black}
                 Set-ProfileArray

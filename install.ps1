@@ -134,7 +134,7 @@ $files = @(
     'modules/3.properties.ps1',
     'modules/4.keybinds.ps1',
     'modules/5.splash.ps1',
-    'modules/builds/4.9/defaultProfile.xml'
+    'modules/defaultProfile.json'
 )
 
 foreach ($path in $files) {
@@ -154,3 +154,4 @@ foreach ($path in $files) {
 
 # ──────────────────────────────────────
 Write-Host "SC-VRse installed successfully to $InstallDir"
+

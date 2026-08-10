@@ -190,12 +190,12 @@ $tabControl_Keybinds.TabPages.Add($tabKeybinds_Device)
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Options)
 $tabVRSettings_Keybinds.Controls.Add($tabControl_Keybinds)
 
-# Load default action maps XML
+# Load default action maps json
 $ActionMapDefaults = $null
 if (![string]::IsNullOrEmpty($PSScriptRoot)) {
-    $ActionMapDefaults = Join-Path $PSScriptRoot"/builds" -ChildPath $scbuild"/defaultProfile.xml"
+    $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath "/defaultProfile.json"
 } else {
-    $ActionMapDefaults = "./builds/4.9/defaultProfile.xml"  # TODO eww need to fix this. hardcoded version number yuck
+    $ActionMapDefaults = "./defaultProfile.json"  # TODO eww need to fix this.
 }
 
 # Populate and wire up controls only after XML is loaded
@@ -210,7 +210,8 @@ function Populate-KeyBindsViewer {
     $listKeybinds_Options.Items.Clear()
 
     if (-not $script:keyBindsProfiles) { return }
-    $defaultsXml = [xml](Get-Content $ActionMapDefaults) #$defaultActionMapsXml)
+    
+    $defaultsJson = Get-Content $ActionMapDefaults | ConvertFrom-Json
     # --- ActionMaps ---
     #$actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     $actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds")
@@ -223,14 +224,23 @@ function Populate-KeyBindsViewer {
                 $aNode.Nodes.Add("Rebound: $($rebind.input)") | Out-Null
             }
         }
-        <#foreach ($action in $defaultsXml.actionmap) {         # not used for now
-            if ($actionmap.name -eq $actionmap.name) {
-                $aNode = $amNode.Nodes.Add("Default Action: $($action.name)")
-                foreach ($default in $action.default) {
-                    $aNode.Nodes.Add("Default: $($default.input)") | Out-Null
+
+        <#new json loop for reference later
+        foreach ($actionmap in $defaultsJson.actionmap) {
+            $amNode = $actionProfileNode.Nodes.Add("Category: $($actionmap["@name"])")
+
+            foreach ($action in $actionmap.action) {
+                $aNode = $amNode.Nodes.Add("Action: $($action["@name"])")
+
+                foreach ($rebind in $action.rebind) {
+                    if ($null -ne $rebind["@input"] -and $rebind["@input"].Trim() -ne "") {
+                        $aNode.Nodes.Add("Rebound: $($rebind["@input]")") | Out-Null
+                    }
                 }
             }
-        }#>
+        }
+
+        #>
     }
     $actionProfileNode.Expand()
     $treeKeybinds_ActionMaps.Add_AfterSelect({

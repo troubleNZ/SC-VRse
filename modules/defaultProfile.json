@@ -1,0 +1,228 @@
+{
+  "profile": {
+    "@version": "1",
+    "@optionsVersion": "2",
+    "@rebindVersion": "2"
+  },
+  "platforms": {
+    "PC": {"@keyboard": "1", "@mouse": "1", "@gamepad": "1", "@joystick": "1"},
+    "XboxOne": {"@keyboard": "1", "@mouse": "0", "@gamepad": "1", "@joystick": "0"},
+    "PS4": {"@keyboard": "1", "@mouse": "0", "@gamepad": "1", "@joystick": "0"}
+  },
+  "actiongroup": {
+    "@action": "v_attack_all",
+    "action": ["v_attack_all", "v_attack_group1", "v_attack_group2"]
+  },
+  "ActivationModes": {
+    "ActivationMode": [
+      {"@name": "tap", "@onPress": "0", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "0.25", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "double_tap", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "2", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "double_tap_nonblocking", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "2", "@multiTapBlock": "0", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "tap_quicker", "@onPress": "0", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "0.15", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "press", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "press_quicker", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "0.15", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "delayed_press", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "0.25", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "delayed_press_quicker", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "0.15", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "delayed_press_medium", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "0.5", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "delayed_press_long", "@onPress": "1", "@onHold": "0", "@onRelease": "0", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "1.5", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "hold", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "1"},
+      {"@name": "hold_no_retrigger", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "all", "@onPress": "1", "@onHold": "1", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "1"},
+      {"@name": "delayed_hold", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "0.25", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "1"},
+      {"@name": "delayed_hold_long", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "1.5", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "1"},
+      {"@name": "delayed_hold_no_retrigger", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "0.15", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "hold_toggle", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0", "@retriggerable": "0"},
+      {"@name": "smart_toggle", "@onPress": "1", "@onHold": "0", "@onRelease": "1", "@multiTap": "1", "@multiTapBlock": "1", "@pressTriggerThreshold": "-1", "@releaseTriggerThreshold": "-1", "@releaseTriggerDelay": "0.25", "@retriggerable": "0"}
+    ]
+  },
+  "CustomisationUIHeader": {
+    "keyboard": {"@label": "@ui_ResetToDefaults", "@description": "@ui_KeyboardDefaultDesc", "@image": "KeyboardDefault"},
+    "gamepad": {"@label": "@ui_ResetToDefaults", "@description": "@ui_GamepadDefaultDesc", "@image": "GamePadDefault"},
+    "joystick": {"@label": "@ui_ResetToDefaults", "@description": "@ui_JoystickDefaultDesc", "@image": "JoystickDefault"}
+  },
+  "optiontree": [
+    {
+      "@type": "keyboard",
+      "@name": "root",
+      "@UIShowInvert": "-1",
+      "@UIShowSensitivity": "-1",
+      "@UISensitivityMin": "0.01",
+      "@UISensitivityMax": "6.25",
+      "ChildNodes": [
+        {"@name": "master", "UILabel": "@ui_COMasterSensitivity", "ChildNodes": [
+          {"@name": "mouse_curves", "UILabel": "@ui_COMasterSensitivityCurvesMouse", "ChildNodes": [
+            {"@name": "inversion", "UILabel": "@ui_COInversionSettings", "ChildNodes": []}]}]
+      }]
+    },
+    {
+      "@type": "gamepad",
+      "@name": "root",
+      "@UIShowInvert": "1",
+      "@UIShowSensitivity": "1",
+      "@UISensitivityMin": "0.01",
+      "@UISensitivityMax": "2.0"
+    },
+    {
+      "@type": "joystick",
+      "@instances": "8",
+      "@name": "root",
+      "@UISensitivityMin": "0.01",
+      "@UISensitivityMax": "2.0"
+    }
+  ],
+  "modifiers": {
+    "mod": ["gp_shoulderl", "kb_lalt", "lshift"]
+  },
+  "ActionCategories": {
+    "Category": [
+      {"@name": "PlayerActions", "@action": "pc_pit_player_actions"},
+      {"@name": "Emotes", "@action": "pc_pit_emotes"},
+      {"@name": "ShipSystems", "@action": "pc_pit_ship_systems"},
+      {"@name": "FlightSystems", "@action": "pc_pit_flight_systems"},
+      {"@name": "VehicleActions", "@action": "pc_pit_vehicle_actions"},
+      {"@name": "WeaponSystems", "@action": "pc_pit_weapons_systems"},
+      {"@name": "RemoteTurret", "@action": "pc_pit_remote_turrets"},
+      {"@name": "ItemActions", "@action": "pc_pit_item_actions"},
+      {"@name": "WeaponSelection", "@action": "pc_pit_weapon_selection"},
+      {"@name": "MobiGlasActions", "@action": "pc_pit_mobiglas_actions"},
+      {"@name": "MiningMode", "@action": "pc_pit_miningmode_actions"}
+    ]
+  },
+  "actionmap": [
+    {
+      "@name": "seat_general",
+      "@version": "1",
+      "action": [
+        {"@name": "v_emergency_exit", "rebind": [{"@input": "u+lshift"}, {"@input": ""}, {"@input": ""}]},
+        {"@name": "v_eject", "rebind": [{"@input": "ralt+y"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_view_look_behind", "rebind": [{"@input": "comma"}, {"@input": " "}, {"@input": "shoulderl+a"}], "default": []},
+        {"@name": "v_toggle_mining_mode", "rebind": [{"@input": "m"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_salvage_mode", "rebind": [{"@input": "m"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_refuel_mode", "rebind": [{"@input": "m"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_scan_mode", "rebind": [{"@input": "v"}, {"@input": "dpad_right"}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_quantum_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_missile_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_guns_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_flight_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_mining_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_salvage_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_refuel_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_scan_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_quantum_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_missile_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_guns_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_set_flight_mode", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_enter_remote_turret_1", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_enter_remote_turret_2", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_enter_remote_turret_3", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_operator_mode_cycle_forward", "rebind": [{"@input": "mouse3"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_operator_mode_cycle_back", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_light_amplification_toggle", "rebind": [{"@input": "ralt+l"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_light_amplification_on", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_light_amplification_off", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []}
+      ]
+    },
+    {
+      "@name": "spaceship_general",
+      "@version": "2",
+      "action": [
+        {"@name": "v_self_destruct", "rebind": [{"@input": "backspace"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_cooler_throttle_up", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_cooler_throttle_down", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "spectate_enterpuremode", "rebind": [{"@input": ""}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_flightready", "rebind": [{"@input": "ralt+r"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_all_doors", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_open_all_doors", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_close_all_doors", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_all_doorlocks", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_lock_all_doors", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_unlock_all_doors", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_toggle_all_portlocks", "rebind": [{"@input": "ralt+K"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_lock_all_ports", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "v_unlock_all_ports", "rebind": [{"@input": " "}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "pc_conversation_option1", "rebind": [{"@input": "1"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "pc_conversation_option2", "rebind": [{"@input": "2"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "pc_conversation_option3", "rebind": [{"@input": "3"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "pc_conversation_option4", "rebind": [{"@input": "4"}, {"@input": " "}, {"@input": ""}], "default": []},
+        {"@name": "pc_conversation_option5", "rebind": [{"@input": "5"}, {"@input": " "}, {"@input": ""}], "default": []}
+      ]
+    },
+    {
+      "@name": "spaceship_movement",
+      "@version": "18",
+      "action": [
+        {"@name": "v_pitch_up", "rebind": [{"@input": "down"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_pitch_down", "rebind": [{"@input": "up"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_yaw_left", "rebind": [{"@input": "left"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_yaw_right", "rebind": [{"@input": "right"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_roll_left", "rebind": [{"@input": "q"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_roll_right", "rebind": [{"@input": "e"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_strafe_up", "rebind": [{"@input": "space"}, {"@input": ""}, {"@input": "button9"}], "default": []},
+        {"@name": "v_strafe_down", "rebind": [{"@input": "lctrl"}, {"@input": ""}, {"@input": "button10"}], "default": []},
+        {"@name": "v_strafe_left", "rebind": [{"@input": "a"}, {"@input": ""}, {"@input": "hat1_left"}], "default": []},
+        {"@name": "v_strafe_right", "rebind": [{"@input": "d"}, {"@input": ""}, {"@input": "hat1_right"}], "default": []},
+        {"@name": "v_strafe_forward", "rebind": [{"@input": "w"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "v_strafe_back", "rebind": [{"@input": "s"}, {"@input": ""}, {"@input": ""}], "default": []}
+      ]
+    },
+    {
+      "@name": "player",
+      "@version": "27",
+      "action": [
+        {"@name": "moveleft", "rebind": [{"@input": "a"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "moveright", "rebind": [{"@input": "d"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "moveforward", "rebind": [{"@input": "w"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "moveback", "rebind": [{"@input": "s"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "rotateyaw", "rebind": [{"@input": "maxis_x"}], "default": []},
+        {"@name": "rotatepitch", "rebind": [{"@input": "maxis_y"}], "default": []},
+        {"@name": "jump", "rebind": [{"@input": "space"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "crouch", "rebind": [{"@input": "c"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "sprint", "rebind": [{"@input": "lshift"}, {"@input": "thumbl"}, {"@input": ""}], "default": []},
+        {"@name": "jump_hold", "rebind": [{"@input": "space"}, {"@input": ""}, {"@input": ""}], "default": []},
+        {"@name": "attack1", "rebind": [{"@input": "mouse1"}, {"@input": ""}, {"@input": "triggerr_btn"}], "default": []},
+        {"@name": "zoom", "rebind": [{"@input": "mouse2"}, {"@input": ""}, {"@input": "triggerl_btn"}], "default": []}
+      ]
+    }
+  ],
+  "deviceoptions": [
+    {
+      "@type": "keyboard",
+      "@name": "root",
+      "option": [
+        {"@input": "master", "@saturation": "", "@deadzone": ""},
+        {"@input": "mouse_curves", "@saturation": "", "@deadzone": ""}
+      ]
+    },
+    {
+      "@type": "gamepad",
+      "@name": "root",
+      "option": [
+        {"@input": "master", "@saturation": "", "@deadzone": ""},
+        {"@input": "thumbstick_curves", "@saturation": "", "@deadzone": ""}
+      ]
+    },
+    {
+      "@type": "joystick",
+      "@instances": "8",
+      "@name": "root",
+      "option": [
+        {"@input": "master", "@saturation": "", "@deadzone": ""},
+        {"@input": "joystick_curves", "@saturation": "", "@deadzone": ""}
+      ]
+    }
+  ],
+  "options": [
+    {
+      "@type": "keyboard",
+      "Attributes": [{"@Name": "@UIShowInvert", "@Value": "-1"}]
+    },
+    {
+      "@type": "gamepad",
+      "Attributes": [{"@Name": "@UIShowInvert", "@Value": "1"}]
+    },
+    {
+      "@type": "joystick",
+      "Attributes": [{"@Name": "@instances", "@Value": "8"}]
+    }
+  ]
+}
