@@ -131,17 +131,10 @@ $listKeybinds_Defaults.Left = (370 * $script:ScaleMultiplier)
 $listKeybinds_Defaults.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(180 * $script:ScaleMultiplier))
 $listKeybinds_Defaults.View = 'Details'
 $listKeybinds_Defaults.FullRowSelect = $true
-$listKeybinds_Defaults.GridLines = $true
+$listKeybinds_Defaults.GridLines = $false
 $listKeybinds_Defaults.Visible = $false
 
 # --- Tab 2: Device ---
-
-
-
-
-
-
-
 
 $tabKeybinds_Device = New-Object System.Windows.Forms.TabPage
 $tabKeybinds_Device.Text = "Device Curves"
@@ -160,7 +153,7 @@ $listKeybinds_Device.Left = (370 * $script:ScaleMultiplier)
 $listKeybinds_Device.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $listKeybinds_Device.View = 'Details'
 $listKeybinds_Device.FullRowSelect = $true
-$listKeybinds_Device.GridLines = $true
+$listKeybinds_Device.GridLines = $false
 
 # --- Tab 3: Options ---
 $tabKeybinds_Options = New-Object System.Windows.Forms.TabPage
@@ -180,8 +173,29 @@ $listKeybinds_Options.Left = (370 * $script:ScaleMultiplier)
 $listKeybinds_Options.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
 $listKeybinds_Options.View = 'Details'
 $listKeybinds_Options.FullRowSelect = $true
-$listKeybinds_Options.GridLines = $true
+$listKeybinds_Options.GridLines = $false
 #$listKeybinds_Options.Scrollbars = [System.Windows.Forms.ScrollBars]::Both
+
+# --- Tab 4: Defaults ---
+$tabKeybinds_Defaults = New-Object System.Windows.Forms.TabPage
+$tabKeybinds_Defaults.Text = "Default Binds"
+
+$treeKeybinds_Defaults = New-Object Windows.Forms.TreeView
+#$treeKeybinds_Defaults.Location = "10,10"
+$treeKeybinds_Defaults.Top = (10 * $script:ScaleMultiplier)
+$treeKeybinds_Defaults.Left = (10 * $script:ScaleMultiplier)
+$treeKeybinds_Defaults.Size = New-Object Drawing.Size((350 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$treeKeybinds_Defaults.HideSelection = $false
+
+$listKeybinds_Defaults_Binds = New-Object Windows.Forms.ListView
+#$listKeybinds_Defaults_Bind.Location = "370,10"
+$listKeybinds_Defaults_Binds.Top = (10 * $script:ScaleMultiplier)
+$listKeybinds_Defaults_Binds.Left = (370 * $script:ScaleMultiplier)
+$listKeybinds_Defaults_Binds.Size = New-Object Drawing.Size((220 * $script:ScaleMultiplier),(400 * $script:ScaleMultiplier))
+$listKeybinds_Defaults_Binds.View = 'Details'
+$listKeybinds_Defaults_Binds.FullRowSelect = $true
+$listKeybinds_Defaults_Binds.GridLines = $false
+
 
 # Add tabs to TabControl
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
@@ -189,6 +203,7 @@ $tabControl_Keybinds.TabPages.Add($tabKeybinds_ActionMaps)
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Device)
 $tabControl_Keybinds.TabPages.Add($tabKeybinds_Options)
 $tabVRSettings_Keybinds.Controls.Add($tabControl_Keybinds)
+$tabControl_Keybinds.TabPages.Add($tabKeybinds_Defaults)
 
 # Load default action maps json
 $ActionMapDefaults = $null
@@ -275,38 +290,66 @@ function Populate-KeyBindsViewer {
         }
 
         # Populate $listKeybinds_Defaults with the relevant actionmap from defaultactionmaps.xml
-        if ($node.Text -like "Action: *") {
+        <#if ($node.Text -like "Action: *") {
             $actionName = $node.Text.Substring(8)
-            # Load defaultactionmaps.xml if not already loaded
-            if (-not $script:defaultActionMapsXml) {
-                #$defaultActionMapsPath = Join-Path $PSScriptRoot "defaultactionmaps.xml"
-                $defaultActionMapsPath = Join-Path $PSScriptRoot $ActionMapDefaults
+             # Find the action in defaultProfile.json using already-loaded JSON data
+            if ($script:defaultActionMapsJson) {
+                $listKeybinds_ActionMaps.Items.Clear()
+                Add-Column $listKeybinds_ActionMaps @("Default Input", "MultiTap")
 
-                if (Test-Path $defaultActionMapsPath) {
-                    $script:defaultActionMapsXml = [xml](Get-Content $defaultActionMapsPath)
-                    if ($debug) {Write-Host "debug:defaultActionMapsPath: $defaultActionMapsPath" -BackgroundColor White -ForegroundColor Black}
-                }
-            }
-            if ($script:defaultActionMapsXml) {
-                $listKeybinds_Defaults.Items.Clear()
-                $listKeybinds_Defaults.Columns.Clear()
-                #$listKeybinds_Defaults.Columns.Add("Rebind Input",120)
-                #$listKeybinds_Defaults.Columns.Add("MultiTap",120)
-                Add-Column $listKeybinds_Defaults @("Default Input", "MultiTap")
-                # Find the action in defaultactionmaps.xml
-                foreach ($actionmap in $script:defaultActionMapsXml.actionmap) {
+                foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
+                    $currentActionMapName = $actionmap."@name"
+
                     foreach ($action in $actionmap.action) {
-                        if ($action.name -eq $actionName) {
+                        $currentActionName = $action."@name"
+
+                        if ($currentActionName -eq $actionName) {
+                            # Add default bindings from "default" array
+                            if ($action.default) {
+                                foreach ($default in $action.default) {
+                                    if ($null -ne $default."@input" -and 
+                                        [string]::IsNullOrWhiteSpace($default."@input") -eq $false) {
+                                        $item = $listKeybinds_ActionMaps.Items.Add($default."@input")
+                                        if ($null -ne $item) {
+                                            try {
+                                                $multiTapValue = if ($default."@multiTap" -ne $null) {
+                                                    $default."@multiTap"
+                                                } else {""}
+                                                $item.SubItems.Add($multiTapValue) | Out-Null
+                                            } catch {
+                                                if ($debug) {
+                                                    Write-Host "Error adding MultiTap: $($_.Exception.Message)" -ForegroundColor Red
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            # Add rebind bindings from "rebind" array
                             foreach ($rebind in $action.rebind) {
-                                $item = $listKeybinds_Defaults.Items.Add($rebind.input)
-                                $multiTapValue = if ($rebind.multiTap) { $rebind.multiTap } else { "" }
-                                $item.SubItems.Add($multiTapValue) | Out-Null
+                                if ($null -ne $rebind."@input" -and
+                                    [string]::IsNullOrWhiteSpace($rebind."@input") -eq $false) {
+                                    $item = $listKeybinds_ActionMaps.Items.Add($rebind."@input")
+                                    if ($null -ne $item) {
+                                        try {
+                                            $multiTapValue = if ($rebind."@multiTap" -ne $null) {
+                                                $rebind."@multiTap"
+                                            } else {""}
+                                            $item.SubItems.Add($multiTapValue) | Out-Null
+                                        } catch {
+                                            if ($debug) {
+                                                Write-Host "Error adding MultiTap: $($_.Exception.Message)" -ForegroundColor Red
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
+        }#>
     })
 
 
@@ -476,15 +519,192 @@ $keybindSearchField.Add_TextChanged({
     }
 })
 
+
+function Populate-KeyBindsDefaults {
+
+    # Clear all nodes and items for this tab
+    #$treeKeybinds_Defaults.Nodes.Clear()
+    #$listKeybinds_Defaults_Binds.Items.Clear()
+
+    if (-not $script:defaultActionMapsJson) {
+        Write-Host "Error: Default action maps JSON not loaded" -ForegroundColor Red
+        return
+    }
+
+    # --- ActionMaps Defaults ---
+    $actionProfileNode = $treeKeybinds_Defaults.Nodes.Add("Defaults")
+
+    foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
+        # Handle @ attributes for JSON-parsed data
+        $actionMapName = $actionmap."@name"
+        $amNode = $actionProfileNode.Nodes.Add("Category: $($actionMapName)")
+
+        foreach ($action in $actionmap.action) {
+            $actionName = $action."@name"
+            $aNode = $amNode.Nodes.Add("Action: $($actionName)")
+
+            # Add default bindings (from the "default" array in JSON)
+            if ($action.default) {
+                foreach ($default in $action.default) {
+                    if ($null -ne $default."@input" -and [string]::IsNullOrWhiteSpace($default."@input") -eq $false) {
+                        $aNode.Nodes.Add("Default Bind: $($default."@input")") | Out-Null
+
+                        # Add MultiTap info if present
+                        if ($null -ne $default."@multiTap") {
+                            $multiTapValue = $default."@multiTap"
+                            $aNode.Nodes.Add("MultiTap: $($multiTapValue)") | Out-Null
+                        }
+                    }
+                }
+            }
+
+            # Add mapping defaults (from the "mapping" array in JSON)
+            if ($action.mapping) {
+                foreach ($mapping in $action.mapping) {
+                    if ($null -ne $mapping."@input" -and [string]::IsNullOrWhiteSpace($mapping."@input") -eq $false) {
+                        $aNode.Nodes.Add("Default: $($mapping."@input")") | Out-Null
+
+                        # Add MultiTap info if present
+                        if ($null -ne $mapping."@multiTap") {
+                            $multiTapValue = $mapping."@multiTap"
+                            $aNode.Nodes.Add("MultiTap: $($multiTapValue)") | Out-Null
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    $actionProfileNode.Expand()
+
+    # Add AfterSelect event handler to display selected action details in ListView
+    $treeKeybinds_Defaults.Add_AfterSelect({
+        $listKeybinds_Defaults_Binds.Items.Clear()
+        $node = $treeKeybinds_Defaults.SelectedNode
+        if ($null -eq $node) { return }
+
+        # Check if a valid action node is selected
+        if ($node.Text -like "Action: *") {
+            $actionName = $node.Text.Substring(8)
+
+            # Find the matching action in the JSON data
+            foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
+                $actionMapName = $actionmap["@name"]
+
+                foreach ($action in $actionmap.action) {
+                    $currentActionName = $action["@name"]
+
+                    if ($currentActionName -eq $actionName) {
+                        Add-Column $listKeybinds_Defaults_Binds @("Default Input", "MultiTap")
+
+                        # Display default bindings
+                        foreach ($default in $action.default) {
+                            if ($null -ne $default["@input"] -and 
+                                [string]::IsNullOrWhiteSpace($default["@input"]) -eq $false) {
+                                $item = $listKeybinds_Defaults_Binds.Items.Add($default["@input"])
+                                if ($null -ne $item) {
+                                    # Handle null/empty multiTap values gracefully
+                                    try {
+                                        $multiTapValue = if ($default["@multiTap"] -ne $null) { 
+                                            $default["@multiTap"] 
+                                        } else { 
+                                            "" 
+                                        }
+                                        $item.SubItems.Add($multiTapValue) | Out-Null
+                                    } catch {
+                                        if ($debug) {
+                                            Write-Host "Error adding MultiTap: $($_.Exception.Message)" -ForegroundColor Red
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        # Display rebind defaults
+                        foreach ($rebind in $action.rebind) {
+                            if ($null -ne $rebind["@input"] -and 
+                                [string]::IsNullOrWhiteSpace($rebind["@input"]) -eq $false) {
+                                $item = $listKeybinds_Defaults_Binds.Items.Add($rebind["@input"])
+                                if ($null -ne $item) {
+                                    try {
+                                        $multiTapValue = if ($rebind["@multiTap"] -ne $null) { 
+                                            $rebind["@multiTap"] 
+                                        } else { 
+                                            "" 
+                                        }
+                                        $item.SubItems.Add($multiTapValue) | Out-Null
+                                    } catch {
+                                        if ($debug) {
+                                            Write-Host "Error adding MultiTap: $($_.Exception.Message)" -ForegroundColor Red
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    # Add controls to the tab page
+    #$tabKeybinds_Defaults.Controls.Clear()
+    $tabKeybinds_Defaults.Controls.Add($treeKeybinds_Defaults)
+    $tabKeybinds_Defaults.Controls.Add($listKeybinds_Defaults_Binds)
+}
+
+
+
 function Initialise_KeyBindTab {
+
+    # Load default action maps JSON first (before keyBindsProfiles is loaded)
+    $ActionMapDefaults = $null
+    if (![string]::IsNullOrEmpty($PSScriptRoot)) {
+        $ActionMapDefaults = Join-Path $PSScriptRoot -ChildPath "/defaultProfile.json"
+    } else {
+        $ActionMapDefaults = "./defaultProfile.json"  # TODO eww need to fix this.
+    }
+
+    if (Test-Path $ActionMapDefaults) {
+        if ($debug) {Write-Host "Loading default profile from: $ActionMapDefaults" -ForegroundColor Cyan}
+
+        # Parse JSON ONCE at application load time
+        try {
+            $script:defaultActionMapsJson = Get-Content $ActionMapDefaults | ConvertFrom-Json
+            if ($debug) {Write-Host "Successfully loaded default action maps JSON" -ForegroundColor Green}
+
+            # Populate the Default Binds tab (data never changes, so do this once)
+            Populate-KeyBindsDefaults | Out-Null
+            if ($debug) {Write-Host "Default binds tab populated successfully" -ForegroundColor Green}
+
+        } catch {
+            Write-Host "Error loading default profile JSON: $($_.Exception.Message)" -ForegroundColor Red
+            exit
+        }
+    } else {
+        Write-Host "Warning: Default profile file not found at $ActionMapDefaults" -ForegroundColor Yellow
+    }
+
+    # Load the main action maps XML (original behavior)
     $script:ActionMapsxmlPath = Join-Path -Path $script:liveFolderPath -ChildPath "$commonChildPath\ActionMaps.xml"
     if (-not (Test-Path $script:ActionMapsxmlPath)) {
-        Write-Host "XML file not found at $script:ActionMapsxmlPath"
+        Write-Host "XML file not found at $script:ActionMapsxmlPath" -ForegroundColor Red
         exit
     }
-    $script:BindsXML = [xml](Get-Content $script:ActionMapsxmlPath)
-    $script:keyBindsProfiles = $script:BindsXML.ActionMaps.ActionProfiles
 
-    Populate-KeyBindsViewer | Out-Null
+    try {
+        $script:BindsXML = [xml](Get-Content $script:ActionMapsxmlPath)
+        $script:keyBindsProfiles = $script:BindsXML.ActionMaps.ActionProfiles
+
+        # Populate the main keybinds viewer (user-modified bindings)
+        Populate-KeyBindsViewer | Out-Null
+        if ($debug) {Write-Host "Key bind tab initialized successfully" -ForegroundColor Green}
+
+    } catch {
+        Write-Host "Error loading ActionMaps XML: $($_.Exception.Message)" -ForegroundColor Red
+        exit
+    }
 }
+
+# Execute initialization
 Initialise_KeyBindTab
