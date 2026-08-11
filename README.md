@@ -44,7 +44,7 @@ As of Star Citizen Alpha 4.7, all relevant configurations have been exposed via 
 ### Screenshot
 
 ![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot.png)
-
+![](https://github.com/troubleNZ/SC-VRse/blob/main/screenshot2.png)
   
   
 
