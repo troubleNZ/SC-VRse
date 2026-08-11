@@ -16,6 +16,8 @@ $widthTextBox = $null
 $headtrackerEnabledComboBox = $null
 $HeadtrackingSourceComboBox = $null
 
+$niceDate = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+
 #$darkModeMenuItem = $null
 
 $keybind_column_width = 150 #(100 * $script:ScaleMultiplier)                         #pixels
@@ -181,18 +183,21 @@ function Update-ButtonState {                           # used to grey out butto
 
     if ($PSCmdlet.ShouldProcess("Button State Update", "Update the state of import and save buttons")) {
         if ($null -ne $script:xmlContent) {
-            $importButton.Enabled = $true
+            #$importButton.Enabled = $true
             $applySaveButton.Enabled = $true
 
             if ($script:loadedProfile -eq $true) {
-                $loadFromProfileButton.Enabled = $true
+                #$loadFromProfileButton.Enabled = $true
+                $loadsettingsfromProfileMenuItem.Enabled = $true
             } else {
-                $loadFromProfileButton.Enabled = $false
+                #$loadFromProfileButton.Enabled = $false
+                $loadsettingsfromProfileMenuItem.Enabled = $false
             }
         } else {
-            $importButton.Enabled = $false
+            #$importButton.Enabled = $false
             $applySaveButton.Enabled = $false
-            $loadFromProfileButton.Enabled = $false
+            #$loadFromProfileButton.Enabled = $false
+            $loadsettingsfromProfileMenuItem.Enabled = $false
 
         }
     }

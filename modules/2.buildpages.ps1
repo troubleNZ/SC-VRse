@@ -275,7 +275,7 @@ $fileMenuItem.MenuItems.Add($exitMenuItem)  # Add the Exit menu item to the File
 
 $form.Menu = $mainMenu  # Set the main menu of the form to the created menu
 
-
+<# - obsolete button 
 $loadFromProfileButton = New-Object System.Windows.Forms.Button
 $loadFromProfileButton.Name = "LoadFromProfileButton"
 $loadFromProfileButton.Text = "Import settings from profile"
@@ -298,7 +298,7 @@ $loadFromProfileButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show("profile json doesnt contain attributes path?")
     }
 })
-
+#>
 # Helper function to safely extract attribute values when results are not found in XML
 function Get-AttributeValue {
     param (

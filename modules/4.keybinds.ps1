@@ -404,7 +404,7 @@ function Populate-KeyBindsViewer {
     # --- Options ---
     $optionsProfileNode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     foreach ($opt in $script:keyBindsProfiles.options) {
-        $optNode = $optionsProfileNode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+        $optNode = $optionsProfileNode.Nodes.Add("$($opt.type) $($opt.instance) : $($opt.Product)")
         foreach ($child in $opt.ChildNodes) {
             $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
         }
@@ -414,7 +414,7 @@ function Populate-KeyBindsViewer {
         $listKeybinds_Options.Items.Clear()
         $node = $treeKeybinds_Options.SelectedNode
         if ($null -eq $node) { return }
-        if ($node.Text -like "Options: *") {
+        if ($node.Text -like "Order: *") {
             $optType = $node.Text.Split(" ")[1]
             $opt = $script:keyBindsProfiles.options | Where-Object { $_.type -eq $optType }
             if ($opt) {

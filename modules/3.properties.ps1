@@ -1,5 +1,5 @@
 
-
+<# - obsolete button 
 $importButton = New-Object System.Windows.Forms.Button
 $importButton.Text = "Import settings from Game"
 $importButton.Name = "ImportButton"
@@ -20,7 +20,7 @@ $importButton.Add_Click({
 # Initially disable the import and save buttons
 $importButton.Enabled = $false
 #$tabVRSettings_LegacySettings.Controls.Add($importButton)
-
+#>
 $fovLabel = New-Object System.Windows.Forms.Label
 $fovLabel.Text = "FOV"
 $fovLabel.Top = (70 * $script:ScaleMultiplier)
@@ -970,8 +970,8 @@ $HeadtrackingDisableDuringWalkingComboBox.add_MouseHover({ $ShowHelp.Invoke($_) 
 $HeadtrackingThirdPersonCameraToggleComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $applySaveButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 #$buttonOpenExpVRSettings.add_MouseHover({ $ShowHelp.Invoke($_) })
-$loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
-$importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+#$loadFromProfileButton.add_MouseHover({ $ShowHelp.Invoke($_) })
+#$importButton.add_MouseHover({ $ShowHelp.Invoke($_) })
 
 $textboxExpCategory_EscMenuSettings_EscMenuDistance.add_MouseHover({ $ShowHelp.Invoke($_) })
 $textboxExpCategory_EscMenuSettings_EscMenuYPos.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -1078,7 +1078,7 @@ if (($null -ne $AutoDetectSCPath) -and (Test-Path -Path $AutoDetectSCPath)) {
     #$script:profileArray.Add([PSCustomObject]@{ AttributesXmlPath = $script:xmlPath }) | Out-Null
     if ($debug) {Write-Host "debug:xmlPath $script:xmlPath" -BackgroundColor White -ForegroundColor Black}
     if (Test-Path -Path $AutoDetectSCPath) {
-        $importButton.Enabled = $true
+        #$importButton.Enabled = $true
         $statusBar.Text = "Star Citizen found at: $script:liveFolderPath"
         Import-SettingsFromGame
     } else {
