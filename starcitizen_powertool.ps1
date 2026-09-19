@@ -9,9 +9,9 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troublenz
 #>
 
-$scriptVersion = "0.5.16"
+$scriptVersion = "0.5.17" # 0.5.17 ~ enhanced visibility of rebinds and default keybinds
 
-$scbuild = "4.9"
+$scbuild = "4.10.1"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
 
 $debug = $false

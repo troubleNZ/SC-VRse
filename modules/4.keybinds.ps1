@@ -42,7 +42,7 @@ $KeybindDeviceComboBox.add_MouseHover({ $ShowHelp.Invoke($_) })
 $tabVRSettings_Keybinds.Controls.Add($keybindDeviceComboBox)
 
 # Handler function for device dropdown selection
-function On-KeybindDeviceComboBox-Changed {
+function On-KeybindDeviceComboBox-Changed {     #ie kb1,gamepad,js1,js2,js3,js4 drop down by search
     param($sender, $eventArgs)
     $selectedDevice = $keybindDeviceComboBox.SelectedItem
     # Filter ActionMaps tree to only show actions with rebind/input starting with the selected device prefix
@@ -51,12 +51,14 @@ function On-KeybindDeviceComboBox-Changed {
     #$profileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     $profileNode = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds")    #Profile: "$($script:keyBindsProfiles.profileName)"
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-        $amNode = $profileNode.Nodes.Add("Category: $($actionmap.name)")
+        #$amNode = $profileNode.Nodes.Add("Category: $($actionmap.name)")
+        $amNode = $profileNode.Nodes.Add("$($actionmap.name)")
         foreach ($action in $actionmap.action) {
             # Check if any rebind/input starts with the selected device prefix
             $matchingRebinds = @($action.rebind | Where-Object { $_.input -like "$selectedDevice*" })
             if ($matchingRebinds.Count -gt 0) {
-                $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                #$aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                $aNode = $amNode.Nodes.Add("$($action.name)")
                 foreach ($rebind in $matchingRebinds) {
                     $aNode.Nodes.Add("Rebound: $($rebind.input)") | Out-Null
                 }
@@ -215,7 +217,7 @@ if (![string]::IsNullOrEmpty($PSScriptRoot)) {
 
 # Populate and wire up controls only after XML is loaded
 
-function Populate-KeyBindsViewer {
+function Populate-KeyBindsViewer {      #first load of the page only.
     # Clear all nodes and items
     $treeKeybinds_ActionMaps.Nodes.Clear()
     $listKeybinds_ActionMaps.Items.Clear()
@@ -225,15 +227,16 @@ function Populate-KeyBindsViewer {
     $listKeybinds_Options.Items.Clear()
 
     if (-not $script:keyBindsProfiles) { return }
-    
+
     $defaultsJson = Get-Content $ActionMapDefaults | ConvertFrom-Json
     # --- ActionMaps ---
     #$actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
     $actionProfileNode = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds")
     foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-        $amNode = $actionProfileNode.Nodes.Add("Category: $($actionmap.name)")
+        #$amNode = $actionProfileNode.Nodes.Add("Category: $($actionmap.name)")
+        $amNode = $actionProfileNode.Nodes.Add("$($actionmap.name)")
         foreach ($action in $actionmap.action) {
-            $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+            $aNode = $amNode.Nodes.Add("$($action.name)")
 
             foreach ($rebind in $action.rebind) {
                 $aNode.Nodes.Add("Rebound: $($rebind.input)") | Out-Null
@@ -262,8 +265,10 @@ function Populate-KeyBindsViewer {
         $listKeybinds_ActionMaps.Items.Clear()
         $node = $treeKeybinds_ActionMaps.SelectedNode
         if ($null -eq $node) { return }
-        if ($node.Text -like "Action: *") {
-            $actionName = $node.Text.Substring(8)
+        #if ($node.Text -like "Action: *") {
+        if ($node.Text) {
+            #$actionName = $node.Text.Substring(8)
+            $actionName = $node.Text
             $action = $script:keyBindsProfiles.actionmap.action | Where-Object { $_.name -eq $actionName }
             if ($action) {
                 Add-Column $listKeybinds_ActionMaps @("Rebound Input", "MultiTap")
@@ -450,16 +455,20 @@ $keybindSearchField.Add_TextChanged({
         $tree.BeginUpdate()
         $tree.Nodes.Clear()
     }
+    # search result formatting
     if (![string]::IsNullOrWhiteSpace($searchText) -and $searchText -ne "Search Keybinds") {
         # ActionMaps
         $node = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-            $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
+            #$amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
+            $amNode = $node.Nodes.Add("$($actionmap.name)")
             foreach ($action in $actionmap.action) {
                 if ($action.name -like "*$searchText*") {
-                    $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                    #$aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                    $aNode = $amNode.Nodes.Add("$($action.name)")
                     foreach ($rebind in $action.rebind) {
-                        $aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+                        #$aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
+                        $aNode.Nodes.Add("$($rebind.input)") | Out-Null
                     }
                 }
             }
@@ -468,9 +477,11 @@ $keybindSearchField.Add_TextChanged({
         $dnode = $treeKeybinds_Device.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             if ($devopt.name -like "*$searchText*") {
-                $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
+                #$devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
+                $devNode = $dnode.Nodes.Add("$($devopt.name)")
                 foreach ($opt in $devopt.option) {
-                    $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+                    #$devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+                    $devNode.Nodes.Add("$($opt.input) = $($opt.saturation)$($opt.deadzone)")
                 }
             }
         }
@@ -478,7 +489,8 @@ $keybindSearchField.Add_TextChanged({
         $onode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($opt in $script:keyBindsProfiles.options) {
             if ($opt.type -like "*$searchText*" -or $opt.Product -like "*$searchText*") {
-                $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+                #$optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+                $optNode = $onode.Nodes.Add("$($opt.type) $($opt.Product)")
                 foreach ($child in $opt.ChildNodes) {
                     $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
                 }
@@ -489,11 +501,14 @@ $keybindSearchField.Add_TextChanged({
         # ActionMaps
         $node = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-            $amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
+            #$amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
+            $amNode = $node.Nodes.Add("$($actionmap.name)")
             foreach ($action in $actionmap.action) {
-                $aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                #$aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                $aNode = $amNode.Nodes.Add("$($action.name)")
                 foreach ($rebind in $action.rebind) {
-                    $aNode.Nodes.Add("KeyBind: $($rebind.input)") | Out-Null
+                    #$aNode.Nodes.Add("KeyBind: $($rebind.input)") | Out-Null
+                    $aNode.Nodes.Add("$($rebind.input)") | Out-Null
                 }
             }
         }
@@ -502,13 +517,15 @@ $keybindSearchField.Add_TextChanged({
         foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
             foreach ($opt in $devopt.option) {
-                $devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+                #$devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
+                $devNode.Nodes.Add("$($opt.input) = $($opt.saturation)$($opt.deadzone)")
             }
         }
         # Options
         $onode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($opt in $script:keyBindsProfiles.options) {
-            $optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+            #$optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
+            $optNode = $onode.Nodes.Add("$($opt.type) $($opt.Product)")
             foreach ($child in $opt.ChildNodes) {
                 $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
             }
@@ -537,17 +554,48 @@ function Populate-KeyBindsDefaults {
     foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
         # Handle @ attributes for JSON-parsed data
         $actionMapName = $actionmap."@name"
-        $amNode = $actionProfileNode.Nodes.Add("Category: $($actionMapName)")
+        #$amNode = $actionProfileNode.Nodes.Add("Category: $($actionMapName)")
+        $amNode = $actionProfileNode.Nodes.Add("$($actionMapName)")
 
         foreach ($action in $actionmap.action) {
             $actionName = $action."@name"
-            $aNode = $amNode.Nodes.Add("Action: $($actionName)")
+            #$aNode = $amNode.Nodes.Add("Action: $($actionName)")
+            $aNode = $amNode.Nodes.Add("$($actionName)")
+
+            # Add per-input binding details (keyboard, gamepad, joystick, mouse)
+            if ($null -ne $action.'keyboard') {
+                $keyboard = $action.'keyboard'
+                if ($null -ne $keyboard -and [string]::IsNullOrWhiteSpace($keyboard) -eq $false) {
+                    $aNode.Nodes.Add("Keyboard: $($keyboard)") | Out-Null
+                }
+            }
+
+            if ($null -ne $action.'gamepad') {
+                $gamepad = $action.'gamepad'
+                if ($null -ne $gamepad -and [string]::IsNullOrWhiteSpace($gamepad) -eq $false) {
+                    $aNode.Nodes.Add("Gamepad: $($gamepad)") | Out-Null
+                }
+            }
+
+            if ($null -ne $action.'joystick') {
+                $joystick = $action.'joystick'
+                if ($null -ne $joystick -and [string]::IsNullOrWhiteSpace($joystick) -eq $false) {
+                    $aNode.Nodes.Add("Joystick: $($joystick)") | Out-Null
+                }
+            }
+
+            if ($null -ne $action.'mouse') {
+                $mouse = $action.'mouse'
+                if ($null -ne $mouse -and [string]::IsNullOrWhiteSpace($mouse) -eq $false) {
+                    $aNode.Nodes.Add("Mouse: $($mouse)") | Out-Null
+                }
+            }
 
             # Add default bindings (from the "default" array in JSON)
             if ($action.default) {
                 foreach ($default in $action.default) {
                     if ($null -ne $default."@input" -and [string]::IsNullOrWhiteSpace($default."@input") -eq $false) {
-                        $aNode.Nodes.Add("Default Bind: $($default."@input")") | Out-Null
+                        $aNode.Nodes.Add("Default: $($default.'@input')") | Out-Null
 
                         # Add MultiTap info if present
                         if ($null -ne $default."@multiTap") {
@@ -562,7 +610,7 @@ function Populate-KeyBindsDefaults {
             if ($action.mapping) {
                 foreach ($mapping in $action.mapping) {
                     if ($null -ne $mapping."@input" -and [string]::IsNullOrWhiteSpace($mapping."@input") -eq $false) {
-                        $aNode.Nodes.Add("Default: $($mapping."@input")") | Out-Null
+                        $aNode.Nodes.Add("Default: $($mapping.'@input')") | Out-Null
 
                         # Add MultiTap info if present
                         if ($null -ne $mapping."@multiTap") {
@@ -584,8 +632,16 @@ function Populate-KeyBindsDefaults {
         if ($null -eq $node) { return }
 
         # Check if a valid action node is selected
-        if ($node.Text -like "Action: *") {
-            $actionName = $node.Text.Substring(8)
+        if ($node.Text -like "Action: *" -or $node.Text -notmatch "^[A-Z]") {
+            # If it's a category node, show its actions
+            if ($node.Text -match "^[A-Z]") {
+                $actionName = $node.Text
+                #$listKeybinds_Defaults_Binds.Items.Clear()
+                #$listKeybinds_Defaults_Binds.Items.Add("Actions in $($actionName):")
+                #$listKeybinds_Defaults_Binds.Items[0].SubItems.Add("$($actionName) has $($actionmapCount) actions")
+                return
+            }
+            $actionName = $node.Text
 
             # Find the matching action in the JSON data
             foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
@@ -595,25 +651,105 @@ function Populate-KeyBindsDefaults {
                     $currentActionName = $action["@name"]
 
                     if ($currentActionName -eq $actionName) {
-                        Add-Column $listKeybinds_Defaults_Binds @("Default Input", "MultiTap")
+                        Add-Column $listKeybinds_Defaults_Binds @("Input Type", "Binding", "MultiTap", "Description", "Category")
 
-                        # Display default bindings
-                        foreach ($default in $action.default) {
-                            if ($null -ne $default["@input"] -and 
-                                [string]::IsNullOrWhiteSpace($default["@input"]) -eq $false) {
-                                $item = $listKeybinds_Defaults_Binds.Items.Add($default["@input"])
+                        # Display per-input bindings (keyboard, gamepad, joystick, mouse)
+                        if ($null -ne $action.'keyboard') {
+                            $keyboard = $action.'keyboard'
+                            if ($null -ne $keyboard -and [string]::IsNullOrWhiteSpace($keyboard) -eq $false) {
+                                $item = $listKeybinds_Defaults_Binds.Items.Add("Keyboard: $($keyboard)")
                                 if ($null -ne $item) {
-                                    # Handle null/empty multiTap values gracefully
                                     try {
-                                        $multiTapValue = if ($default["@multiTap"] -ne $null) { 
-                                            $default["@multiTap"] 
-                                        } else { 
-                                            "" 
-                                        }
+                                        $multiTapValue = if ($action.'@multiTap' -ne $null) { $action.'@multiTap' } else { "" }
+                                        $item.SubItems.Add($keyboard) | Out-Null
                                         $item.SubItems.Add($multiTapValue) | Out-Null
+                                        $item.SubItems.Add($action."UILabel") | Out-Null
+                                        $item.SubItems.Add($actionMapName) | Out-Null
                                     } catch {
                                         if ($debug) {
-                                            Write-Host "Error adding MultiTap: $($_.Exception.Message)" -ForegroundColor Red
+                                            Write-Host "Error adding Keyboard: $($_.Exception.Message)" -ForegroundColor Red
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($null -ne $action.'gamepad') {
+                            $gamepad = $action.'gamepad'
+                            if ($null -ne $gamepad -and [string]::IsNullOrWhiteSpace($gamepad) -eq $false) {
+                                $item = $listKeybinds_Defaults_Binds.Items.Add("Gamepad: $($gamepad)")
+                                if ($null -ne $item) {
+                                    try {
+                                        $multiTapValue = if ($action.'@multiTap' -ne $null) { $action.'@multiTap' } else { "" }
+                                        $item.SubItems.Add($gamepad) | Out-Null
+                                        $item.SubItems.Add($multiTapValue) | Out-Null
+                                        $item.SubItems.Add($action."UILabel") | Out-Null
+                                        $item.SubItems.Add($actionMapName) | Out-Null
+                                    } catch {
+                                        if ($debug) {
+                                            Write-Host "Error adding Gamepad: $($_.Exception.Message)" -ForegroundColor Red
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($null -ne $action.'joystick') {
+                            $joystick = $action.'joystick'
+                            if ($null -ne $joystick -and [string]::IsNullOrWhiteSpace($joystick) -eq $false) {
+                                $item = $listKeybinds_Defaults_Binds.Items.Add("Joystick: $($joystick)")
+                                if ($null -ne $item) {
+                                    try {
+                                        $multiTapValue = if ($action.'@multiTap' -ne $null) { $action.'@multiTap' } else { "" }
+                                        $item.SubItems.Add($joystick) | Out-Null
+                                        $item.SubItems.Add($multiTapValue) | Out-Null
+                                        $item.SubItems.Add($action."UILabel") | Out-Null
+                                        $item.SubItems.Add($actionMapName) | Out-Null
+                                    } catch {
+                                        if ($debug) {
+                                            Write-Host "Error adding Joystick: $($_.Exception.Message)" -ForegroundColor Red
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($null -ne $action.'mouse') {
+                            $mouse = $action.'mouse'
+                            if ($null -ne $mouse -and [string]::IsNullOrWhiteSpace($mouse) -eq $false) {
+                                $item = $listKeybinds_Defaults_Binds.Items.Add("Mouse: $($mouse)")
+                                if ($null -ne $item) {
+                                    try {
+                                        $multiTapValue = if ($action.'@multiTap' -ne $null) { $action.'@multiTap' } else { "" }
+                                        $item.SubItems.Add($mouse) | Out-Null
+                                        $item.SubItems.Add($multiTapValue) | Out-Null
+                                        $item.SubItems.Add($action."UILabel") | Out-Null
+                                        $item.SubItems.Add($actionMapName) | Out-Null
+                                    } catch {
+                                        if ($debug) {
+                                            Write-Host "Error adding Mouse: $($_.Exception.Message)" -ForegroundColor Red
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        # Display default bindings (from the "default" array in JSON)
+                        if ($action.default) {
+                            foreach ($default in $action.default) {
+                                if ($null -ne $default."@input" -and [string]::IsNullOrWhiteSpace($default."@input") -eq $false) {
+                                    $item = $listKeybinds_Defaults_Binds.Items.Add("Default: $($default.'@input')")
+                                    if ($null -ne $item) {
+                                        try {
+                                            $multiTapValue = if ($default."@multiTap" -ne $null) { $default."@multiTap" } else { "" }
+                                            $item.SubItems.Add($default.'@input') | Out-Null
+                                            $item.SubItems.Add($multiTapValue) | Out-Null
+                                            $item.SubItems.Add($action."UILabel") | Out-Null
+                                            $item.SubItems.Add($actionMapName) | Out-Null
+                                        } catch {
+                                            if ($debug) {
+                                                Write-Host "Error adding Default: $($_.Exception.Message)" -ForegroundColor Red
+                                            }
                                         }
                                     }
                                 }
@@ -621,21 +757,21 @@ function Populate-KeyBindsDefaults {
                         }
 
                         # Display rebind defaults
-                        foreach ($rebind in $action.rebind) {
-                            if ($null -ne $rebind["@input"] -and 
-                                [string]::IsNullOrWhiteSpace($rebind["@input"]) -eq $false) {
-                                $item = $listKeybinds_Defaults_Binds.Items.Add($rebind["@input"])
-                                if ($null -ne $item) {
-                                    try {
-                                        $multiTapValue = if ($rebind["@multiTap"] -ne $null) { 
-                                            $rebind["@multiTap"] 
-                                        } else { 
-                                            "" 
-                                        }
-                                        $item.SubItems.Add($multiTapValue) | Out-Null
-                                    } catch {
-                                        if ($debug) {
-                                            Write-Host "Error adding MultiTap: $($_.Exception.Message)" -ForegroundColor Red
+                        if ($action.rebind) {
+                            foreach ($rebind in $action.rebind) {
+                                if ($null -ne $rebind."@input" -and [string]::IsNullOrWhiteSpace($rebind."@input") -eq $false) {
+                                    $item = $listKeybinds_Defaults_Binds.Items.Add("Rebind: $($rebind.'@input')")
+                                    if ($null -ne $item) {
+                                        try {
+                                            $multiTapValue = if ($rebind."@multiTap" -ne $null) { $rebind."@multiTap" } else { "" }
+                                            $item.SubItems.Add($rebind.'@input') | Out-Null
+                                            $item.SubItems.Add($multiTapValue) | Out-Null
+                                            $item.SubItems.Add($action."UILabel") | Out-Null
+                                            $item.SubItems.Add($actionMapName) | Out-Null
+                                        } catch {
+                                            if ($debug) {
+                                                Write-Host "Error adding Rebind: $($_.Exception.Message)" -ForegroundColor Red
+                                            }
                                         }
                                     }
                                 }

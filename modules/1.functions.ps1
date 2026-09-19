@@ -813,7 +813,7 @@ function Open-LiveFolder {
                 }
             }
         } else {
-            $statusBar.Text = "'Live' folder not found."
+            $statusBar.Text = "'Live' folder not found."        # TODO add a selector here to choose Live/Hotfix/PTU/ePTU
             [System.Windows.Forms.MessageBox]::Show("'Live' folder not found in the selected directory.")
         }
     }else {

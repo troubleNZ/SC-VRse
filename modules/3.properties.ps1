@@ -531,7 +531,8 @@ $textboxExpCategory_TheatreMode_Scale.TabIndex = 6
 $groupTheatremode.Controls.Add($textboxExpCategory_TheatreMode_Scale)
 
 $labelExpCategory_TheatreMode_Curvature = New-Object System.Windows.Forms.Label
-$labelExpCategory_TheatreMode_Curvature.Text = "TheaterMode Curvature"
+$labelExpCategory_TheatreMode_Curvature.Name = "LabelHmdTheaterModeCurvature"
+$labelExpCategory_TheatreMode_Curvature.Text = "TheaterMode Curve* "
 $labelExpCategory_TheatreMode_Curvature.Top = (70 * $script:ScaleMultiplier)
 $labelExpCategory_TheatreMode_Curvature.Height = (20 * $script:ScaleMultiplier)
 $labelExpCategory_TheatreMode_Curvature.Left = (10 * $script:ScaleMultiplier)
@@ -981,6 +982,7 @@ $textboxExpCategory_HelmetVisorLens_AspectModifier.add_MouseHover({ $ShowHelp.In
 $textboxExpCategory_HelmetVisorLens_HmdVisorHeight.add_MouseHover({ $ShowHelp.Invoke($_) })
 $textboxExpCategory_HelmetVisorLens_HmdVisorScale.add_MouseHover({ $ShowHelp.Invoke($_) })
 $textboxExpCategory_TheatreMode_Scale.add_MouseHover({ $ShowHelp.Invoke($_) })
+$labelExpCategory_TheatreMode_Curvature.add_MouseHover({ $ShowHelp.Invoke($_) })
 $textboxExpCategory_TheatreMode_Curvature.add_MouseHover({ $ShowHelp.Invoke($_) })
 $textboxExpCategory_TheatreMode_Distance.add_MouseHover({ $ShowHelp.Invoke($_) })
 #$textboxExpCategory_UserSettings_StereoScaleformDepth.add_MouseHover({ $ShowHelp.Invoke($_) })
@@ -1041,6 +1043,7 @@ $ShowHelp={
         "HmdVisorHeight" {$tip = "Vertical Offset of Helmet overlay."}
         "HmdVisorScale" {$tip = "Helmet overlay overall scale"}
         "HmdTheaterModeScale" {$tip = "How large is the Theater Mode Window."}
+        "LabelHmdTheaterModeCurvature" {$tip = "[META QUEST Only] How much curve the Theater Mode Window has."}
         "HmdTheaterModeCurvature" {$tip = "[META QUEST Only] How much curve the Theater Mode Window has."}
         "HmdTheaterModeDistance" {$tip = "Focus depth of the Theater Window."}
         "HmdIPDScale" {$tip = "Interpupillary Distance Modifier."}
