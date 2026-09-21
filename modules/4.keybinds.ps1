@@ -451,23 +451,21 @@ function Populate-KeyBindsViewer {      #first load of the page only.
 # Search logic: filter all tabs' treeviews
 $keybindSearchField.Add_TextChanged({
     $searchText = $keybindSearchField.Text
-    foreach ($tree in @($treeKeybinds_ActionMaps, $treeKeybinds_Device, $treeKeybinds_Options)) {
+    foreach ($tree in @($treeKeybinds_ActionMaps, $treeKeybinds_Device, $treeKeybinds_Defaults, $treeKeybinds_Options)) {
         $tree.BeginUpdate()
         $tree.Nodes.Clear()
     }
-    # search result formatting
+    # Search result formatting
     if (![string]::IsNullOrWhiteSpace($searchText) -and $searchText -ne "Search Keybinds") {
         # ActionMaps
-        $node = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
+        #$node = $treeKeybinds_ActionMaps.Nodes.Add("Rebinds: $($script:keyBindsProfiles.profileName)")
+        $node = $treeKeybinds_ActionMaps.Nodes.Add("Search Filter Active: $searchText")
         foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-            #$amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
             $amNode = $node.Nodes.Add("$($actionmap.name)")
             foreach ($action in $actionmap.action) {
-                if ($action.name -like "*$searchText*") {
-                    #$aNode = $amNode.Nodes.Add("Action: $($action.name)")
+                if ($action.name -like "*$searchText*" -or $action."@name" -like "*$searchText*") {
                     $aNode = $amNode.Nodes.Add("$($action.name)")
                     foreach ($rebind in $action.rebind) {
-                        #$aNode.Nodes.Add("Rebind: $($rebind.input)") | Out-Null
                         $aNode.Nodes.Add("$($rebind.input)") | Out-Null
                     }
                 }
@@ -477,11 +475,45 @@ $keybindSearchField.Add_TextChanged({
         $dnode = $treeKeybinds_Device.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             if ($devopt.name -like "*$searchText*") {
-                #$devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
                 $devNode = $dnode.Nodes.Add("$($devopt.name)")
                 foreach ($opt in $devopt.option) {
-                    #$devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
                     $devNode.Nodes.Add("$($opt.input) = $($opt.saturation)$($opt.deadzone)")
+                }
+            }
+        }
+        # Defaults
+        $dNode = $treeKeybinds_Defaults.Nodes.Add("Search Filter Active: $searchText $($script:defaultProfile.profileName)")
+        foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
+            $amNode = $dNode.Nodes.Add("$($actionmap.'@name')")
+            foreach ($action in $actionmap.action) {
+                if ($action."@name" -like "*$searchText*" -or $action.'keyboard' -like "*$searchText*" -or $action.'gamepad' -like "*$searchText*" -or $action.'joystick' -like "*$searchText*" -or $action.'mouse' -like "*$searchText*" -or $action.'@name' -like "*$searchText*") {
+                    $aNode = $amNode.Nodes.Add("$($action.'@name')")
+                    if ($null -ne $action.'keyboard' -and [string]::IsNullOrWhiteSpace($action.'keyboard') -eq $false) {
+                        $aNode.Nodes.Add("Keyboard: $($action.'keyboard')") | Out-Null
+                    }
+                    if ($null -ne $action.'gamepad' -and [string]::IsNullOrWhiteSpace($action.'gamepad') -eq $false) {
+                        $aNode.Nodes.Add("Gamepad: $($action.'gamepad')") | Out-Null
+                    }
+                    if ($null -ne $action.'joystick' -and [string]::IsNullOrWhiteSpace($action.'joystick') -eq $false) {
+                        $aNode.Nodes.Add("Joystick: $($action.'joystick')") | Out-Null
+                    }
+                    if ($null -ne $action.'mouse' -and [string]::IsNullOrWhiteSpace($action.'mouse') -eq $false) {
+                        $aNode.Nodes.Add("Mouse: $($action.'mouse')") | Out-Null
+                    }
+                    if ($action.default) {
+                        foreach ($default in $action.default) {
+                            if ($null -ne $default."@input" -and [string]::IsNullOrWhiteSpace($default."@input") -eq $false) {
+                                $aNode.Nodes.Add("$($default.'@input')") | Out-Null
+                            }
+                        }
+                    }
+                    if ($action.mapping) {
+                        foreach ($mapping in $action.mapping) {
+                            if ($null -ne $mapping."@input" -and [string]::IsNullOrWhiteSpace($mapping."@input") -eq $false) {
+                                $aNode.Nodes.Add("$($mapping.'@input')") | Out-Null
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -489,7 +521,6 @@ $keybindSearchField.Add_TextChanged({
         $onode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($opt in $script:keyBindsProfiles.options) {
             if ($opt.type -like "*$searchText*" -or $opt.Product -like "*$searchText*") {
-                #$optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
                 $optNode = $onode.Nodes.Add("$($opt.type) $($opt.Product)")
                 foreach ($child in $opt.ChildNodes) {
                     $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
@@ -501,13 +532,10 @@ $keybindSearchField.Add_TextChanged({
         # ActionMaps
         $node = $treeKeybinds_ActionMaps.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($actionmap in $script:keyBindsProfiles.actionmap) {
-            #$amNode = $node.Nodes.Add("ActionMap: $($actionmap.name)")
             $amNode = $node.Nodes.Add("$($actionmap.name)")
             foreach ($action in $actionmap.action) {
-                #$aNode = $amNode.Nodes.Add("Action: $($action.name)")
                 $aNode = $amNode.Nodes.Add("$($action.name)")
                 foreach ($rebind in $action.rebind) {
-                    #$aNode.Nodes.Add("KeyBind: $($rebind.input)") | Out-Null
                     $aNode.Nodes.Add("$($rebind.input)") | Out-Null
                 }
             }
@@ -517,21 +545,54 @@ $keybindSearchField.Add_TextChanged({
         foreach ($devopt in $script:keyBindsProfiles.deviceoptions) {
             $devNode = $dnode.Nodes.Add("Device: $($devopt.name)")
             foreach ($opt in $devopt.option) {
-                #$devNode.Nodes.Add("Option: $($opt.input) = $($opt.saturation)$($opt.deadzone)")
                 $devNode.Nodes.Add("$($opt.input) = $($opt.saturation)$($opt.deadzone)")
+            }
+        }
+        # Defaults
+        #$dNode = $treeKeybinds_Defaults.Nodes.Add("Profile: $($script:defaultProfile.profileName)")
+        $dNode = $treeKeybinds_Defaults.Nodes.Add("Default Binds")
+        foreach ($actionmap in $script:defaultActionMapsJson.actionmap) {
+            $amNode = $dNode.Nodes.Add("$($actionmap.'@name')")
+            foreach ($action in $actionmap.action) {
+                $aNode = $amNode.Nodes.Add("$($action.'@name')")
+                if ($null -ne $action.'keyboard' -and [string]::IsNullOrWhiteSpace($action.'keyboard') -eq $false) {
+                    $aNode.Nodes.Add("Keyboard: $($action.'keyboard')") | Out-Null
+                }
+                if ($null -ne $action.'gamepad' -and [string]::IsNullOrWhiteSpace($action.'gamepad') -eq $false) {
+                    $aNode.Nodes.Add("Gamepad: $($action.'gamepad')") | Out-Null
+                }
+                if ($null -ne $action.'joystick' -and [string]::IsNullOrWhiteSpace($action.'joystick') -eq $false) {
+                    $aNode.Nodes.Add("Joystick: $($action.'joystick')") | Out-Null
+                }
+                if ($null -ne $action.'mouse' -and [string]::IsNullOrWhiteSpace($action.'mouse') -eq $false) {
+                    $aNode.Nodes.Add("Mouse: $($action.'mouse')") | Out-Null
+                }
+                if ($action.default) {
+                    foreach ($default in $action.default) {
+                        if ($null -ne $default."@input" -and [string]::IsNullOrWhiteSpace($default."@input") -eq $false) {
+                            $aNode.Nodes.Add("$($default.'@input')") | Out-Null
+                        }
+                    }
+                }
+                if ($action.mapping) {
+                    foreach ($mapping in $action.mapping) {
+                        if ($null -ne $mapping."@input" -and [string]::IsNullOrWhiteSpace($mapping."@input") -eq $false) {
+                            $aNode.Nodes.Add("$($mapping.'@input')") | Out-Null
+                        }
+                    }
+                }
             }
         }
         # Options
         $onode = $treeKeybinds_Options.Nodes.Add("Profile: $($script:keyBindsProfiles.profileName)")
         foreach ($opt in $script:keyBindsProfiles.options) {
-            #$optNode = $onode.Nodes.Add("Options: $($opt.type) $($opt.Product)")
             $optNode = $onode.Nodes.Add("$($opt.type) $($opt.Product)")
             foreach ($child in $opt.ChildNodes) {
                 $optNode.Nodes.Add("$($child.Name): $($child.OuterXml)") | Out-Null
             }
         }
     }
-    foreach ($tree in @($treeKeybinds_ActionMaps, $treeKeybinds_Device, $treeKeybinds_Options)) {
+    foreach ($tree in @($treeKeybinds_ActionMaps, $treeKeybinds_Device, $treeKeybinds_Defaults, $treeKeybinds_Options)) {
         $tree.EndUpdate()
     }
 })

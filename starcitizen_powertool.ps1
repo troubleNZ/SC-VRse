@@ -9,7 +9,7 @@
               ███    ███  SC/VR Powertools - Attribute Editor  Author: @troublenz
 #>
 
-$scriptVersion = "0.5.17" # 0.5.17 ~ enhanced visibility of rebinds and default keybinds
+$scriptVersion = "0.5.18" # 0.5.18 ~ 'default keybind' search results parent container label fix
 
 $scbuild = "4.10.1"
 $branch = "LIVE"             # PTU , LIVE, HOTFIX etc
